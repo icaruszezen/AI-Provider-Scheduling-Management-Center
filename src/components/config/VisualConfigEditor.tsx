@@ -1043,7 +1043,7 @@ export function VisualConfigEditor({
                       <FieldAnchor fieldId="rmPanelRepo">
                         <Input
                           label={t('config_management.visual.sections.remote.panel_repo')}
-                          placeholder="https://github.com/router-for-me/Cli-Proxy-API-Management-Center"
+                          placeholder="https://github.com/icaruszezen/Cli-Proxy-API-Management-Center-x"
                           value={values.rmPanelRepo}
                           onChange={(e) => onChange({ rmPanelRepo: e.target.value })}
                           disabled={disabled}
