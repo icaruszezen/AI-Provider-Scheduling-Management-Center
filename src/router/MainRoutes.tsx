@@ -10,6 +10,7 @@ import { PluginResourcePage } from '@/features/plugins/PluginResourcePage';
 import { PluginsPage } from '@/features/plugins/PluginsPage';
 import { PluginStorePage } from '@/features/plugins/PluginStorePage';
 import { ConfigPage } from '@/features/config/ConfigPage';
+import { ClusterPage } from '@/features/cluster/ClusterPage';
 import { LogsPage } from '@/pages/LogsPage';
 import { SystemPage } from '@/pages/SystemPage';
 import { useAuthStore } from '@/stores';
@@ -41,6 +42,7 @@ const createMainRoutes = (supportsPlugin: boolean) => [
         { path: '/plugin-store', element: <Navigate to="/" replace /> },
       ]),
   { path: '/config', element: <ConfigPage /> },
+  { path: '/cluster', element: <ClusterPage /> },
   { path: '/logs', element: <LogsPage /> },
   { path: '/system', element: <SystemPage /> },
   { path: '*', element: <Navigate to="/" replace /> },

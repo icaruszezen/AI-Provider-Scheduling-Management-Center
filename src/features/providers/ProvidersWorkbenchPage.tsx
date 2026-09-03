@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { usePageTransitionLayer } from '@/components/common/PageTransitionLayer';
 import { useHeaderRefresh } from '@/hooks/useHeaderRefresh';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { SlaveSyncBanner } from '@/components/cluster/SlaveSyncBanner';
+import { useSlaveReadonly } from '@/hooks/useSlaveReadonly';
 import { useAuthStore, useNotificationStore } from '@/stores';
 import { useProviderRecentRequests } from '@/components/providers/hooks/useProviderRecentRequests';
 import {
@@ -126,7 +128,9 @@ export function ProvidersWorkbenchPage({ fixedBrand }: ProvidersWorkbenchPagePro
 
   useHeaderRefresh(handleRefresh, isCurrentLayer);
 
+  const slaveReadonly = useSlaveReadonly();
   const disableMutations =
+    slaveReadonly ||
     connectionStatus !== 'connected' ||
     workbench.mutating ||
     workbench.isFetching ||
@@ -408,6 +412,7 @@ export function ProvidersWorkbenchPage({ fixedBrand }: ProvidersWorkbenchPagePro
 
   return (
     <div className={styles.page}>
+      {slaveReadonly ? <SlaveSyncBanner /> : null}
       <ProviderHeaderCard
         title={headerTitle}
         totalActive={totalActive}

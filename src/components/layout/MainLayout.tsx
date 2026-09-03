@@ -29,6 +29,7 @@ import {
   IconSidebarQuota,
   IconSidebarStore,
   IconSidebarSystem,
+  IconModelCluster,
   IconChevronDown,
 } from '@/components/ui/icons';
 import { INLINE_LOGO_JPEG } from '@/assets/logoInline';
@@ -65,6 +66,7 @@ const sidebarIcons: Record<string, ReactNode> = {
   config: <IconSidebarConfig size={18} />,
   logs: <IconSidebarLogs size={18} />,
   system: <IconSidebarSystem size={18} />,
+  cluster: <IconModelCluster size={18} />,
 };
 
 interface SidebarNavLinkItem {
@@ -663,6 +665,12 @@ export function MainLayout() {
           labelKey: 'nav.config_management',
           metaKey: 'nav_meta.config_management',
           icon: sidebarIcons.config,
+        },
+        {
+          path: '/cluster',
+          labelKey: 'nav.cluster',
+          metaKey: 'nav_meta.cluster',
+          icon: sidebarIcons.cluster,
         },
         ...(supportsPlugin
           ? [

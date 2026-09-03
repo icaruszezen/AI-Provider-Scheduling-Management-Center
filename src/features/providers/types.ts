@@ -178,6 +178,8 @@ export interface SponsorKeyEntryInput {
   prefix: string;
   disabled: boolean;
   disableCooling?: boolean;
+  providerRetryCount?: number;
+  providerRetryStatusCodesText?: string;
   priority?: number;
   weight?: number;
   models: ModelEntryInput[];
@@ -208,6 +210,8 @@ export interface ProviderEntryFormInput {
   prefix: string;
   disabled: boolean;
   disableCooling?: boolean;
+  providerRetryCount?: number;
+  providerRetryStatusCodesText?: string;
   priority?: number;
   weight?: number;
 

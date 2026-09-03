@@ -105,6 +105,7 @@
     "plugins": "Plugins",
     "plugin_store": "Plugin Store",
     "config_management": "Config Panel",
+    "cluster": "Cluster Nodes",
     "logs": "Logs Viewer",
     "system_info": "Management Center Info"
   },
@@ -126,7 +127,52 @@
     "plugin_store": "Discover & install plugins",
     "logs": "Request tracing",
     "config_management": "Gateway configuration",
+    "cluster": "Master/slave config sync",
     "system_info": "Runtime & diagnostics"
+  },
+  "cluster": {
+    "title": "Cluster Nodes",
+    "subtitle": "Sync providers and settings from a master node. Auth files stay on each node.",
+    "local_settings": "This node",
+    "slave_status": "Sync status",
+    "nodes_title": "Registered slaves",
+    "nodes_empty": "No slave nodes have registered yet.",
+    "role": "Role",
+    "role_standalone": "Standalone",
+    "role_master": "Master",
+    "role_slave": "Slave",
+    "token": "Cluster token",
+    "token_placeholder": "Shared secret used by master and slaves",
+    "token_configured": "Token is set. Enter a new value to replace it.",
+    "node_id": "Node ID",
+    "applied_hash": "Applied config hash",
+    "master_url": "Master URL",
+    "advertise_url": "Advertise URL",
+    "last_sync": "Last sync",
+    "sync_interval": "Pull interval (seconds)",
+    "heartbeat_interval": "Heartbeat interval (seconds)",
+    "interval_hint": "Leave empty for the default. Minimum {{min}} seconds.",
+    "interval_invalid": "Intervals must be whole seconds, at least {{min}}, or empty for the default.",
+    "status_unknown": "Cluster status could not be loaded, so the role shown may be out of date.",
+    "sync_now": "Sync now",
+    "sync_started": "Push started",
+    "sync_partial": "Push finished, but {{failed}} node(s) failed. See the node list for details.",
+    "readonly": "This node is a slave: its config is synced from the master and cannot be edited here.",
+    "save_success": "Cluster settings saved",
+    "remove_node_title": "Remove slave",
+    "remove_node_message": "Remove {{id}} from the master roster?",
+    "remove_success": "Node removed",
+    "slave_banner": "This node is a slave. Providers and synced settings are read-only; auth files stay local.",
+    "col_node": "Node",
+    "col_url": "URL",
+    "col_version": "Version",
+    "col_hash": "Hash",
+    "col_auths": "Auth files",
+    "col_seen": "Last seen",
+    "col_status": "Status",
+    "status_online": "Online",
+    "status_stale": "Stale",
+    "status_error": "Error"
   },
   "dashboard": {
     "hero_verdict_good": "All systems steady",
@@ -929,6 +975,16 @@
           "secret_key_placeholder": "Set management key",
           "panel_repo": "Panel Repository"
         },
+        "cluster": {
+          "title": "Cluster Sync",
+          "description": "Master/slave config sync. Auth files stay local. host/port/management stay local.",
+          "role": "Node Role",
+          "token": "Cluster Token",
+          "master_url": "Master URL",
+          "advertise_url": "Advertise URL",
+          "sync_interval": "Pull Interval (seconds)",
+          "heartbeat_interval": "Heartbeat Interval (seconds)"
+        },
         "auth": {
           "auth_dir": "Auth Directory (auth-dir)",
           "auth_dir_hint": "Directory path for authentication files (supports ~)"
@@ -1556,7 +1612,7 @@
         "codex": "Writes to the Codex API config models. Fetch from /v1/models and set aliases if needed.",
         "anthropic": "Writes to the Anthropic config models. Fetch from /v1/models and set aliases if needed.",
         "gemini": "Writes to the Gemini config models. Fetch from /v1beta/models and set aliases if needed.",
-        "openai": "Writes to the OpenAI-compatible config models. Fetch from /models and set aliases if needed."
+        "openai": "Writes to the OpenAI-compatible config models. Fetch from /models or /v1/models and set aliases if needed."
       },
       "validation": {
         "keyRequired": "Enter an API key for every grouped key.",
@@ -1635,6 +1691,10 @@
       "hideApiKey": "Hide API key",
       "disableCooling": "Disable cooling",
       "disableCoolingHint": "Disable failure cooldown windows only for this credential or provider",
+      "providerRetryCount": "Same-provider retries",
+      "providerRetryCountHint": "Retry this credential right away on matching status codes before failing over, with no wait between attempts. 0 or empty disables same-credential retry. Maximum {{max}}.",
+      "providerRetryStatusCodes": "Retry status codes",
+      "providerRetryStatusCodesHint": "Comma- or space-separated HTTP status codes. Clearing this field removes the override and falls back to the default ({{default}}).",
       "modelImage": "Allow image endpoints",
       "modelImageHint": "Allow this model on /v1/images/generations and /v1/images/edits",
       "showAllEntries": "Show all ({{count}})",
@@ -1665,7 +1725,9 @@
         "apiKeyRequired": "At least one API key is required",
         "baseUrlRequired": "Base URL is required",
         "weightInteger": "Scheduling weight must be an integer",
-        "weightMax": "Scheduling weight cannot exceed {{max}}"
+        "weightMax": "Scheduling weight cannot exceed {{max}}",
+        "providerRetryCount": "Same-provider retries must be an integer from 0 to {{max}}",
+        "providerRetryStatusCodes": "Retry status codes must be HTTP status codes from 100 to 599, separated by commas or spaces"
       }
     },
     "delete": {

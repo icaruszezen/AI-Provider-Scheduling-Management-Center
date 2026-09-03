@@ -43,6 +43,11 @@ const buildV1ModelsEndpoint = (baseUrl: string): string => {
   return `${trimmed}/v1/models`;
 };
 
+const uniqueModelEndpoints = (baseUrl: string): string[] => {
+  const endpoints = [buildModelsEndpoint(baseUrl), buildV1ModelsEndpoint(baseUrl)].filter(Boolean);
+  return [...new Set(endpoints)];
+};
+
 const buildClaudeModelsEndpoint = (baseUrl: string): string => {
   const normalized = normalizeApiBase(baseUrl);
   const fallback = normalized || DEFAULT_CLAUDE_BASE_URL;
@@ -142,7 +147,9 @@ export const modelsApi = {
   },
 
   /**
-   * Fetch models from /models endpoint via api-call (for OpenAI provider discovery)
+   * Fetch models from /models via api-call (for OpenAI provider discovery).
+   * Host-root OpenAI-compatible servers (including another CPA) often expose
+   * only /v1/models, so a 404 on /models retries that versioned path.
    */
   async fetchModelsViaApiCall(
     baseUrl: string,
@@ -150,8 +157,8 @@ export const modelsApi = {
     headers: Record<string, string> = {},
     authIndex?: string
   ) {
-    const endpoint = buildModelsEndpoint(baseUrl);
-    if (!endpoint) {
+    const endpoints = uniqueModelEndpoints(baseUrl);
+    if (!endpoints.length) {
       throw new Error('Invalid base url');
     }
 
@@ -163,19 +170,27 @@ export const modelsApi = {
       resolvedHeaders.Authorization = 'Bearer $TOKEN$';
     }
 
-    const result = await apiCallApi.request({
-      authIndex: trimmedAuthIndex,
-      method: 'GET',
-      url: endpoint,
-      header: Object.keys(resolvedHeaders).length ? resolvedHeaders : undefined,
-    });
+    let lastError: Error | undefined;
+    for (const endpoint of endpoints) {
+      const result = await apiCallApi.request({
+        authIndex: trimmedAuthIndex,
+        method: 'GET',
+        url: endpoint,
+        header: Object.keys(resolvedHeaders).length ? resolvedHeaders : undefined,
+      });
 
-    if (result.statusCode < 200 || result.statusCode >= 300) {
-      throw new Error(getApiCallErrorMessage(result));
+      if (result.statusCode >= 200 && result.statusCode < 300) {
+        const payload = result.body ?? result.bodyText;
+        return normalizeModelList(payload, { dedupe: true });
+      }
+
+      lastError = new Error(getApiCallErrorMessage(result));
+      if (result.statusCode !== 404) {
+        throw lastError;
+      }
     }
 
-    const payload = result.body ?? result.bodyText;
-    return normalizeModelList(payload, { dedupe: true });
+    throw lastError ?? new Error('Failed to fetch models');
   },
 
   /**

@@ -1,0 +1,9 @@
+.banner {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--warning, #d97706) 45%, var(--border-color));
+  background: color-mix(in srgb, var(--warning, #d97706) 12%, transparent);
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.45;
+}

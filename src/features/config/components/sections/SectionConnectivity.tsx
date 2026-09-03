@@ -1,12 +1,21 @@
 import { useTranslation } from 'react-i18next';
 import { Collapsible } from '@/components/ui/Collapsible';
 import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import { CONFIG_TAB_ICONS, SECTION_INDEX_LABELS } from '../../constants';
 import type { ConfigSectionProps } from '../../types';
 import { SectionCard } from '../SectionCard';
-import { Divider, FieldAnchor, FieldGrid, FieldStack, ToggleRow } from '../fields/FieldPrimitives';
+import {
+  Divider,
+  FieldAnchor,
+  FieldGrid,
+  FieldShell,
+  FieldStack,
+  ToggleRow,
+} from '../fields/FieldPrimitives';
 import { ApiKeysField, HostField, PortField } from '../fields/sharedFields';
 import { getValidationMessage } from '../blocks/shared';
+import { useClusterStore } from '@/stores';
 
 const Icon = CONFIG_TAB_ICONS.connectivity;
 
@@ -19,6 +28,9 @@ export function SectionConnectivity({
   onChange,
 }: ConfigSectionProps) {
   const { t } = useTranslation();
+  // The stored token is never loaded into the form, so the placeholder is the
+  // only signal that one is already configured.
+  const clusterTokenConfigured = useClusterStore((state) => state.status?.token_configured);
   const portError = getValidationMessage(t, validationErrors?.port);
 
   return (
@@ -146,6 +158,78 @@ export function SectionConnectivity({
                   placeholder="https://github.com/icaruszezen/Cli-Proxy-API-Management-Center-x"
                   value={values.rmPanelRepo}
                   onChange={(e) => onChange({ rmPanelRepo: e.target.value })}
+                  disabled={disabled}
+                />
+              </FieldAnchor>
+            </FieldGrid>
+          </FieldStack>
+        </Collapsible>
+
+        <Collapsible
+          label={t('config_management.visual.sections.cluster.title')}
+          hint={t('config_management.visual.sections.cluster.description')}
+          defaultOpen={false}
+        >
+          <FieldStack>
+            <FieldAnchor fieldId="clusterRole">
+              <FieldShell label={t('config_management.visual.sections.cluster.role')}>
+                <Select
+                  value={values.clusterRole || 'standalone'}
+                  options={[
+                    { value: 'standalone', label: t('cluster.role_standalone') },
+                    { value: 'master', label: t('cluster.role_master') },
+                    { value: 'slave', label: t('cluster.role_slave') },
+                  ]}
+                  onChange={(clusterRole) => onChange({ clusterRole })}
+                  disabled={disabled}
+                  fullWidth
+                />
+              </FieldShell>
+            </FieldAnchor>
+            <FieldGrid>
+              <FieldAnchor fieldId="clusterToken">
+                <Input
+                  label={t('config_management.visual.sections.cluster.token')}
+                  type="password"
+                  value={values.clusterToken}
+                  placeholder={t(
+                    clusterTokenConfigured ? 'cluster.token_configured' : 'cluster.token_placeholder'
+                  )}
+                  onChange={(e) => onChange({ clusterToken: e.target.value })}
+                  disabled={disabled}
+                />
+              </FieldAnchor>
+              <FieldAnchor fieldId="clusterMasterUrl">
+                <Input
+                  label={t('config_management.visual.sections.cluster.master_url')}
+                  placeholder="http://192.168.1.10:8317"
+                  value={values.clusterMasterUrl}
+                  onChange={(e) => onChange({ clusterMasterUrl: e.target.value })}
+                  disabled={disabled}
+                />
+              </FieldAnchor>
+              <FieldAnchor fieldId="clusterAdvertiseUrl">
+                <Input
+                  label={t('config_management.visual.sections.cluster.advertise_url')}
+                  placeholder="http://192.168.1.20:8317"
+                  value={values.clusterAdvertiseUrl}
+                  onChange={(e) => onChange({ clusterAdvertiseUrl: e.target.value })}
+                  disabled={disabled}
+                />
+              </FieldAnchor>
+              <FieldAnchor fieldId="clusterSyncInterval">
+                <Input
+                  label={t('config_management.visual.sections.cluster.sync_interval')}
+                  value={values.clusterSyncInterval}
+                  onChange={(e) => onChange({ clusterSyncInterval: e.target.value })}
+                  disabled={disabled}
+                />
+              </FieldAnchor>
+              <FieldAnchor fieldId="clusterHeartbeatInterval">
+                <Input
+                  label={t('config_management.visual.sections.cluster.heartbeat_interval')}
+                  value={values.clusterHeartbeatInterval}
+                  onChange={(e) => onChange({ clusterHeartbeatInterval: e.target.value })}
                   disabled={disabled}
                 />
               </FieldAnchor>

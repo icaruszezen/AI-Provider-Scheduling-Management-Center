@@ -38,8 +38,14 @@ import { ModelEntriesEditor } from './ModelEntriesEditor';
 import styles from './sharedForm.module.scss';
 import { CLAUDE_API_BASE_URL } from '../../claudeApi';
 import { MAX_CREDENTIAL_WEIGHT } from '@/utils/credentialWeight';
+import {
+  formatProviderRetryStatusCodes,
+  MAX_PROVIDER_RETRY_COUNT,
+  providerRetryStatusCodesInputIsValid,
+} from '@/utils/providerRetry';
+import { ProviderRetryFields } from './ProviderRetryFields';
 
-/** 模块级常量，免得每次渲染都给 picker 一个新数组引用。 */
+/** ?�????�??�?�??�?�???�??�?��? picker �??�?��?��?�?�?��??*/
 const DISABLE_ALL_RULES = [DISABLE_ALL_RULE];
 
 interface BaseProviderFormProps {
@@ -107,6 +113,8 @@ function buildInitialForm(
           ? ''
           : undefined,
       apiKeyEntries: brand === 'openaiCompatibility' ? [emptyApiKeyEntry()] : undefined,
+      providerRetryCount: undefined,
+      providerRetryStatusCodesText: '',
     };
   }
 
@@ -138,6 +146,8 @@ function buildInitialForm(
         : [emptyHeader()],
       excludedModelsText: '',
       testModel: cfg.testModel ?? '',
+      providerRetryCount: cfg.providerRetryCount ?? undefined,
+      providerRetryStatusCodesText: formatProviderRetryStatusCodes(cfg.providerRetryStatusCodes),
       apiKeyEntries: cfg.apiKeyEntries?.length
         ? cfg.apiKeyEntries.map((entry) => ({
             apiKey: '',
@@ -165,6 +175,8 @@ function buildInitialForm(
     prefix: cfg.prefix ?? '',
     disabled,
     disableCooling: cfg.disableCooling === true,
+    providerRetryCount: cfg.providerRetryCount ?? undefined,
+    providerRetryStatusCodesText: formatProviderRetryStatusCodes(cfg.providerRetryStatusCodes),
     priority: cfg.priority,
     weight: cfg.weight,
     models: cfg.models?.length
@@ -411,6 +423,19 @@ export function BaseProviderForm({
     if (weights.some((weight) => weight !== undefined && weight > MAX_CREDENTIAL_WEIGHT)) {
       return t('providersPage.form.validation.weightMax', { max: MAX_CREDENTIAL_WEIGHT });
     }
+    if (
+      form.providerRetryCount !== undefined &&
+      (!Number.isSafeInteger(form.providerRetryCount) ||
+        form.providerRetryCount < 0 ||
+        form.providerRetryCount > MAX_PROVIDER_RETRY_COUNT)
+    ) {
+      return t('providersPage.form.validation.providerRetryCount', {
+        max: MAX_PROVIDER_RETRY_COUNT,
+      });
+    }
+    if (!providerRetryStatusCodesInputIsValid(form.providerRetryStatusCodesText ?? '')) {
+      return t('providersPage.form.validation.providerRetryStatusCodes');
+    }
     return null;
   };
 
@@ -450,11 +475,11 @@ export function BaseProviderForm({
     [form.excludedModelsText]
   );
   /**
-   * 候选目录 = discovery 发现的模型 ∪ 表单里已配置的模型名。
+   * �??�??�?��?= discovery �??�?��???�??�???�??�???�???�???�??�??�??
    *
-   * 两者都可能为空——`vertex` 支持排除模型却不在 MODEL_DISCOVERY_BRANDS 里，永远没有
-   * discovery；其余 brand 在用户手动跑一次发现之前也没有。因此**无目录是常态**，
-   * picker 必须能在没有目录时退化成纯规则编辑器。
+   * ?�??�?��?��?�??�??�??`vertex` �?��??�??�?�?�??�?��?�??MODEL_DISCOVERY_BRANDS �??�??�??�??
+   * discovery�?�?��?brand �?��?��?��??�?��?�??�??�?��?�??�??�??�??�?��?*�?��?��?�?�?�??*�?
+   * picker �??�?��?�?�??�?��?�?��??�??�???�?�??�?�?�?��??
    */
   const excludedCandidates = useMemo(() => {
     const byKey = new Map<string, { id: string; displayName?: string }>();
@@ -511,7 +536,7 @@ export function BaseProviderForm({
 
   return (
     <form id={formId} className={styles.form} onSubmit={handleSubmit} noValidate>
-      {/* 基础字段 */}
+      {/* �?��?�?? */}
       <div className={styles.section}>
         {descriptor.supportsName ? (
           <div className={styles.field}>
@@ -580,7 +605,7 @@ export function BaseProviderForm({
               {descriptor.baseUrlRequired ? (
                 <span className={styles.labelHint}>
                   {' '}
-                  · {t('providersPage.form.baseUrlRequiredHint')}
+                  � {t('providersPage.form.baseUrlRequiredHint')}
                 </span>
               ) : null}
             </label>
@@ -681,7 +706,7 @@ export function BaseProviderForm({
               brand === 'interactions' ? (
                 <span className={styles.labelHint}>
                   {' '}
-                  · {t('providersPage.form.testModelClaudeHint')}
+                  � {t('providersPage.form.testModelClaudeHint')}
                 </span>
               ) : null}
             </label>
@@ -768,9 +793,17 @@ export function BaseProviderForm({
             </span>
           </label>
         ) : null}
+
+        <ProviderRetryFields
+          count={form.providerRetryCount}
+          statusCodesText={form.providerRetryStatusCodesText}
+          mutating={mutating}
+          onCountChange={(value) => updateField('providerRetryCount', value)}
+          onStatusCodesChange={(value) => updateField('providerRetryStatusCodesText', value)}
+        />
       </div>
 
-      {/* 高级折叠区 */}
+      {/* �??�??�?��??*/}
       {descriptor.supportsApiKeyEntries && form.apiKeyEntries ? (
         <Collapsible
           label={t('providersPage.form.apiKeyEntriesSection')}
@@ -928,8 +961,8 @@ export function BaseProviderForm({
               catalogState={excludedCatalogState}
               onRetryCatalog={discovery.available ? () => void discovery.fetch() : undefined}
               disabled={mutating}
-              // `'*'` = 该 provider 已停用，唯一所有者是下面的 Disabled 开关。
-              // 传进来后 picker 双向过滤它，用户手打 `*` 也会被拦下并解释原因。
+              // `'*'` = �?provider ?�??�?��?�?��?�??�??�??�?��?�?��??Disabled �?�?��??
+              // ?�?�?��?? picker �??�??�??�?�?�?��?��??�?? `*` �?�??�?��???�??�??�?��??
               reservedRules={DISABLE_ALL_RULES}
               reservedRuleMessage={t('providersPage.form.excludedDisabledNote')}
             />

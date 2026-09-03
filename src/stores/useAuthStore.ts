@@ -12,6 +12,7 @@ import { apiClient } from '@/services/api/client';
 import { useConfigStore } from './useConfigStore';
 import { useModelsStore } from './useModelsStore';
 import { useQuotaStore } from './useQuotaStore';
+import { useClusterStore } from './useClusterStore';
 import { detectApiBaseFromLocation, normalizeApiBase } from '@/utils/connection';
 
 interface AuthStoreState extends AuthState {
@@ -104,6 +105,7 @@ export const useAuthStore = create<AuthStoreState>()(
           });
           useModelsStore.getState().clearCache();
           useQuotaStore.getState().clearQuotaCache();
+          useClusterStore.getState().clear();
 
           // 配置 API 客户端
           apiClient.setConfig({
@@ -113,6 +115,7 @@ export const useAuthStore = create<AuthStoreState>()(
 
           // 测试连接 - 获取配置
           await useConfigStore.getState().fetchConfig(true);
+          await useClusterStore.getState().fetchStatus(true);
 
           // 登录成功
           set({
@@ -139,6 +142,7 @@ export const useAuthStore = create<AuthStoreState>()(
         useConfigStore.getState().clearCache();
         useModelsStore.getState().clearCache();
         useQuotaStore.getState().clearQuotaCache();
+        useClusterStore.getState().clear();
         set({
           isAuthenticated: false,
           apiBase: '',
@@ -166,6 +170,7 @@ export const useAuthStore = create<AuthStoreState>()(
 
           // 验证连接
           await useConfigStore.getState().fetchConfig();
+          await useClusterStore.getState().fetchStatus(true);
 
           set({
             isAuthenticated: true,

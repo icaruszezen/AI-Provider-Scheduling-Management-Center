@@ -10,6 +10,39 @@ import type { Config } from '@/types/config';
 import { buildHeaderObject } from '@/utils/headers';
 import { isRecord } from '@/utils/helpers';
 import { readCredentialWeight } from '@/utils/credentialWeight';
+import {
+  normalizeProviderRetryCount,
+  normalizeProviderRetryStatusCodes,
+} from '@/utils/providerRetry';
+
+const applyProviderRetryFields = <
+  T extends {
+    providerRetryCount?: number | null;
+    providerRetryStatusCodes?: number[] | null;
+  },
+>(
+  record: Record<string, unknown> | null,
+  config: T
+): T => {
+  if (!record) return config;
+  const count = normalizeProviderRetryCount(record['provider-retry-count']);
+  if (count !== undefined) {
+    config.providerRetryCount = count;
+  }
+  const codes = normalizeProviderRetryStatusCodes(record['provider-retry-status-codes']);
+  if (codes === undefined) {
+    return config;
+  }
+  if (codes.length === 0) {
+    // An empty list matches no response, so this credential never retries in
+    // place. Surface that as a zero retry count: an empty status-code box reads
+    // back as "use the defaults", which would silently turn retries back on.
+    config.providerRetryCount = 0;
+    return config;
+  }
+  config.providerRetryStatusCodes = codes;
+  return config;
+};
 
 const normalizeBoolean = (value: unknown): boolean | undefined =>
   typeof value === 'boolean' ? value : undefined;
@@ -157,6 +190,7 @@ const normalizeProviderKeyConfig = (item: unknown): ProviderKeyConfig | null => 
   if (excludedModels.length) config.excludedModels = excludedModels;
   const authIndex = normalizeAuthIndex(record?.['auth-index']);
   if (authIndex) config.authIndex = authIndex;
+  applyProviderRetryFields(record, config);
 
   const cloakRaw = record?.cloak;
   if (isRecord(cloakRaw)) {
@@ -225,6 +259,7 @@ const normalizeGeminiKeyConfig = (item: unknown): GeminiKeyConfig | null => {
   if (excludedModels.length) config.excludedModels = excludedModels;
   const authIndex = normalizeAuthIndex(record?.['auth-index']);
   if (authIndex) config.authIndex = authIndex;
+  applyProviderRetryFields(record, config);
   return config;
 };
 
@@ -266,6 +301,7 @@ const normalizeOpenAIProvider = (
   if (testModel) result.testModel = String(testModel);
   const authIndex = normalizeAuthIndex(provider['auth-index']);
   if (authIndex) result.authIndex = authIndex;
+  applyProviderRetryFields(provider, result);
   if (sourceIndex !== undefined) result.sourceIndex = sourceIndex;
   return result;
 };

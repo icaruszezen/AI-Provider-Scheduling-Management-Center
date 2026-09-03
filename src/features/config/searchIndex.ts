@@ -117,6 +117,42 @@ export const CONFIG_FIELD_SEARCH_INDEX: ConfigFieldSearchEntry[] = [
     labelKey: L('sections.remote.panel_repo'),
     yamlKeys: ['remote-management', 'panel-github-repository'],
   },
+  {
+    fieldId: 'clusterRole',
+    sectionId: 'connectivity',
+    labelKey: L('sections.cluster.role'),
+    yamlKeys: ['cluster', 'role'],
+  },
+  {
+    fieldId: 'clusterToken',
+    sectionId: 'connectivity',
+    labelKey: L('sections.cluster.token'),
+    yamlKeys: ['cluster', 'token'],
+  },
+  {
+    fieldId: 'clusterMasterUrl',
+    sectionId: 'connectivity',
+    labelKey: L('sections.cluster.master_url'),
+    yamlKeys: ['cluster', 'master-url'],
+  },
+  {
+    fieldId: 'clusterAdvertiseUrl',
+    sectionId: 'connectivity',
+    labelKey: L('sections.cluster.advertise_url'),
+    yamlKeys: ['cluster', 'advertise-url'],
+  },
+  {
+    fieldId: 'clusterSyncInterval',
+    sectionId: 'connectivity',
+    labelKey: L('sections.cluster.sync_interval'),
+    yamlKeys: ['cluster', 'sync-interval-seconds'],
+  },
+  {
+    fieldId: 'clusterHeartbeatInterval',
+    sectionId: 'connectivity',
+    labelKey: L('sections.cluster.heartbeat_interval'),
+    yamlKeys: ['cluster', 'heartbeat-interval-seconds'],
+  },
   // ── network ───────────────────────────────────────────────────────────────
   {
     fieldId: 'proxyUrl',

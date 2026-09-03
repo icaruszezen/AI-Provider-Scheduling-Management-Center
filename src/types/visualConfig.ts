@@ -93,6 +93,13 @@ export type VisualConfigValues = {
   rmDisableControlPanel: boolean;
   rmDisableAutoUpdatePanel: boolean;
   rmPanelRepo: string;
+  clusterRole: string;
+  /** Always blank on load: the stored token is never echoed back into the form. */
+  clusterToken: string;
+  clusterMasterUrl: string;
+  clusterAdvertiseUrl: string;
+  clusterSyncInterval: string;
+  clusterHeartbeatInterval: string;
   authDir: string;
   apiKeysText: string;
   pluginsEnabled: boolean;
@@ -158,6 +165,12 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   rmDisableControlPanel: false,
   rmDisableAutoUpdatePanel: false,
   rmPanelRepo: '',
+  clusterRole: 'standalone',
+  clusterToken: '',
+  clusterMasterUrl: '',
+  clusterAdvertiseUrl: '',
+  clusterSyncInterval: '',
+  clusterHeartbeatInterval: '',
   authDir: '',
   apiKeysText: '',
   pluginsEnabled: false,

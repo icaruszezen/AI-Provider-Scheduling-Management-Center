@@ -105,6 +105,7 @@
     "plugins": "插件管理",
     "plugin_store": "插件商店",
     "config_management": "設定面板",
+    "cluster": "叢集節點",
     "logs": "記錄檢視",
     "system_info": "中心資訊"
   },
@@ -126,7 +127,52 @@
     "plugin_store": "探索並安裝插件",
     "logs": "請求追蹤與排查",
     "config_management": "閘道基礎設定",
+    "cluster": "主從設定同步",
     "system_info": "運行與診斷資訊"
+  },
+  "cluster": {
+    "title": "叢集節點",
+    "subtitle": "從主節點同步供應商與執行參數。帳號憑證檔案保留在各節點本地。",
+    "local_settings": "本節點",
+    "slave_status": "同步狀態",
+    "nodes_title": "已註冊從節點",
+    "nodes_empty": "尚無從節點註冊。",
+    "role": "角色",
+    "role_standalone": "獨立",
+    "role_master": "主節點",
+    "role_slave": "從節點",
+    "token": "叢集權杖",
+    "token_placeholder": "主從共用的協定金鑰",
+    "token_configured": "權杖已設定。輸入新值可替換。",
+    "node_id": "節點 ID",
+    "applied_hash": "已套用設定雜湊",
+    "master_url": "主節點位址",
+    "advertise_url": "本節點可達位址",
+    "last_sync": "上次同步",
+    "sync_interval": "拉取間隔（秒）",
+    "heartbeat_interval": "心跳間隔（秒）",
+    "interval_hint": "留空使用預設值，最小 {{min}} 秒。",
+    "interval_invalid": "間隔必須是不小於 {{min}} 的整數秒，或留空使用預設值。",
+    "status_unknown": "叢集狀態讀取失敗，目前顯示的角色可能不是最新的。",
+    "sync_now": "立即同步",
+    "sync_started": "已開始推送",
+    "sync_partial": "推送完成，但有 {{failed}} 個節點失敗，詳情見節點清單。",
+    "readonly": "目前節點是從節點，設定由主節點同步下發，無法在此修改。",
+    "save_success": "叢集設定已儲存",
+    "remove_node_title": "移除從節點",
+    "remove_node_message": "從主節點名單移除 {{id}}？",
+    "remove_success": "節點已移除",
+    "slave_banner": "目前為從節點。供應商與同步設定唯讀；帳號檔案仍在本地管理。",
+    "col_node": "節點",
+    "col_url": "位址",
+    "col_version": "版本",
+    "col_hash": "雜湊",
+    "col_auths": "憑證數",
+    "col_seen": "最近心跳",
+    "col_status": "狀態",
+    "status_online": "在線",
+    "status_stale": "離線",
+    "status_error": "異常"
   },
   "dashboard": {
     "hero_verdict_good": "運行平穩",
@@ -955,6 +1001,16 @@
           "secret_key_placeholder": "設定管理金鑰",
           "panel_repo": "面板儲存庫"
         },
+        "cluster": {
+          "title": "叢集同步",
+          "description": "主從設定同步。帳號檔案、監聽位址與管理金鑰保留在本節點。",
+          "role": "節點角色",
+          "token": "叢集權杖",
+          "master_url": "主節點位址",
+          "advertise_url": "本節點可達位址",
+          "sync_interval": "拉取間隔（秒）",
+          "heartbeat_interval": "心跳間隔（秒）"
+        },
         "auth": {
           "auth_dir": "驗證檔案目錄（auth-dir）",
           "auth_dir_hint": "存放驗證檔案的目錄路徑（支援 ~）"
@@ -1582,7 +1638,7 @@
         "codex": "寫入 Codex API 設定的 models,可從 /v1/models 拉取後設定別名。",
         "anthropic": "寫入 Anthropic 設定的 models,可從 /v1/models 拉取後設定別名。",
         "gemini": "寫入 Gemini 設定的 models,可從 /v1beta/models 拉取後設定別名。",
-        "openai": "寫入 OpenAI 相容設定的 models,可從 /models 拉取後設定別名。"
+        "openai": "寫入 OpenAI 相容設定的 models,可從 /models 或 /v1/models 拉取後設定別名。"
       },
       "validation": {
         "keyRequired": "請為每個分組金鑰填寫 API Key。",
@@ -1661,6 +1717,10 @@
       "hideApiKey": "隱藏金鑰",
       "disableCooling": "停用冷卻調度",
       "disableCoolingHint": "僅對目前憑證或提供商停用失敗後的冷卻視窗",
+      "providerRetryCount": "同提供商重試次數",
+      "providerRetryCountHint": "命中狀態碼時先在目前憑證上立即重試，兩次之間不等待，用盡後再換下一把。0 或不填表示不原地重試，最大 {{max}}。",
+      "providerRetryStatusCodes": "同提供商重試狀態碼",
+      "providerRetryStatusCodesHint": "以逗號或空格分隔的 HTTP 狀態碼。清空此欄位會移除此憑證的覆寫值，回落到預設值（{{default}}）。",
       "modelImage": "允許圖片端點",
       "modelImageHint": "允許該模型用於 /v1/images/generations 和 /v1/images/edits",
       "showAllEntries": "顯示全部（{{count}}）",
@@ -1691,7 +1751,9 @@
         "apiKeyRequired": "至少填寫一個 API 金鑰",
         "baseUrlRequired": "服務位址必填",
         "weightInteger": "調度權重必須是整數",
-        "weightMax": "調度權重不能超過 {{max}}"
+        "weightMax": "調度權重不能超過 {{max}}",
+        "providerRetryCount": "同提供商重試次數必須是 0 到 {{max}} 的整數",
+        "providerRetryStatusCodes": "重試狀態碼必須是 100 到 599 之間的 HTTP 狀態碼，以逗號或空格分隔"
       }
     },
     "delete": {

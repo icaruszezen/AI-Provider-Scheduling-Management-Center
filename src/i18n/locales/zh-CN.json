@@ -105,6 +105,7 @@
     "plugins": "插件管理",
     "plugin_store": "插件商店",
     "config_management": "配置面板",
+    "cluster": "集群节点",
     "logs": "日志查看",
     "system_info": "中心信息"
   },
@@ -126,7 +127,52 @@
     "plugin_store": "发现并安装插件",
     "logs": "请求追踪与排查",
     "config_management": "网关基础配置",
+    "cluster": "主从配置同步",
     "system_info": "运行与诊断信息"
+  },
+  "cluster": {
+    "title": "集群节点",
+    "subtitle": "从主节点同步提供商和运行参数。账号凭证文件保留在各节点本地。",
+    "local_settings": "本节点",
+    "slave_status": "同步状态",
+    "nodes_title": "已注册从节点",
+    "nodes_empty": "还没有从节点注册。",
+    "role": "角色",
+    "role_standalone": "独立",
+    "role_master": "主节点",
+    "role_slave": "从节点",
+    "token": "集群令牌",
+    "token_placeholder": "主从共用的协议密钥",
+    "token_configured": "令牌已设置。输入新值可替换。",
+    "node_id": "节点 ID",
+    "applied_hash": "已应用配置哈希",
+    "master_url": "主节点地址",
+    "advertise_url": "本节点可达地址",
+    "last_sync": "上次同步",
+    "sync_interval": "拉取间隔（秒）",
+    "heartbeat_interval": "心跳间隔（秒）",
+    "interval_hint": "留空使用默认值，最小 {{min}} 秒。",
+    "interval_invalid": "间隔必须是不小于 {{min}} 的整数秒，或留空使用默认值。",
+    "status_unknown": "集群状态读取失败，当前显示的角色可能不是最新的。",
+    "sync_now": "立即同步",
+    "sync_started": "已开始推送",
+    "sync_partial": "推送完成，但有 {{failed}} 个节点失败，详情见节点列表。",
+    "readonly": "当前节点是从节点，配置由主节点同步下发，无法在此修改。",
+    "save_success": "集群设置已保存",
+    "remove_node_title": "移除从节点",
+    "remove_node_message": "从主节点名单中移除 {{id}}？",
+    "remove_success": "节点已移除",
+    "slave_banner": "当前为从节点。提供商和同步配置只读；账号文件仍在本地管理。",
+    "col_node": "节点",
+    "col_url": "地址",
+    "col_version": "版本",
+    "col_hash": "哈希",
+    "col_auths": "凭证数",
+    "col_seen": "最近心跳",
+    "col_status": "状态",
+    "status_online": "在线",
+    "status_stale": "离线",
+    "status_error": "异常"
   },
   "dashboard": {
     "hero_verdict_good": "运行平稳",
@@ -929,6 +975,16 @@
           "secret_key_placeholder": "设置管理密钥",
           "panel_repo": "面板仓库"
         },
+        "cluster": {
+          "title": "集群同步",
+          "description": "主从配置同步。账号文件、监听地址和管理密钥保留在本节点。",
+          "role": "节点角色",
+          "token": "集群令牌",
+          "master_url": "主节点地址",
+          "advertise_url": "本节点可达地址",
+          "sync_interval": "拉取间隔（秒）",
+          "heartbeat_interval": "心跳间隔（秒）"
+        },
         "auth": {
           "auth_dir": "认证文件目录 (auth-dir)",
           "auth_dir_hint": "存放认证文件的目录路径（支持 ~）"
@@ -1556,7 +1612,7 @@
         "codex": "写入 Codex API 配置的 models,可从 /v1/models 拉取后设置别名。",
         "anthropic": "写入 Anthropic 配置的 models,可从 /v1/models 拉取后设置别名。",
         "gemini": "写入 Gemini 配置的 models,可从 /v1beta/models 拉取后设置别名。",
-        "openai": "写入 OpenAI 兼容配置的 models,可从 /models 拉取后设置别名。"
+        "openai": "写入 OpenAI 兼容配置的 models,可从 /models 或 /v1/models 拉取后设置别名。"
       },
       "validation": {
         "keyRequired": "请为每个分组 Key 填写 API Key。",
@@ -1635,6 +1691,10 @@
       "hideApiKey": "隐藏密钥",
       "disableCooling": "禁用冷却调度",
       "disableCoolingHint": "仅对当前凭据或提供商禁用失败后的冷却窗口",
+      "providerRetryCount": "同提供商重试次数",
+      "providerRetryCountHint": "命中状态码时先在当前凭据上立即重试，两次之间不等待，用尽后再换下一把。0 或不填表示不原地重试，最大 {{max}}。",
+      "providerRetryStatusCodes": "同提供商重试状态码",
+      "providerRetryStatusCodesHint": "以逗号或空格分隔的 HTTP 状态码。清空该字段会移除此凭据的覆盖值，回落到默认值（{{default}}）。",
       "modelImage": "允许图片端点",
       "modelImageHint": "允许该模型用于 /v1/images/generations 和 /v1/images/edits",
       "showAllEntries": "显示全部（{{count}}）",
@@ -1665,7 +1725,9 @@
         "apiKeyRequired": "至少填写一个 API 密钥",
         "baseUrlRequired": "服务地址必填",
         "weightInteger": "调度权重必须是整数",
-        "weightMax": "调度权重不能超过 {{max}}"
+        "weightMax": "调度权重不能超过 {{max}}",
+        "providerRetryCount": "同提供商重试次数必须是 0 到 {{max}} 的整数",
+        "providerRetryStatusCodes": "重试状态码必须是 100 到 599 之间的 HTTP 状态码，用逗号或空格分隔"
       }
     },
     "delete": {

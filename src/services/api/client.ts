@@ -15,6 +15,7 @@ import {
 } from '@/utils/constants';
 import { computeApiUrl } from '@/utils/connection';
 import { parseApiErrorResponse } from './apiError';
+import { localizeApiErrorMessage } from './apiErrorMessages';
 
 class ApiClient {
   private instance: AxiosInstance;
@@ -156,7 +157,9 @@ class ApiClient {
     if (axios.isAxiosError(error)) {
       const responseData: unknown = error.response?.data;
       const parsedError = parseApiErrorResponse(responseData, error.message);
-      const apiError = new Error(parsedError.message) as ApiError;
+      const apiError = new Error(
+        localizeApiErrorMessage(parsedError.apiCode, parsedError.message)
+      ) as ApiError;
       apiError.name = 'ApiError';
       apiError.status = error.response?.status;
       apiError.code = error.code;

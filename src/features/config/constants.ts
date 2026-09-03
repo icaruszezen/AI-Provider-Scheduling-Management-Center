@@ -103,6 +103,12 @@ export const FIELD_VALUE_KEYS: Record<string, readonly string[]> = {
   rmDisableAutoUpdatePanel: ['rmDisableAutoUpdatePanel'],
   rmSecretKey: ['rmSecretKey'],
   rmPanelRepo: ['rmPanelRepo'],
+  clusterRole: ['clusterRole'],
+  clusterToken: ['clusterToken'],
+  clusterMasterUrl: ['clusterMasterUrl'],
+  clusterAdvertiseUrl: ['clusterAdvertiseUrl'],
+  clusterSyncInterval: ['clusterSyncInterval'],
+  clusterHeartbeatInterval: ['clusterHeartbeatInterval'],
   // ── network ───────────────────────────────────────────────────────────────
   proxyUrl: ['proxyUrl'],
   requestRetry: ['requestRetry'],

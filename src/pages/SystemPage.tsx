@@ -14,6 +14,7 @@ import {
 } from '@/stores';
 import { configApi, versionApi } from '@/services/api';
 import { useApiKeysForModels } from '@/hooks/useApiKeysForModels';
+import { useSlaveReadonly } from '@/hooks/useSlaveReadonly';
 import { formatDateTimeValue } from '@/utils/format';
 import { classifyModels } from '@/utils/models';
 import { STORAGE_KEY_AUTH } from '@/utils/constants';
@@ -97,6 +98,7 @@ export function SystemPage() {
 
   const versionTapCount = useRef(0);
   const versionTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const slaveReadonly = useSlaveReadonly();
 
   const otherLabel = useMemo(
     () => (i18n.language?.toLowerCase().startsWith('zh') ? '其他' : 'Other'),
@@ -105,7 +107,10 @@ export function SystemPage() {
   const groupedModels = useMemo(() => classifyModels(models, { otherLabel }), [models, otherLabel]);
   const requestLogEnabled = config?.requestLog ?? false;
   const requestLogDirty = requestLogDraft !== requestLogEnabled;
-  const canEditRequestLog = auth.connectionStatus === 'connected' && Boolean(config);
+  // Saving the toggle goes through the config persist path, which a slave rejects
+  // with 403 because its config comes from the master.
+  const canEditRequestLog =
+    auth.connectionStatus === 'connected' && Boolean(config) && !slaveReadonly;
 
   const appVersion = __APP_VERSION__ || t('system_info.version_unknown');
   const apiVersion = auth.serverVersion || t('system_info.version_unknown');

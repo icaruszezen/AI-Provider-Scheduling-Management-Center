@@ -5,6 +5,8 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useRevealGroup } from '@/hooks/motion';
 import { useUnsavedChangesGuard } from '@/hooks/useUnsavedChangesGuard';
 import { useVisualConfig } from '@/hooks/useVisualConfig';
+import { SlaveSyncBanner } from '@/components/cluster/SlaveSyncBanner';
+import { useSlaveReadonly } from '@/hooks/useSlaveReadonly';
 import { useAuthStore, useNotificationStore, useThemeStore } from '@/stores';
 import {
   CONFIG_MODE_STORAGE_KEY,
@@ -97,7 +99,8 @@ export function ConfigPage() {
   });
   const sourceSearch = useSourceSearch();
 
-  const disableControls = connectionStatus !== 'connected';
+  const slaveReadonly = useSlaveReadonly();
+  const disableControls = connectionStatus !== 'connected' || slaveReadonly;
   const hasVisualModeError = !!visualParseError;
   const hasVisualValidationErrors =
     mode === 'visual' &&
@@ -253,6 +256,8 @@ export function ConfigPage() {
 
   return (
     <div className={styles.page} ref={revealRef}>
+      {slaveReadonly ? <SlaveSyncBanner /> : null}
+
       <ConfigHeader
         meta={headerMeta}
         reloadDisabled={doc.loading || doc.saving}

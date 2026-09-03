@@ -17,6 +17,12 @@ import {
 import { hasDisableAllModelsRule } from '@/components/providers/utils';
 import { maskApiKey } from '@/utils/format';
 import { MAX_CREDENTIAL_WEIGHT } from '@/utils/credentialWeight';
+import {
+  formatProviderRetryStatusCodes,
+  MAX_PROVIDER_RETRY_COUNT,
+  providerRetryStatusCodesInputIsValid,
+} from '@/utils/providerRetry';
+import { ProviderRetryFields } from './ProviderRetryFields';
 import type { ModelInfo } from '@/utils/models';
 import type { ApiKeyFunUsageSummary } from '../../sponsor';
 import { readThinkingLevels } from '../../thinkingLevels';
@@ -93,6 +99,8 @@ const emptySponsorKeyEntry = (
   prefix: '',
   disabled: false,
   disableCooling: false,
+  providerRetryCount: undefined,
+  providerRetryStatusCodesText: '',
   priority: undefined,
   weight: undefined,
   models: [emptyModel()],
@@ -181,6 +189,8 @@ const sponsorEntryFromProviderKey = (
   prefix: config.prefix ?? '',
   disabled: hasDisableAllModelsRule(config.excludedModels),
   disableCooling: config.disableCooling === true,
+  providerRetryCount: config.providerRetryCount ?? undefined,
+  providerRetryStatusCodesText: formatProviderRetryStatusCodes(config.providerRetryStatusCodes),
   priority: config.priority,
   weight: config.weight,
   models: modelsFromConfig(config.models),
@@ -199,6 +209,8 @@ const sponsorEntryFromOpenAI = (
     prefix: config.prefix ?? '',
     disabled: config.disabled === true,
     disableCooling: config.disableCooling === true,
+    providerRetryCount: config.providerRetryCount ?? undefined,
+    providerRetryStatusCodesText: formatProviderRetryStatusCodes(config.providerRetryStatusCodes),
     priority: config.priority,
     weight: firstEntry?.weight,
     models: modelsFromConfig(config.models),
@@ -740,6 +752,14 @@ function SponsorKeyEntryCard({
             </span>
           </label>
 
+          <ProviderRetryFields
+            count={entry.providerRetryCount}
+            statusCodesText={entry.providerRetryStatusCodesText}
+            mutating={mutating}
+            onCountChange={(value) => updateEntry({ providerRetryCount: value })}
+            onStatusCodesChange={(value) => updateEntry({ providerRetryStatusCodesText: value })}
+          />
+
           <SponsorModelSection
             label={t(`providersPage.sponsor.protocolModels.${modelKey}`)}
             description={t(`providersPage.sponsor.protocolModelHints.${modelKey}`)}
@@ -848,6 +868,26 @@ export function SponsorProviderForm({
       entries.some((entry) => entry.weight !== undefined && entry.weight > MAX_CREDENTIAL_WEIGHT)
     ) {
       return t('providersPage.form.validation.weightMax', { max: MAX_CREDENTIAL_WEIGHT });
+    }
+    if (
+      entries.some(
+        (entry) =>
+          entry.providerRetryCount !== undefined &&
+          (!Number.isSafeInteger(entry.providerRetryCount) ||
+            entry.providerRetryCount < 0 ||
+            entry.providerRetryCount > MAX_PROVIDER_RETRY_COUNT)
+      )
+    ) {
+      return t('providersPage.form.validation.providerRetryCount', {
+        max: MAX_PROVIDER_RETRY_COUNT,
+      });
+    }
+    if (
+      entries.some(
+        (entry) => !providerRetryStatusCodesInputIsValid(entry.providerRetryStatusCodesText ?? '')
+      )
+    ) {
+      return t('providersPage.form.validation.providerRetryStatusCodes');
     }
     return null;
   };

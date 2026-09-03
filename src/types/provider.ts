@@ -1,6 +1,6 @@
 /**
- * AI 提供商相关类型
- * 基于原项目 src/modules/ai-providers.js
+ * AI 提供商相关类�?
+ * 基于原项�?src/modules/ai-providers.js
  */
 
 export interface ModelAlias {
@@ -37,6 +37,8 @@ export interface GeminiKeyConfig {
   headers?: Record<string, string>;
   excludedModels?: string[];
   disableCooling?: boolean;
+  providerRetryCount?: number | null;
+  providerRetryStatusCodes?: number[] | null;
   authIndex?: string;
 }
 
@@ -54,6 +56,8 @@ export interface ProviderKeyConfig {
   disableCooling?: boolean;
   cloak?: CloakConfig;
   fingerprintProfile?: string;
+  providerRetryCount?: number | null;
+  providerRetryStatusCodes?: number[] | null;
   authIndex?: string;
 }
 
@@ -68,6 +72,8 @@ export interface OpenAIProviderConfig {
   priority?: number;
   testModel?: string;
   disableCooling?: boolean;
+  providerRetryCount?: number | null;
+  providerRetryStatusCodes?: number[] | null;
   authIndex?: string;
   /** Original index in the backend openai-compatibility array. */
   sourceIndex?: number;

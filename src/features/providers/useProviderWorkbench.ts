@@ -8,6 +8,7 @@ import {
   withoutDisableAllModelsRule,
 } from '@/components/providers/utils';
 import type { GeminiKeyConfig, ModelAlias, OpenAIProviderConfig, ProviderKeyConfig } from '@/types';
+import { providerRetryFieldsFromForm as retryFieldsFromForm } from '@/utils/providerRetry';
 import {
   apiKeyFunToResource,
   claudeApiToResource,
@@ -200,6 +201,7 @@ const buildProviderKeyConfig = (
     headers: Object.keys(headers).length ? headers : undefined,
     excludedModels: excluded,
     disableCooling: input.disableCooling === true,
+    ...retryFieldsFromForm(input),
     authIndex: existing?.authIndex,
   };
   if ((brand === 'codex' || brand === 'xai') && input.websockets !== undefined) {
@@ -260,6 +262,7 @@ const buildOpenAIConfig = (
     apiKeyEntries,
     disabled: input.disabled,
     disableCooling: input.disableCooling === true,
+    ...retryFieldsFromForm(input),
     headers: Object.keys(headers).length ? headers : undefined,
     models: models.length ? models : undefined,
     priority: input.priority,
@@ -298,6 +301,7 @@ const buildSponsorOpenAIConfig = (
     prefix: entry.prefix.trim() || undefined,
     disabled: entry.disabled,
     disableCooling: entry.disableCooling === true,
+    ...retryFieldsFromForm(entry),
     priority: entry.priority,
     apiKeyEntries,
     models: models.length ? models : undefined,
@@ -326,6 +330,7 @@ const buildSponsorProviderKeyConfig = (
     priority: entry.priority,
     weight: entry.weight,
     disableCooling: entry.disableCooling === true,
+    ...retryFieldsFromForm(entry),
     excludedModels: excluded,
     models: models.length ? models : undefined,
   };
@@ -352,6 +357,7 @@ const buildSponsorGeminiConfig = (
     priority: entry.priority,
     weight: entry.weight,
     disableCooling: entry.disableCooling === true,
+    ...retryFieldsFromForm(entry),
     excludedModels: excluded,
     models: models.length ? models : undefined,
   };

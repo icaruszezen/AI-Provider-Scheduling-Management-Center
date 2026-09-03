@@ -12,6 +12,7 @@ import type {
   ApiKeyEntry,
   ModelAlias,
 } from '@/types';
+import { applyProviderRetryPayload } from '@/utils/providerRetry';
 
 const serializeHeaders = (headers?: Record<string, string>) =>
   headers && Object.keys(headers).length ? headers : undefined;
@@ -29,6 +30,8 @@ const PROVIDER_COMMON_KEY_FIELDS = [
   'models',
   'excluded-models',
   'disable-cooling',
+  'provider-retry-count',
+  'provider-retry-status-codes',
 ] as const;
 
 const GEMINI_KEY_FIELDS = PROVIDER_COMMON_KEY_FIELDS;
@@ -52,6 +55,8 @@ const VERTEX_KEY_FIELDS = [
   'headers',
   'models',
   'excluded-models',
+  'provider-retry-count',
+  'provider-retry-status-codes',
 ] as const;
 
 const OPENAI_PROVIDER_FIELDS = [
@@ -65,6 +70,8 @@ const OPENAI_PROVIDER_FIELDS = [
   'models',
   'test-model',
   'disable-cooling',
+  'provider-retry-count',
+  'provider-retry-status-codes',
 ] as const;
 
 const MODEL_ALIAS_FIELDS = ['name', 'alias', 'priority', 'test-model', 'thinking'] as const;
@@ -331,6 +338,7 @@ const serializeProviderKey = (config: ProviderKeyConfig) => {
   if (config.websockets !== undefined) payload.websockets = config.websockets;
   if (config.proxyUrl) payload['proxy-url'] = config.proxyUrl;
   if (config.disableCooling) payload['disable-cooling'] = true;
+  applyProviderRetryPayload(payload, config);
   const headers = serializeHeaders(config.headers);
   if (headers) payload.headers = headers;
   const models = serializeModelAliases(config.models);
@@ -390,6 +398,7 @@ const serializeVertexKey = (config: ProviderKeyConfig) => {
   if (config.excludedModels && config.excludedModels.length) {
     payload['excluded-models'] = config.excludedModels;
   }
+  applyProviderRetryPayload(payload, config);
   return payload;
 };
 
@@ -401,6 +410,7 @@ const serializeGeminiKey = (config: GeminiKeyConfig) => {
   if (config.baseUrl) payload['base-url'] = config.baseUrl;
   if (config.proxyUrl) payload['proxy-url'] = config.proxyUrl;
   if (config.disableCooling) payload['disable-cooling'] = true;
+  applyProviderRetryPayload(payload, config);
   const headers = serializeHeaders(config.headers);
   if (headers) payload.headers = headers;
   const models = serializeModelAliases(config.models);
@@ -428,6 +438,7 @@ const serializeOpenAIProvider = (provider: OpenAIProviderConfig) => {
   if (provider.priority !== undefined) payload.priority = provider.priority;
   if (provider.testModel) payload['test-model'] = provider.testModel;
   if (provider.disableCooling) payload['disable-cooling'] = true;
+  applyProviderRetryPayload(payload, provider);
   return payload;
 };
 

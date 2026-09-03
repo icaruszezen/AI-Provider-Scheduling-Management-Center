@@ -16,7 +16,9 @@ import {
   IconSidebarStore,
   IconTrash2,
 } from '@/components/ui/icons';
+import { SlaveSyncBanner } from '@/components/cluster/SlaveSyncBanner';
 import { useHeaderRefresh } from '@/hooks/useHeaderRefresh';
+import { useSlaveReadonly } from '@/hooks/useSlaveReadonly';
 import { pluginsApi } from '@/services/api';
 import { useAuthStore, useConfigStore, useNotificationStore } from '@/stores';
 import { getErrorMessage, isRecord } from '@/utils/helpers';
@@ -80,6 +82,8 @@ export function PluginsPage() {
   const configRequestSeq = useRef(0);
 
   const connected = connectionStatus === 'connected';
+  const slaveReadonly = useSlaveReadonly();
+  const configLocked = !connected || slaveReadonly;
 
   const loadPlugins = useCallback(async () => {
     if (!connected) {
@@ -209,7 +213,7 @@ export function PluginsPage() {
   };
 
   const handleTogglePlugin = async (plugin: PluginListEntry, enabled: boolean) => {
-    if (deletingID) return;
+    if (slaveReadonly || deletingID) return;
     setMutatingID(plugin.id);
     try {
       await pluginsApi.updateEnabled(plugin.id, enabled);
@@ -284,7 +288,7 @@ export function PluginsPage() {
   };
 
   const handleSaveConfig = async () => {
-    if (!editingPlugin || !draft || openingConfigID || mutatingID || deletingID) return;
+    if (slaveReadonly || !editingPlugin || !draft || openingConfigID || mutatingID || deletingID) return;
     const { patch, errors } = buildPluginConfigPatch(draft, editingPlugin.configFields, t);
 
     if (Object.keys(errors).length > 0) {
@@ -459,6 +463,7 @@ export function PluginsPage() {
         <h1 className={styles.title}>{t('plugin_management.title')}</h1>
         <p className={styles.description}>{t('plugin_management.description')}</p>
       </div>
+      {slaveReadonly ? <SlaveSyncBanner /> : null}
 
       {/* ── Alerts ── */}
       {error ? <div className={styles.errorBox}>{error}</div> : null}
@@ -645,7 +650,7 @@ export function PluginsPage() {
                   <ToggleSwitch
                     checked={plugin.enabled}
                     onChange={(enabled) => handleTogglePlugin(plugin, enabled)}
-                    disabled={!connected || actionBusy}
+                    disabled={configLocked || actionBusy}
                     ariaLabel={t('plugin_management.enabled')}
                   />
                   <Button
@@ -706,7 +711,7 @@ export function PluginsPage() {
             <Button variant="secondary" onClick={closeConfigSheet} disabled={savingConfig}>
               {t('common.cancel')}
             </Button>
-            <Button onClick={handleSaveConfig} loading={savingConfig}>
+            <Button onClick={handleSaveConfig} loading={savingConfig} disabled={configLocked}>
               {t('common.save')}
             </Button>
           </div>

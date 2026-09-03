@@ -105,6 +105,7 @@
     "plugins": "Плагины",
     "plugin_store": "Магазин плагинов",
     "config_management": "Панель конфигурации",
+    "cluster": "Узлы кластера",
     "logs": "Просмотр логов",
     "system_info": "Информация системы"
   },
@@ -125,7 +126,52 @@
     "plugin_store": "Поиск и установка плагинов",
     "logs": "Трассировка запросов",
     "config_management": "Базовая конфигурация шлюза",
+    "cluster": "Синхронизация master/slave",
     "system_info": "Состояние и диагностика"
+  },
+  "cluster": {
+    "title": "Узлы кластера",
+    "subtitle": "Синхронизация провайдеров и параметров с мастера. Файлы учётных записей остаются локальными.",
+    "local_settings": "Этот узел",
+    "slave_status": "Состояние синхронизации",
+    "nodes_title": "Зарегистрированные slave",
+    "nodes_empty": "Slave-узлы ещё не регистрировались.",
+    "role": "Роль",
+    "role_standalone": "Автономный",
+    "role_master": "Мастер",
+    "role_slave": "Slave",
+    "token": "Токен кластера",
+    "token_placeholder": "Общий секрет мастера и slave",
+    "token_configured": "Токен задан. Введите новое значение, чтобы заменить.",
+    "node_id": "ID узла",
+    "applied_hash": "Хеш применённой конфигурации",
+    "master_url": "URL мастера",
+    "advertise_url": "Публичный URL",
+    "last_sync": "Последняя синхронизация",
+    "sync_interval": "Интервал опроса (сек)",
+    "heartbeat_interval": "Интервал heartbeat (сек)",
+    "interval_hint": "Пусто — значение по умолчанию. Минимум {{min}} секунд.",
+    "interval_invalid": "Интервал должен быть целым числом секунд не меньше {{min}} или пустым.",
+    "status_unknown": "Не удалось получить состояние кластера, показанная роль может быть устаревшей.",
+    "sync_now": "Синхронизировать",
+    "sync_started": "Отправка запущена",
+    "sync_partial": "Отправка завершена, но {{failed}} узл(ов) не обновились. Подробности в списке узлов.",
+    "readonly": "Этот узел — slave: конфигурация синхронизируется с мастера и не редактируется здесь.",
+    "save_success": "Настройки кластера сохранены",
+    "remove_node_title": "Удалить slave",
+    "remove_node_message": "Удалить {{id}} из списка мастера?",
+    "remove_success": "Узел удалён",
+    "slave_banner": "Этот узел — slave. Провайдеры и синхронизируемые настройки только для чтения; файлы учётных записей локальны.",
+    "col_node": "Узел",
+    "col_url": "URL",
+    "col_version": "Версия",
+    "col_hash": "Хеш",
+    "col_auths": "Файлы",
+    "col_seen": "Последний heartbeat",
+    "col_status": "Статус",
+    "status_online": "Онлайн",
+    "status_stale": "Устарел",
+    "status_error": "Ошибка"
   },
   "dashboard": {
     "hero_verdict_good": "Всё стабильно",
@@ -916,6 +962,16 @@
           "secret_key_placeholder": "Задайте ключ управления",
           "panel_repo": "Репозиторий панели"
         },
+        "cluster": {
+          "title": "Синхронизация кластера",
+          "description": "Синхронизация master/slave. Файлы учётных записей, адрес прослушивания и ключ управления остаются локальными.",
+          "role": "Роль узла",
+          "token": "Токен кластера",
+          "master_url": "URL мастера",
+          "advertise_url": "Публичный URL узла",
+          "sync_interval": "Интервал опроса (сек)",
+          "heartbeat_interval": "Интервал heartbeat (сек)"
+        },
         "auth": {
           "auth_dir": "Каталог auth-dir",
           "auth_dir_hint": "Путь к каталогу с файлами аутентификации (поддерживает ~)"
@@ -1534,7 +1590,7 @@
         "codex": "Записывается в models конфигурации Codex API. Можно загрузить из /v1/models и задать алиасы.",
         "anthropic": "Записывается в models конфигурации Anthropic. Можно загрузить из /v1/models и задать алиасы.",
         "gemini": "Записывается в models конфигурации Gemini. Можно загрузить из /v1beta/models и задать алиасы.",
-        "openai": "Записывается в models конфигурации OpenAI-compatible. Можно загрузить из /models и задать алиасы."
+        "openai": "Записывается в models конфигурации OpenAI-compatible. Можно загрузить из /models или /v1/models и задать алиасы."
       },
       "validation": {
         "keyRequired": "Введите API key для каждого группового ключа.",
@@ -1613,6 +1669,10 @@
       "hideApiKey": "Скрыть ключ API",
       "disableCooling": "Отключить cooldown",
       "disableCoolingHint": "Отключает окна охлаждения после ошибок только для этой записи",
+      "providerRetryCount": "Повторы того же провайдера",
+      "providerRetryCountHint": "Сразу повторить этот ключ при указанных кодах без паузы между попытками, затем перейти к следующему. 0 или пусто — без повтора. Максимум {{max}}.",
+      "providerRetryStatusCodes": "Коды для повтора",
+      "providerRetryStatusCodesHint": "HTTP-коды через запятую или пробел. Очистка поля убирает переопределение и возвращает значение по умолчанию ({{default}}).",
       "modelImage": "Разрешить image endpoints",
       "modelImageHint": "Разрешить модель для /v1/images/generations и /v1/images/edits",
       "showAllEntries": "Показать все ({{count}})",
@@ -1643,7 +1703,9 @@
         "apiKeyRequired": "Нужен хотя бы один API-ключ",
         "baseUrlRequired": "Base URL обязателен",
         "weightInteger": "Вес планирования должен быть целым числом",
-        "weightMax": "Вес планирования не может превышать {{max}}"
+        "weightMax": "Вес планирования не может превышать {{max}}",
+        "providerRetryCount": "Число повторов должно быть целым от 0 до {{max}}",
+        "providerRetryStatusCodes": "Коды повтора должны быть HTTP-кодами от 100 до 599, через запятую или пробел"
       }
     },
     "delete": {

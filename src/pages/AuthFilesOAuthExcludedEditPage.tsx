@@ -14,6 +14,8 @@ import {
 import { SecondaryScreenShell } from '@/components/common/SecondaryScreenShell';
 import { useEdgeSwipeBack } from '@/hooks/useEdgeSwipeBack';
 import { useUnsavedChangesGuard } from '@/hooks/useUnsavedChangesGuard';
+import { SlaveSyncBanner } from '@/components/cluster/SlaveSyncBanner';
+import { useSlaveReadonly } from '@/hooks/useSlaveReadonly';
 import { useAuthStore, useNotificationStore } from '@/stores';
 import { authFilesApi } from '@/services/api';
 import {
@@ -36,7 +38,8 @@ export function AuthFilesOAuthExcludedEditPage() {
   const location = useLocation();
   const { showConfirmation, showNotification } = useNotificationStore();
   const connectionStatus = useAuthStore((state) => state.connectionStatus);
-  const disableControls = connectionStatus !== 'connected';
+  const slaveReadonly = useSlaveReadonly();
+  const disableControls = connectionStatus !== 'connected' || slaveReadonly;
 
   const [searchParams, setSearchParams] = useSearchParams();
   const providerFromParams = searchParams.get('provider') ?? '';
@@ -351,6 +354,7 @@ export function AuthFilesOAuthExcludedEditPage() {
       isLoading={initialLoading}
       loadingLabel={t('common.loading')}
     >
+      {slaveReadonly ? <SlaveSyncBanner /> : null}
       {excludedUnsupported ? (
         <Card>
           <EmptyState

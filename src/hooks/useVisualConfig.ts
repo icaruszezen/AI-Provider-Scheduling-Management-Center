@@ -900,6 +900,12 @@ function getNextDirtyFields(
       'rmSecretKey',
       'rmDisableControlPanel',
       'rmPanelRepo',
+      'clusterRole',
+      'clusterToken',
+      'clusterMasterUrl',
+      'clusterAdvertiseUrl',
+      'clusterSyncInterval',
+      'clusterHeartbeatInterval',
       'authDir',
       'apiKeysText',
       'debug',
@@ -1076,6 +1082,7 @@ export function useVisualConfig() {
       const parsed = asRecord(parsedRaw) ?? {};
       const tls = asRecord(parsed.tls);
       const remoteManagement = asRecord(parsed['remote-management']);
+      const cluster = asRecord(parsed.cluster);
       const quotaExceeded = asRecord(parsed['quota-exceeded']);
       const routing = asRecord(parsed.routing);
       const payload = asRecord(parsed.payload);
@@ -1106,6 +1113,19 @@ export function useVisualConfig() {
             : typeof remoteManagement?.['panel-repo'] === 'string'
               ? remoteManagement['panel-repo']
               : '',
+
+        clusterRole:
+          typeof cluster?.role === 'string' && cluster.role.trim()
+            ? cluster.role.trim()
+            : 'standalone',
+        // Never echo the cluster secret back into the form. An empty field means
+        // "keep the stored token", matching the cluster page.
+        clusterToken: '',
+        clusterMasterUrl: typeof cluster?.['master-url'] === 'string' ? cluster['master-url'] : '',
+        clusterAdvertiseUrl:
+          typeof cluster?.['advertise-url'] === 'string' ? cluster['advertise-url'] : '',
+        clusterSyncInterval: String(cluster?.['sync-interval-seconds'] ?? ''),
+        clusterHeartbeatInterval: String(cluster?.['heartbeat-interval-seconds'] ?? ''),
 
         authDir: typeof parsed['auth-dir'] === 'string' ? parsed['auth-dir'] : '',
         apiKeysText: resolveApiKeysText(parsed),
@@ -1276,6 +1296,41 @@ export function useVisualConfig() {
             doc.deleteIn(['remote-management', 'panel-repo']);
           }
           deleteIfMapEmpty(doc, ['remote-management']);
+        }
+
+        const clusterDirty =
+          dirtyFields.has('clusterRole') ||
+          dirtyFields.has('clusterToken') ||
+          dirtyFields.has('clusterMasterUrl') ||
+          dirtyFields.has('clusterAdvertiseUrl') ||
+          dirtyFields.has('clusterSyncInterval') ||
+          dirtyFields.has('clusterHeartbeatInterval');
+        if (clusterDirty) {
+          ensureMapInDoc(doc, ['cluster']);
+          if (dirtyFields.has('clusterRole')) {
+            setStringInDoc(doc, ['cluster', 'role'], values.clusterRole || 'standalone');
+          }
+          // Only a typed value replaces the stored token; blank keeps it.
+          if (dirtyFields.has('clusterToken') && values.clusterToken.trim()) {
+            setStringInDoc(doc, ['cluster', 'token'], values.clusterToken.trim());
+          }
+          if (dirtyFields.has('clusterMasterUrl')) {
+            setStringInDoc(doc, ['cluster', 'master-url'], values.clusterMasterUrl);
+          }
+          if (dirtyFields.has('clusterAdvertiseUrl')) {
+            setStringInDoc(doc, ['cluster', 'advertise-url'], values.clusterAdvertiseUrl);
+          }
+          if (dirtyFields.has('clusterSyncInterval')) {
+            setIntFromStringInDoc(doc, ['cluster', 'sync-interval-seconds'], values.clusterSyncInterval);
+          }
+          if (dirtyFields.has('clusterHeartbeatInterval')) {
+            setIntFromStringInDoc(
+              doc,
+              ['cluster', 'heartbeat-interval-seconds'],
+              values.clusterHeartbeatInterval
+            );
+          }
+          deleteIfMapEmpty(doc, ['cluster']);
         }
 
         if (dirtyFields.has('authDir')) setStringInDoc(doc, ['auth-dir'], values.authDir);
