@@ -119,6 +119,7 @@ export type VisualConfigValues = {
   maxRetryCredentials: string;
   maxRetryInterval: string;
   disableCooling: boolean;
+  localCompact: boolean;
   disableImageGeneration: DisableImageGenerationMode;
   gptImage2BaseModel: string;
   authAutoRefreshWorkers: string;
@@ -190,6 +191,7 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   maxRetryCredentials: '',
   maxRetryInterval: '',
   disableCooling: false,
+  localCompact: false,
   disableImageGeneration: 'false',
   gptImage2BaseModel: '',
   authAutoRefreshWorkers: '',

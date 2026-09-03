@@ -54,6 +54,11 @@ export interface ProviderKeyConfig {
   models?: ModelAlias[];
   excludedModels?: string[];
   disableCooling?: boolean;
+  /**
+   * Codex-only override for handling /v1/responses/compact locally.
+   * `undefined` inherits the global local-compact switch.
+   */
+  localCompact?: boolean;
   cloak?: CloakConfig;
   fingerprintProfile?: string;
   providerRetryCount?: number | null;

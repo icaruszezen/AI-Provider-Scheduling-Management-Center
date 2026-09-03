@@ -227,6 +227,15 @@ export function SectionNetwork({
               onChange={(disableCooling) => onChange({ disableCooling })}
             />
           </FieldAnchor>
+          <FieldAnchor fieldId="localCompact">
+            <ToggleRow
+              title={t('config_management.visual.sections.network.local_compact')}
+              description={t('config_management.visual.sections.network.local_compact_desc')}
+              checked={values.localCompact}
+              disabled={disabled}
+              onChange={(localCompact) => onChange({ localCompact })}
+            />
+          </FieldAnchor>
           <FieldAnchor fieldId="routingSessionAffinity">
             <ToggleRow
               title={t('config_management.visual.sections.network.session_affinity')}

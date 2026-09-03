@@ -8,6 +8,7 @@ import {
   withoutDisableAllModelsRule,
 } from '@/components/providers/utils';
 import type { GeminiKeyConfig, ModelAlias, OpenAIProviderConfig, ProviderKeyConfig } from '@/types';
+import { localCompactModeToConfig } from '@/utils/localCompact';
 import { providerRetryFieldsFromForm as retryFieldsFromForm } from '@/utils/providerRetry';
 import {
   apiKeyFunToResource,
@@ -206,6 +207,9 @@ const buildProviderKeyConfig = (
   };
   if ((brand === 'codex' || brand === 'xai') && input.websockets !== undefined) {
     next.websockets = input.websockets;
+  }
+  if (brand === 'codex') {
+    next.localCompact = localCompactModeToConfig(input.localCompact);
   }
   if (brand === 'claude' && input.cloak) {
     next.cloak = {

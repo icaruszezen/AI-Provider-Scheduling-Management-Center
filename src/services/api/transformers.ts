@@ -182,6 +182,8 @@ const normalizeProviderKeyConfig = (item: unknown): ProviderKeyConfig | null => 
   if (proxyUrl) config.proxyUrl = String(proxyUrl);
   const disableCooling = normalizeBoolean(record?.['disable-cooling']);
   if (disableCooling !== undefined) config.disableCooling = disableCooling;
+  const localCompact = normalizeBoolean(record?.['local-compact']);
+  if (localCompact !== undefined) config.localCompact = localCompact;
   const headers = normalizeHeaders(record?.headers);
   if (headers) config.headers = headers;
   const models = normalizeModelAliases(record?.models);

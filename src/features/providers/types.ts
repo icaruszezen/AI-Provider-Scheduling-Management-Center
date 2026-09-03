@@ -3,6 +3,7 @@
  */
 
 import type { GeminiKeyConfig, OpenAIProviderConfig, ProviderKeyConfig } from '@/types';
+import type { LocalCompactMode } from '@/utils/localCompact';
 import type { ThinkingLevel } from './thinkingLevels';
 
 export type ProviderBrand =
@@ -222,6 +223,8 @@ export interface ProviderEntryFormInput {
 
   /** Codex 专属 */
   websockets?: boolean;
+  /** Codex 专属：本地 compact 覆盖，'inherit' 表示跟随全局开关 */
+  localCompact?: LocalCompactMode;
   /** Claude 专属 */
   cloak?: CloakInput;
   fingerprintProfile?: string;

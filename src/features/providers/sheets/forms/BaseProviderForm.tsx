@@ -38,6 +38,7 @@ import { ModelEntriesEditor } from './ModelEntriesEditor';
 import styles from './sharedForm.module.scss';
 import { CLAUDE_API_BASE_URL } from '../../claudeApi';
 import { MAX_CREDENTIAL_WEIGHT } from '@/utils/credentialWeight';
+import { localCompactModeFromConfig, type LocalCompactMode } from '@/utils/localCompact';
 import {
   formatProviderRetryStatusCodes,
   MAX_PROVIDER_RETRY_COUNT,
@@ -99,6 +100,7 @@ function buildInitialForm(
       headers: [emptyHeader()],
       excludedModelsText: '',
       websockets: brand === 'codex' || brand === 'xai' ? false : undefined,
+      localCompact: brand === 'codex' ? 'inherit' : undefined,
       cloak: isClaudeLikeBrand(brand)
         ? { mode: '', strictMode: false, sensitiveWordsText: '', cacheUserId: false }
         : undefined,
@@ -196,6 +198,10 @@ function buildInitialForm(
     websockets:
       brand === 'codex' || brand === 'xai'
         ? (cfg as ProviderKeyConfig).websockets === true
+        : undefined,
+    localCompact:
+      brand === 'codex'
+        ? localCompactModeFromConfig((cfg as ProviderKeyConfig).localCompact)
         : undefined,
     cloak: isClaudeLikeBrand(brand)
       ? {
@@ -510,6 +516,12 @@ export function BaseProviderForm({
     brand === 'xai' ||
     isClaudeLikeBrand(brand) ||
     brand === 'openaiCompatibility';
+  const supportsLocalCompact = brand === 'codex';
+  const localCompactOptions: Array<{ value: LocalCompactMode; label: string }> = [
+    { value: 'inherit', label: t('providersPage.form.localCompactInherit') },
+    { value: 'enabled', label: t('providersPage.form.localCompactEnabled') },
+    { value: 'disabled', label: t('providersPage.form.localCompactDisabled') },
+  ];
   const supportsModelImage = brand === 'openaiCompatibility';
   const singleConnectivity =
     brand === 'codex' || brand === 'xai'
@@ -792,6 +804,23 @@ export function BaseProviderForm({
               <small>{t('providersPage.form.disableCoolingHint')}</small>
             </span>
           </label>
+        ) : null}
+
+        {supportsLocalCompact ? (
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor={`${fid}-localCompact`}>
+              {t('providersPage.form.localCompact')}
+            </label>
+            <Select
+              id={`${fid}-localCompact`}
+              value={form.localCompact ?? 'inherit'}
+              options={localCompactOptions}
+              onChange={(value) => updateField('localCompact', value as LocalCompactMode)}
+              disabled={mutating}
+              ariaLabel={t('providersPage.form.localCompact')}
+            />
+            <span className={styles.labelHint}>{t('providersPage.form.localCompactHint')}</span>
+          </div>
         ) : null}
 
         <ProviderRetryFields

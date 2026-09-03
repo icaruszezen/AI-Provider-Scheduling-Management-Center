@@ -237,6 +237,13 @@ export const CONFIG_FIELD_SEARCH_INDEX: ConfigFieldSearchEntry[] = [
     yamlKeys: ['disable-cooling'],
   },
   {
+    fieldId: 'localCompact',
+    sectionId: 'network',
+    labelKey: L('sections.network.local_compact'),
+    hintKey: L('sections.network.local_compact_desc'),
+    yamlKeys: ['local-compact'],
+  },
+  {
     fieldId: 'routingSessionAffinity',
     sectionId: 'network',
     labelKey: L('sections.network.session_affinity'),

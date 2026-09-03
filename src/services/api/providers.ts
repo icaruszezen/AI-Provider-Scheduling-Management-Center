@@ -36,8 +36,10 @@ const PROVIDER_COMMON_KEY_FIELDS = [
 
 const GEMINI_KEY_FIELDS = PROVIDER_COMMON_KEY_FIELDS;
 const INTERACTIONS_KEY_FIELDS = PROVIDER_COMMON_KEY_FIELDS;
-const CODEX_KEY_FIELDS = [...PROVIDER_COMMON_KEY_FIELDS, 'websockets'] as const;
-const XAI_KEY_FIELDS = CODEX_KEY_FIELDS;
+// local-compact is Codex-only. xAI shares the backend struct but the setting is
+// never read there, so leave any hand-written xAI value untouched on save.
+const CODEX_KEY_FIELDS = [...PROVIDER_COMMON_KEY_FIELDS, 'websockets', 'local-compact'] as const;
+const XAI_KEY_FIELDS = [...PROVIDER_COMMON_KEY_FIELDS, 'websockets'] as const;
 const CLAUDE_KEY_FIELDS = [
   ...PROVIDER_COMMON_KEY_FIELDS,
   'cloak',
@@ -338,6 +340,8 @@ const serializeProviderKey = (config: ProviderKeyConfig) => {
   if (config.websockets !== undefined) payload.websockets = config.websockets;
   if (config.proxyUrl) payload['proxy-url'] = config.proxyUrl;
   if (config.disableCooling) payload['disable-cooling'] = true;
+  // Omitting local-compact drops the override, so an explicit false must survive.
+  if (config.localCompact !== undefined) payload['local-compact'] = config.localCompact;
   applyProviderRetryPayload(payload, config);
   const headers = serializeHeaders(config.headers);
   if (headers) payload.headers = headers;

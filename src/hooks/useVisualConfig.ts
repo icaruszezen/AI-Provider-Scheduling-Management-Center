@@ -877,6 +877,7 @@ function getNextDirtyFields(
       'pluginsEnabled',
       'passthroughHeaders',
       'disableCooling',
+      'localCompact',
       'disableImageGeneration',
       'gptImage2BaseModel',
       'authAutoRefreshWorkers',
@@ -1150,6 +1151,7 @@ export function useVisualConfig() {
         maxRetryCredentials: String(parsed['max-retry-credentials'] ?? ''),
         maxRetryInterval: String(parsed['max-retry-interval'] ?? ''),
         disableCooling: Boolean(parsed['disable-cooling']),
+        localCompact: Boolean(parsed['local-compact']),
         disableImageGeneration: parseDisableImageGenerationMode(parsed['disable-image-generation']),
         gptImage2BaseModel:
           typeof parsed['gpt-image-2-base-model'] === 'string'
@@ -1412,6 +1414,9 @@ export function useVisualConfig() {
         }
         if (dirtyFields.has('disableCooling')) {
           setBooleanInDoc(doc, ['disable-cooling'], values.disableCooling);
+        }
+        if (dirtyFields.has('localCompact')) {
+          setBooleanInDoc(doc, ['local-compact'], values.localCompact);
         }
         if (dirtyFields.has('disableImageGeneration')) {
           setDisableImageGenerationInDoc(
