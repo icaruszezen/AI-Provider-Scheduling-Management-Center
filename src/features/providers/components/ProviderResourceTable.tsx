@@ -22,11 +22,13 @@ import {
   getOpenAIProviderTotalStats,
   getProviderRecentStatusData,
   getProviderTotalStats,
+  getProviderUsageKey,
   type ProviderRecentUsageMap,
 } from '@/components/providers/utils';
 import type { OpenAIProviderConfig } from '@/types';
 import type { StatusBarData } from '@/utils/recentRequests';
 import type { ProviderResource } from '../types';
+import { isMultiProtocolSponsorBrand } from '../sponsorDefinitions';
 import styles from './ProviderResourceTable.module.scss';
 import statusBarStyles from './providerStatusBar.module.scss';
 
@@ -44,10 +46,7 @@ interface ProviderResourceTableProps {
 const columnWidths = ['180px', '220px', '72px', '138px', '174px', '176px'];
 
 const isSponsorResource = (resource: ProviderResource): boolean =>
-  resource.brand === 'apikeyFun' || resource.brand === 'code0';
-
-const getUsageProvider = (resource: ProviderResource): string =>
-  resource.brand === 'claudeApi' ? 'claude' : resource.brand;
+  isMultiProtocolSponsorBrand(resource.brand);
 
 const resolveStatusBarData = (
   resource: ProviderResource,
@@ -58,7 +57,7 @@ const resolveStatusBarData = (
   }
   return getProviderRecentStatusData(
     usageByProvider,
-    getUsageProvider(resource),
+    getProviderUsageKey(resource.brand),
     resource.apiKey ?? undefined,
     resource.baseUrl ?? undefined
   );
@@ -73,7 +72,7 @@ const resolveTotalStats = (
   }
   return getProviderTotalStats(
     usageByProvider,
-    getUsageProvider(resource),
+    getProviderUsageKey(resource.brand),
     resource.apiKey ?? undefined,
     resource.baseUrl ?? undefined
   );
@@ -128,11 +127,17 @@ export function ProviderResourceTable({
         renderMetric('models', t('providersPage.table.metrics.models'), r.modelCount),
         renderMetric('headers', t('providersPage.table.metrics.headers'), r.headerCount)
       );
-      if (r.brand === 'codex' && r.flags.websockets) {
+      if ((r.brand === 'codex' || r.brand === 'xai') && r.flags.websockets) {
         items.push(renderFlagTag('ws', t('providersPage.table.websocketsTag')));
       }
-      if (r.brand === 'claude' && r.flags.cloakEnabled) {
+      if ((r.brand === 'claude' || r.brand === 'claudeApi') && r.flags.cloakEnabled) {
         items.push(renderFlagTag('cloak', t('providersPage.table.cloakTag')));
+      }
+      if (
+        (r.brand === 'claude' || r.brand === 'claudeApi') &&
+        r.flags.claudeCodeCliProfile
+      ) {
+        items.push(renderFlagTag('cli-profile', t('providersPage.table.cliProfileTag')));
       }
     }
     return <div className={styles.metricsCell}>{items}</div>;
