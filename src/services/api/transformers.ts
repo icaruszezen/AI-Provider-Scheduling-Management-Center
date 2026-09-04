@@ -182,6 +182,8 @@ const normalizeProviderKeyConfig = (item: unknown): ProviderKeyConfig | null => 
   if (proxyUrl) config.proxyUrl = String(proxyUrl);
   const disableCooling = normalizeBoolean(record?.['disable-cooling']);
   if (disableCooling !== undefined) config.disableCooling = disableCooling;
+  const hideNoAvailableChannel = normalizeBoolean(record?.['hide-no-available-channel']);
+  if (hideNoAvailableChannel !== undefined) config.hideNoAvailableChannel = hideNoAvailableChannel;
   const localCompact = normalizeBoolean(record?.['local-compact']);
   if (localCompact !== undefined) config.localCompact = localCompact;
   const headers = normalizeHeaders(record?.headers);
@@ -253,6 +255,8 @@ const normalizeGeminiKeyConfig = (item: unknown): GeminiKeyConfig | null => {
   if (proxyUrl) config.proxyUrl = String(proxyUrl);
   const disableCooling = normalizeBoolean(record?.['disable-cooling']);
   if (disableCooling !== undefined) config.disableCooling = disableCooling;
+  const hideNoAvailableChannel = normalizeBoolean(record?.['hide-no-available-channel']);
+  if (hideNoAvailableChannel !== undefined) config.hideNoAvailableChannel = hideNoAvailableChannel;
   const models = normalizeModelAliases(record?.models);
   if (models.length) config.models = models;
   const headers = normalizeHeaders(record?.headers);
@@ -295,6 +299,8 @@ const normalizeOpenAIProvider = (
   if (disabled !== undefined) result.disabled = disabled;
   const disableCooling = normalizeBoolean(provider['disable-cooling']);
   if (disableCooling !== undefined) result.disableCooling = disableCooling;
+  const hideNoAvailableChannel = normalizeBoolean(provider['hide-no-available-channel']);
+  if (hideNoAvailableChannel !== undefined) result.hideNoAvailableChannel = hideNoAvailableChannel;
   const prefix = normalizePrefix(provider.prefix);
   if (prefix) result.prefix = prefix;
   if (headers) result.headers = headers;

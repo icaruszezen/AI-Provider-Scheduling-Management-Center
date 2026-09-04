@@ -99,6 +99,7 @@ const emptySponsorKeyEntry = (
   prefix: '',
   disabled: false,
   disableCooling: false,
+  hideNoAvailableChannel: false,
   providerRetryCount: undefined,
   providerRetryStatusCodesText: '',
   priority: undefined,
@@ -114,6 +115,7 @@ const emptySponsorForm = (definition: SponsorProviderDefinition): ProviderEntryF
   prefix: '',
   disabled: false,
   disableCooling: false,
+  hideNoAvailableChannel: false,
   priority: undefined,
   weight: undefined,
   models: [],
@@ -189,6 +191,7 @@ const sponsorEntryFromProviderKey = (
   prefix: config.prefix ?? '',
   disabled: hasDisableAllModelsRule(config.excludedModels),
   disableCooling: config.disableCooling === true,
+  hideNoAvailableChannel: config.hideNoAvailableChannel === true,
   providerRetryCount: config.providerRetryCount ?? undefined,
   providerRetryStatusCodesText: formatProviderRetryStatusCodes(config.providerRetryStatusCodes),
   priority: config.priority,
@@ -209,6 +212,7 @@ const sponsorEntryFromOpenAI = (
     prefix: config.prefix ?? '',
     disabled: config.disabled === true,
     disableCooling: config.disableCooling === true,
+    hideNoAvailableChannel: config.hideNoAvailableChannel === true,
     providerRetryCount: config.providerRetryCount ?? undefined,
     providerRetryStatusCodesText: formatProviderRetryStatusCodes(config.providerRetryStatusCodes),
     priority: config.priority,
@@ -749,6 +753,20 @@ function SponsorKeyEntryCard({
             <span className={styles.checkboxText}>
               <span>{t('providersPage.form.disableCooling')}</span>
               <small>{t('providersPage.form.disableCoolingHint')}</small>
+            </span>
+          </label>
+
+          <label className={styles.checkboxRow}>
+            <input
+              type="checkbox"
+              className={styles.checkboxBox}
+              checked={entry.hideNoAvailableChannel ?? false}
+              disabled={mutating}
+              onChange={(event) => updateEntry({ hideNoAvailableChannel: event.target.checked })}
+            />
+            <span className={styles.checkboxText}>
+              <span>{t('providersPage.form.hideNoAvailableChannel')}</span>
+              <small>{t('providersPage.form.hideNoAvailableChannelHint')}</small>
             </span>
           </label>
 

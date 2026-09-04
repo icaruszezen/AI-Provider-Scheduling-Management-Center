@@ -94,6 +94,7 @@ function buildInitialForm(
       prefix: '',
       disabled: false,
       disableCooling: false,
+      hideNoAvailableChannel: false,
       priority: undefined,
       weight: undefined,
       models: [emptyModel()],
@@ -131,6 +132,7 @@ function buildInitialForm(
       prefix: cfg.prefix ?? '',
       disabled: cfg.disabled === true,
       disableCooling: cfg.disableCooling === true,
+      hideNoAvailableChannel: cfg.hideNoAvailableChannel === true,
       priority: cfg.priority,
       models: cfg.models?.length
         ? cfg.models.map((m) => ({
@@ -177,6 +179,7 @@ function buildInitialForm(
     prefix: cfg.prefix ?? '',
     disabled,
     disableCooling: cfg.disableCooling === true,
+    hideNoAvailableChannel: cfg.hideNoAvailableChannel === true,
     providerRetryCount: cfg.providerRetryCount ?? undefined,
     providerRetryStatusCodesText: formatProviderRetryStatusCodes(cfg.providerRetryStatusCodes),
     priority: cfg.priority,
@@ -805,6 +808,20 @@ export function BaseProviderForm({
             </span>
           </label>
         ) : null}
+
+        <label className={styles.checkboxRow}>
+          <input
+            type="checkbox"
+            className={styles.checkboxBox}
+            checked={form.hideNoAvailableChannel ?? false}
+            disabled={mutating}
+            onChange={(e) => updateField('hideNoAvailableChannel', e.target.checked)}
+          />
+          <span className={styles.checkboxText}>
+            <span>{t('providersPage.form.hideNoAvailableChannel')}</span>
+            <small>{t('providersPage.form.hideNoAvailableChannelHint')}</small>
+          </span>
+        </label>
 
         {supportsLocalCompact ? (
           <div className={styles.field}>

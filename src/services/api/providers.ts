@@ -30,6 +30,7 @@ const PROVIDER_COMMON_KEY_FIELDS = [
   'models',
   'excluded-models',
   'disable-cooling',
+  'hide-no-available-channel',
   'provider-retry-count',
   'provider-retry-status-codes',
 ] as const;
@@ -59,6 +60,7 @@ const VERTEX_KEY_FIELDS = [
   'excluded-models',
   'provider-retry-count',
   'provider-retry-status-codes',
+  'hide-no-available-channel',
 ] as const;
 
 const OPENAI_PROVIDER_FIELDS = [
@@ -72,6 +74,7 @@ const OPENAI_PROVIDER_FIELDS = [
   'models',
   'test-model',
   'disable-cooling',
+  'hide-no-available-channel',
   'provider-retry-count',
   'provider-retry-status-codes',
 ] as const;
@@ -340,6 +343,7 @@ const serializeProviderKey = (config: ProviderKeyConfig) => {
   if (config.websockets !== undefined) payload.websockets = config.websockets;
   if (config.proxyUrl) payload['proxy-url'] = config.proxyUrl;
   if (config.disableCooling) payload['disable-cooling'] = true;
+  if (config.hideNoAvailableChannel) payload['hide-no-available-channel'] = true;
   // Omitting local-compact drops the override, so an explicit false must survive.
   if (config.localCompact !== undefined) payload['local-compact'] = config.localCompact;
   applyProviderRetryPayload(payload, config);
@@ -403,6 +407,7 @@ const serializeVertexKey = (config: ProviderKeyConfig) => {
     payload['excluded-models'] = config.excludedModels;
   }
   applyProviderRetryPayload(payload, config);
+  if (config.hideNoAvailableChannel) payload['hide-no-available-channel'] = true;
   return payload;
 };
 
@@ -414,6 +419,7 @@ const serializeGeminiKey = (config: GeminiKeyConfig) => {
   if (config.baseUrl) payload['base-url'] = config.baseUrl;
   if (config.proxyUrl) payload['proxy-url'] = config.proxyUrl;
   if (config.disableCooling) payload['disable-cooling'] = true;
+  if (config.hideNoAvailableChannel) payload['hide-no-available-channel'] = true;
   applyProviderRetryPayload(payload, config);
   const headers = serializeHeaders(config.headers);
   if (headers) payload.headers = headers;
@@ -442,6 +448,7 @@ const serializeOpenAIProvider = (provider: OpenAIProviderConfig) => {
   if (provider.priority !== undefined) payload.priority = provider.priority;
   if (provider.testModel) payload['test-model'] = provider.testModel;
   if (provider.disableCooling) payload['disable-cooling'] = true;
+  if (provider.hideNoAvailableChannel) payload['hide-no-available-channel'] = true;
   applyProviderRetryPayload(payload, provider);
   return payload;
 };

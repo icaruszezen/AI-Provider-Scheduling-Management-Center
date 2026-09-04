@@ -1693,6 +1693,8 @@
       "hideApiKey": "隐藏密钥",
       "disableCooling": "禁用冷却调度",
       "disableCoolingHint": "仅对当前凭据或提供商禁用失败后的冷却窗口",
+      "hideNoAvailableChannel": "隐藏无可用通道详情",
+      "hideNoAvailableChannelHint": "下游客户端只收到标准 503（不含 No available channel 原文）；提供商连通性测试仍显示上游原始报错",
       "localCompact": "本地 compact",
       "localCompactHint": "仅对当前凭据覆盖全局的本地 compact 开关",
       "localCompactInherit": "跟随全局设置",

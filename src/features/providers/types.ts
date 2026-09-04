@@ -179,6 +179,7 @@ export interface SponsorKeyEntryInput {
   prefix: string;
   disabled: boolean;
   disableCooling?: boolean;
+  hideNoAvailableChannel?: boolean;
   providerRetryCount?: number;
   providerRetryStatusCodesText?: string;
   priority?: number;
@@ -211,6 +212,7 @@ export interface ProviderEntryFormInput {
   prefix: string;
   disabled: boolean;
   disableCooling?: boolean;
+  hideNoAvailableChannel?: boolean;
   providerRetryCount?: number;
   providerRetryStatusCodesText?: string;
   priority?: number;

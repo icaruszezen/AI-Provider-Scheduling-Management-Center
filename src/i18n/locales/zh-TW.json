@@ -1719,6 +1719,8 @@
       "hideApiKey": "隱藏金鑰",
       "disableCooling": "停用冷卻調度",
       "disableCoolingHint": "僅對目前憑證或提供商停用失敗後的冷卻視窗",
+      "hideNoAvailableChannel": "隱藏無可用通道詳情",
+      "hideNoAvailableChannelHint": "下游用戶端只會收到標準 503（不含 No available channel 原文）；提供商連通性測試仍顯示上游原始錯誤",
       "localCompact": "本機 compact",
       "localCompactHint": "僅對目前憑證覆寫全域的本機 compact 開關",
       "localCompactInherit": "跟隨全域設定",

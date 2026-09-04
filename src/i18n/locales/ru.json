@@ -1671,6 +1671,8 @@
       "hideApiKey": "Скрыть ключ API",
       "disableCooling": "Отключить cooldown",
       "disableCoolingHint": "Отключает окна охлаждения после ошибок только для этой записи",
+      "hideNoAvailableChannel": "Скрыть детали No available channel",
+      "hideNoAvailableChannelHint": "Клиенты получают стандартный 503 без текста No available channel. Тест подключения в панели по-прежнему показывает исходную ошибку.",
       "localCompact": "Локальный compact",
       "localCompactHint": "Переопределяет глобальный переключатель локального compact только для этой записи",
       "localCompactInherit": "Как в глобальной настройке",

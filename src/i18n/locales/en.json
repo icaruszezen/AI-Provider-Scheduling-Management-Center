@@ -1693,6 +1693,8 @@
       "hideApiKey": "Hide API key",
       "disableCooling": "Disable cooling",
       "disableCoolingHint": "Disable failure cooldown windows only for this credential or provider",
+      "hideNoAvailableChannel": "Hide no-available-channel details",
+      "hideNoAvailableChannelHint": "Downstream clients receive a generic 503 without the No available channel text. Provider connectivity tests still show the original upstream error.",
       "localCompact": "Local compact",
       "localCompactHint": "Overrides the global local-compact switch for this credential only",
       "localCompactInherit": "Follow global setting",
