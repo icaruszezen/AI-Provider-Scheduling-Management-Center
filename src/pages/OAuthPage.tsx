@@ -494,7 +494,7 @@ export function OAuthPage() {
       const errorMessage =
         status === 404
           ? t('auth_login.oauth_callback_upgrade_hint', {
-              defaultValue: 'Please update CLI Proxy API or check the connection.',
+              defaultValue: 'Please update AI Provider Scheduling or check the connection.',
             })
           : message || undefined;
       updateProviderState(provider, {

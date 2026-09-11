@@ -155,7 +155,7 @@ export function SectionConnectivity({
               <FieldAnchor fieldId="rmPanelRepo">
                 <Input
                   label={t('config_management.visual.sections.remote.panel_repo')}
-                  placeholder="https://github.com/icaruszezen/Cli-Proxy-API-Management-Center-x"
+                  placeholder="https://github.com/icaruszezen/AI-Provider-Scheduling-Management-Center"
                   value={values.rmPanelRepo}
                   onChange={(e) => onChange({ rmPanelRepo: e.target.value })}
                   disabled={disabled}

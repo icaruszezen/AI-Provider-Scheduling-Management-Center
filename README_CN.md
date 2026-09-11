@@ -1,10 +1,10 @@
-# CLI Proxy API 管理中心
+# AI Provider Scheduling 管理中心
 
-用于管理与故障排查 **CLI Proxy API** 的单文件 Web UI（React + TypeScript），通过 **Management API** 完成配置、凭据与日志等管理操作。
+用于管理与故障排查 **AI Provider Scheduling** 的单文件 Web UI（React + TypeScript），通过 **Management API** 完成配置、凭据与日志等管理操作。
 
 [English](README.md)
 
-**主项目**: https://github.com/icaruszezen/CLIProxyAPI-x  
+**主项目**: https://github.com/icaruszezen/AIProviderScheduling  
 **示例地址**: https://remote.router-for.me/  
 **最低版本要求**: ≥ 7.1.0（推荐最新）
 
@@ -20,14 +20,14 @@ APIMart 是专注 AI 图片/视频生成的低价 API 平台，GPT-Image-2 低�
 
 ## 这是什么（以及不是什么）
 
-- 本仓库只包含 Web 管理界面本身，通过 CLI Proxy API 的 **Management API**（`/v0/management`）读取/修改配置、上传凭据与查看日志。
+- 本仓库只包含 Web 管理界面本身，通过 AI Provider Scheduling 的 **Management API**（`/v0/management`）读取/修改配置、上传凭据与查看日志。
 - 它 **不是** 代理本体，不参与流量转发。
 
 ## 快速开始
 
-### 方式 A：使用 CLI Proxy API 自带的 Web UI（推荐）
+### 方式 A：使用 AI Provider Scheduling 自带的 Web UI（推荐）
 
-1. 启动 CLI Proxy API 服务。
+1. 启动 AI Provider Scheduling 服务。
 2. 打开：`http://<host>:<api_port>/management.html`
 3. 输入 **管理密钥** 并连接。
 
@@ -40,7 +40,7 @@ bun install --frozen-lockfile
 bun run dev
 ```
 
-打开 `http://localhost:5173`，然后连接到你的 CLI Proxy API 后端实例。
+打开 `http://localhost:5173`，然后连接到你的 AI Provider Scheduling 后端实例。
 
 ### 方式 C：构建单文件 HTML
 
@@ -50,7 +50,7 @@ bun run build
 ```
 
 - 构建产物：`dist/index.html`（资源已全部内联）。
-- 在 CLI Proxy API 的发布流程里会重命名为 `management.html`。
+- 在 AI Provider Scheduling 的发布流程里会重命名为 `management.html`。
 - 本地预览：`bun run preview`
 
 提示：直接用 `file://` 打开 `dist/index.html` 可能遇到浏览器 CORS 限制；更稳妥的方式是用预览/静态服务器打开。
@@ -77,7 +77,7 @@ bun run build
 ### 远程管理
 
 当你从非 localhost 的浏览器访问时，服务端通常需要开启远程管理（例如 `allow-remote-management: true`）。  
-完整鉴权规则、服务端限制与边界情况请参考 CLI Proxy API 服务端文档或配置注释。
+完整鉴权规则、服务端限制与边界情况请参考 AI Provider Scheduling 服务端文档或配置注释。
 
 ## 功能一览（按页面对应）
 
