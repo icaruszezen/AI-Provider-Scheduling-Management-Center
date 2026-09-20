@@ -32,20 +32,9 @@ export interface ProviderTraffic {
   buckets: RecentRequestBucket[];
 }
 
-/** 凭证健康度 */
-export interface CredentialHealth {
-  total: number;
-  active: number;
-  disabled: number;
-  unavailable: number;
-  /** 按供应商类型分组的凭证数，按数量降序 */
-  byType: Array<{ type: string; count: number }>;
-}
-
 /** 顶部计数卡片的原始数值 */
 export interface DashboardCounts {
   managementKeys: number | null;
   providerKeys: number | null;
-  credentials: number | null;
   models: number | null;
 }

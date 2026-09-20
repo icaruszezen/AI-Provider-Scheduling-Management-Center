@@ -50,6 +50,10 @@ const CLAUDE_KEY_FIELDS = [
 ] as const;
 const VERTEX_KEY_FIELDS = [
   'api-key',
+  'service-account',
+  'project-id',
+  'location',
+  'email',
   'priority',
   'weight',
   'prefix',
@@ -62,6 +66,7 @@ const VERTEX_KEY_FIELDS = [
   'provider-retry-status-codes',
   'hide-no-available-channel',
 ] as const;
+const ANTIGRAVITY_KEY_FIELDS = [...PROVIDER_COMMON_KEY_FIELDS, 'project-id'] as const;
 
 const OPENAI_PROVIDER_FIELDS = [
   'name',
@@ -393,7 +398,13 @@ const serializeVertexModelAliases = (models?: ModelAlias[]) =>
     : undefined;
 
 const serializeVertexKey = (config: ProviderKeyConfig) => {
-  const payload: Record<string, unknown> = { 'api-key': config.apiKey };
+  const payload: Record<string, unknown> = { 'api-key': config.apiKey ?? '' };
+  if (config.serviceAccount && Object.keys(config.serviceAccount).length) {
+    payload['service-account'] = config.serviceAccount;
+  }
+  if (config.projectId?.trim()) payload['project-id'] = config.projectId.trim();
+  if (config.location?.trim()) payload.location = config.location.trim();
+  if (config.email?.trim()) payload.email = config.email.trim();
   if (config.priority !== undefined) payload.priority = config.priority;
   if (config.weight !== undefined) payload.weight = config.weight;
   if (config.prefix?.trim()) payload.prefix = config.prefix.trim();
@@ -408,6 +419,12 @@ const serializeVertexKey = (config: ProviderKeyConfig) => {
   }
   applyProviderRetryPayload(payload, config);
   if (config.hideNoAvailableChannel) payload['hide-no-available-channel'] = true;
+  return payload;
+};
+
+const serializeAntigravityKey = (config: ProviderKeyConfig) => {
+  const payload = serializeGeminiKey(config);
+  if (config.projectId?.trim()) payload['project-id'] = config.projectId.trim();
   return payload;
 };
 
@@ -569,18 +586,62 @@ export const providersApi = {
       )
     ),
 
-  updateVertexConfig: (apiKey: string, baseUrl: string | undefined, config: ProviderKeyConfig) =>
+  updateVertexConfig: (
+    apiKey: string,
+    baseUrl: string | undefined,
+    config: ProviderKeyConfig,
+    index?: number
+  ) =>
     mutateLatestProviderList('vertex-api-key', (latestItems) =>
       replaceLatestProviderRecord(
         latestItems,
-        (record) => matchesProviderKey(record, apiKey, baseUrl),
+        (record, currentIndex) =>
+          typeof index === 'number'
+            ? currentIndex === index
+            : matchesProviderKey(record, apiKey, baseUrl),
         serializeVertexKey(config),
         (raw, payload) => mergeProviderKeyPayload(raw, payload, VERTEX_KEY_FIELDS)
       )
     ),
 
-  deleteVertexConfig: (apiKey: string, baseUrl?: string) =>
-    apiClient.delete(`/vertex-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
+  deleteVertexConfig: (apiKey: string, baseUrl?: string, index?: number) => {
+    if (!apiKey.trim() && typeof index === 'number') {
+      return apiClient.delete(`/vertex-api-key?index=${encodeURIComponent(String(index))}`);
+    }
+    return apiClient.delete(`/vertex-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`);
+  },
+
+  async getAntigravityConfigs(): Promise<ProviderKeyConfig[]> {
+    const data = await apiClient.get('/antigravity-api-key');
+    const list = extractArrayPayload(data, 'antigravity-api-key');
+    return list
+      .map((item) => normalizeProviderKeyConfig(item))
+      .filter(Boolean) as ProviderKeyConfig[];
+  },
+
+  createAntigravityConfig: (config: ProviderKeyConfig) =>
+    mutateLatestProviderList('antigravity-api-key', (latestItems) =>
+      appendLatestProviderRecord(latestItems, serializeAntigravityKey(config), (raw, payload) =>
+        mergeProviderKeyPayload(raw, payload, ANTIGRAVITY_KEY_FIELDS)
+      )
+    ),
+
+  updateAntigravityConfig: (
+    apiKey: string,
+    baseUrl: string | undefined,
+    config: ProviderKeyConfig
+  ) =>
+    mutateLatestProviderList('antigravity-api-key', (latestItems) =>
+      replaceLatestProviderRecord(
+        latestItems,
+        (record) => matchesProviderKey(record, apiKey, baseUrl),
+        serializeAntigravityKey(config),
+        (raw, payload) => mergeProviderKeyPayload(raw, payload, ANTIGRAVITY_KEY_FIELDS)
+      )
+    ),
+
+  deleteAntigravityConfig: (apiKey: string, baseUrl?: string) =>
+    apiClient.delete(`/antigravity-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
 
   async getOpenAIProviders(): Promise<OpenAIProviderConfig[]> {
     const data = await apiClient.get('/openai-compatibility');

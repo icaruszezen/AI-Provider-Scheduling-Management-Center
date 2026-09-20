@@ -29,8 +29,8 @@ export interface Config {
   xaiApiKeys?: ProviderKeyConfig[];
   claudeApiKeys?: ProviderKeyConfig[];
   vertexApiKeys?: ProviderKeyConfig[];
+  antigravityApiKeys?: ProviderKeyConfig[];
   openaiCompatibility?: OpenAIProviderConfig[];
-  oauthExcludedModels?: Record<string, string[]>;
   raw?: Record<string, unknown>;
 }
 
@@ -52,5 +52,5 @@ export type RawConfigSection =
   | 'xai-api-key'
   | 'claude-api-key'
   | 'vertex-api-key'
-  | 'openai-compatibility'
-  | 'oauth-excluded-models';
+  | 'antigravity-api-key'
+  | 'openai-compatibility';

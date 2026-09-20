@@ -118,6 +118,10 @@ function buildInitialForm(
       apiKeyEntries: brand === 'openaiCompatibility' ? [emptyApiKeyEntry()] : undefined,
       providerRetryCount: undefined,
       providerRetryStatusCodesText: '',
+      projectId: '',
+      serviceAccountText: brand === 'vertex' ? '' : undefined,
+      location: brand === 'vertex' ? '' : undefined,
+      email: brand === 'vertex' ? '' : undefined,
     };
   }
 
@@ -225,8 +229,27 @@ function buildInitialForm(
       brand === 'interactions'
         ? ''
         : undefined,
+    projectId:
+      brand === 'antigravity' || brand === 'vertex'
+        ? ((cfg as ProviderKeyConfig).projectId ?? '')
+        : undefined,
+    serviceAccountText: brand === 'vertex' ? '' : undefined,
+    location: brand === 'vertex' ? ((cfg as ProviderKeyConfig).location ?? '') : undefined,
+    email: brand === 'vertex' ? ((cfg as ProviderKeyConfig).email ?? '') : undefined,
   };
 }
+
+const parseServiceAccountJSON = (text: string): Record<string, unknown> | null => {
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+  try {
+    const parsed = JSON.parse(trimmed) as unknown;
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null;
+    return parsed as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+};
 
 export function BaseProviderForm({
   brand,
@@ -414,8 +437,24 @@ export function BaseProviderForm({
     if (descriptor.supportsName && !form.name.trim()) {
       return t('providersPage.form.validation.nameRequired');
     }
-    if (descriptor.supportsApiKey && mode === 'create' && !form.apiKey.trim()) {
-      return t('providersPage.form.validation.apiKeyRequired');
+    if (brand === 'antigravity' && !form.projectId?.trim()) {
+      return t('providersPage.form.validation.projectIdRequired');
+    }
+    if (descriptor.supportsApiKey && mode === 'create') {
+      if (brand === 'vertex') {
+        const hasApiKey = form.apiKey.trim().length > 0;
+        const hasServiceAccount = (form.serviceAccountText ?? '').trim().length > 0;
+        if (!hasApiKey && !hasServiceAccount) {
+          return t('providersPage.form.validation.vertexCredentialRequired');
+        }
+      } else if (!form.apiKey.trim()) {
+        return t('providersPage.form.validation.apiKeyRequired');
+      }
+    }
+    if (brand === 'vertex' && (form.serviceAccountText ?? '').trim()) {
+      if (!parseServiceAccountJSON(form.serviceAccountText ?? '')) {
+        return t('providersPage.form.validation.serviceAccountInvalid');
+      }
     }
     if (descriptor.baseUrlRequired && !form.baseUrl.trim()) {
       return t('providersPage.form.validation.baseUrlRequired');
@@ -518,6 +557,8 @@ export function BaseProviderForm({
     brand === 'codex' ||
     brand === 'xai' ||
     isClaudeLikeBrand(brand) ||
+    brand === 'vertex' ||
+    brand === 'antigravity' ||
     brand === 'openaiCompatibility';
   const supportsLocalCompact = brand === 'codex';
   const localCompactOptions: Array<{ value: LocalCompactMode; label: string }> = [
@@ -611,6 +652,93 @@ export function BaseProviderForm({
               </button>
             </div>
           </div>
+        ) : null}
+
+        {brand === 'antigravity' || brand === 'vertex' ? (
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor={`${fid}-projectId`}>
+              {t('providersPage.form.projectId')}
+              {brand === 'antigravity' ? (
+                <span className={styles.labelHint}>
+                  {' '}
+                  · {t('providersPage.form.projectIdRequiredHint')}
+                </span>
+              ) : null}
+            </label>
+            <input
+              id={`${fid}-projectId`}
+              className={styles.input}
+              value={form.projectId ?? ''}
+              onChange={(e) => updateField('projectId', e.target.value)}
+              placeholder={t('providersPage.form.projectIdPlaceholder')}
+              disabled={mutating}
+            />
+          </div>
+        ) : null}
+
+        {brand === 'vertex' ? (
+          <>
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor={`${fid}-location`}>
+                {t('providersPage.form.location')}
+              </label>
+              <input
+                id={`${fid}-location`}
+                className={styles.input}
+                value={form.location ?? ''}
+                onChange={(e) => updateField('location', e.target.value)}
+                placeholder="us-central1"
+                disabled={mutating}
+              />
+            </div>
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor={`${fid}-email`}>
+                {t('providersPage.form.email')}
+              </label>
+              <input
+                id={`${fid}-email`}
+                className={styles.input}
+                value={form.email ?? ''}
+                onChange={(e) => updateField('email', e.target.value)}
+                placeholder={t('providersPage.form.emailPlaceholder')}
+                disabled={mutating}
+              />
+            </div>
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor={`${fid}-serviceAccount`}>
+                {t('providersPage.form.serviceAccount')}
+              </label>
+              <textarea
+                id={`${fid}-serviceAccount`}
+                className={styles.textarea}
+                value={form.serviceAccountText ?? ''}
+                onChange={(e) => updateField('serviceAccountText', e.target.value)}
+                placeholder={
+                  mode === 'edit' && (resource?.raw as ProviderKeyConfig | undefined)?.serviceAccount
+                    ? t('providersPage.form.serviceAccountEditPlaceholder')
+                    : t('providersPage.form.serviceAccountCreatePlaceholder')
+                }
+                rows={8}
+                disabled={mutating}
+                spellCheck={false}
+              />
+              {mode === 'edit' && (resource?.raw as ProviderKeyConfig | undefined)?.serviceAccount ? (
+                <p className={styles.labelHint}>
+                  {t('providersPage.form.serviceAccountConfiguredHint', {
+                    identity:
+                      (resource?.raw as ProviderKeyConfig).email?.trim() ||
+                      (typeof (resource?.raw as ProviderKeyConfig).serviceAccount?.client_email ===
+                      'string'
+                        ? String(
+                            (resource?.raw as ProviderKeyConfig).serviceAccount?.client_email
+                          ).trim()
+                        : '') ||
+                      t('providersPage.form.serviceAccountConfigured'),
+                  })}
+                </p>
+              ) : null}
+            </div>
+          </>
         ) : null}
 
         {descriptor.supportsBaseUrl ? (

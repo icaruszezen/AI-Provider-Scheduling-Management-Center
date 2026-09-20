@@ -155,14 +155,33 @@ const normalizeApiKeyEntry = (entry: unknown): ApiKeyEntry | null => {
   return result;
 };
 
+const normalizeServiceAccount = (value: unknown): Record<string, unknown> | undefined => {
+  if (!isRecord(value) || Object.keys(value).length === 0) return undefined;
+  return value;
+};
+
+const normalizeOptionalString = (value: unknown): string | undefined => {
+  if (value === undefined || value === null) return undefined;
+  const trimmed = String(value).trim();
+  return trimmed ? trimmed : undefined;
+};
+
 const normalizeProviderKeyConfig = (item: unknown): ProviderKeyConfig | null => {
   if (item === undefined || item === null) return null;
   const record = isRecord(item) ? item : null;
   const apiKey = record?.['api-key'] ?? (typeof item === 'string' ? item : '');
   const trimmed = String(apiKey || '').trim();
-  if (!trimmed) return null;
+  const serviceAccount = normalizeServiceAccount(record?.['service-account']);
+  if (!trimmed && !serviceAccount) return null;
 
   const config: ProviderKeyConfig = { apiKey: trimmed };
+  const projectId = normalizeOptionalString(record?.['project-id']);
+  if (projectId) config.projectId = projectId;
+  if (serviceAccount) config.serviceAccount = serviceAccount;
+  const location = normalizeOptionalString(record?.location);
+  if (location) config.location = location;
+  const email = normalizeOptionalString(record?.email);
+  if (email) config.email = email;
   const weight = readCredentialWeight(record?.weight);
   if (weight !== undefined) config.weight = weight;
   const priority = record?.priority;
@@ -314,20 +333,6 @@ const normalizeOpenAIProvider = (
   return result;
 };
 
-const normalizeOauthExcluded = (payload: unknown): Record<string, string[]> | undefined => {
-  if (!isRecord(payload)) return undefined;
-  const source = payload['oauth-excluded-models'] ?? payload.items ?? payload;
-  if (!isRecord(source)) return undefined;
-  const map: Record<string, string[]> = {};
-  Object.entries(source).forEach(([provider, models]) => {
-    const key = String(provider || '').trim();
-    if (!key) return;
-    const normalized = normalizeExcludedModels(models);
-    map[key.toLowerCase()] = normalized;
-  });
-  return map;
-};
-
 /**
  * 规范化 /config 返回值
  */
@@ -429,16 +434,18 @@ export const normalizeConfigResponse = (raw: unknown): Config => {
       .filter(Boolean) as ProviderKeyConfig[];
   }
 
+  const antigravityList = raw['antigravity-api-key'];
+  if (Array.isArray(antigravityList)) {
+    config.antigravityApiKeys = antigravityList
+      .map((item) => normalizeProviderKeyConfig(item))
+      .filter(Boolean) as ProviderKeyConfig[];
+  }
+
   const openaiList = raw['openai-compatibility'];
   if (Array.isArray(openaiList)) {
     config.openaiCompatibility = openaiList
       .map((item, index) => normalizeOpenAIProvider(item, index))
       .filter(Boolean) as OpenAIProviderConfig[];
-  }
-
-  const oauthExcluded = normalizeOauthExcluded(raw['oauth-excluded-models']);
-  if (oauthExcluded) {
-    config.oauthExcludedModels = oauthExcluded;
   }
 
   return config;

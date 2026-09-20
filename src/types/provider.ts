@@ -45,6 +45,14 @@ export interface GeminiKeyConfig {
 
 export interface ProviderKeyConfig {
   apiKey: string;
+  /** Antigravity routing project, or Vertex override for official SA credentials. */
+  projectId?: string;
+  /** Official Vertex service-account JSON (private key lives here). */
+  serviceAccount?: Record<string, unknown>;
+  /** Optional Vertex region, e.g. us-central1. */
+  location?: string;
+  /** Optional display identity for a Vertex service account. */
+  email?: string;
   priority?: number;
   weight?: number;
   prefix?: string;

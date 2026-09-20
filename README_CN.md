@@ -20,7 +20,7 @@ APIMart 是专注 AI 图片/视频生成的低价 API 平台，GPT-Image-2 低�
 
 ## 这是什么（以及不是什么）
 
-- 本仓库只包含 Web 管理界面本身，通过 AI Provider Scheduling 的 **Management API**（`/v0/management`）读取/修改配置、上传凭据与查看日志。
+- 本仓库只包含 Web 管理界面本身，通过 AI Provider Scheduling 的 **Management API**（`/v0/management`）读取/修改配置、提供商 API Key 与日志。
 - 它 **不是** 代理本体，不参与流量转发。
 
 ## 快速开始
@@ -84,11 +84,11 @@ bun run build
 - **仪表盘**：连接状态、服务版本/构建时间、关键数量概览、可用模型概览。
 - **配置面板**：可视化编辑常用 `config.yaml` 字段、基础设置与代理 `api-keys`；也支持源码编辑、YAML 高亮/搜索与保存前差异预览。
 - **AI 提供商**：
-  - Gemini/Codex/Claude/Vertex 配置（Base URL、Headers、代理、模型别名、排除模型、Prefix）。
+  - Gemini、Interactions、Codex、Claude、xAI、Vertex、Antigravity 配置（Base URL、Headers、代理、模型别名、排除模型、Prefix）。
+  - Antigravity 必须填写 `project-id`。官方 Vertex 可用 API Key，或粘贴 Google Cloud 服务账号 JSON（`service-account`，可选 `project-id` / `location` / `email`）。
   - OpenAI 兼容提供商（多 Key、Header、自助从 `/v1/models` 拉取并导入模型别名、可选浏览器侧 `chat/completions` 测试）。
-- **认证文件**：上传/下载/删除 JSON 凭据，筛选/搜索/分页，标记 runtime-only；查看单个凭据可用模型（依赖后端支持）；管理 OAuth 排除模型（支持 `*` 通配符）；配置 OAuth 模型别名映射。
-- **OAuth**：对 Codex、Anthropic/Claude、Antigravity、Kimi、xAI/Grok 发起 OAuth/设备码流程并轮询状态；支持提交回调 URL 或 xAI/Grok 页面显示的 code；包含 Vertex JSON 凭据导入与 iFlow Cookie 导入。
-- **配额管理**：管理 Claude、Antigravity、Codex、Kimi、xAI/Grok 等提供商的配额上限与使用情况。
+- **插件**：查看已加载插件与宿主 ABI 状态。
+- **集群**：主从同步提供商 Key 与运行参数。
 - **日志**：增量拉取日志、自动刷新、搜索、隐藏管理端流量、清空日志；下载请求错误日志文件。
 - **系统信息**：快捷链接、版本检查、请求日志开关、本地登录信息清理，以及拉取 `/v1/models` 并分组展示（需要至少一个代理 API Key 才能查询模型）。
 
@@ -137,7 +137,7 @@ bun run build
 - **无法连接 / 401**：确认 API 地址与管理密钥；远程访问可能需要服务端开启远程管理。
 - **反复输错密钥**：服务端可能对远程 IP 进行临时封禁。
 - **日志页面不显示**：需要在“基础设置”里开启“写入日志文件”，导航项才会出现。
-- **功能提示不支持**：多为后端版本较旧或接口未启用/不存在（如：认证文件模型列表、排除模型、日志相关接口）。
+- **功能提示不支持**：多为后端版本较旧或接口未启用/不存在（如：排除模型、日志相关接口）。
 - **OpenAI 提供商测试失败**：测试在浏览器侧执行，会受网络与 CORS 影响；这里失败不一定代表服务端不可用。
 
 ## 开发命令

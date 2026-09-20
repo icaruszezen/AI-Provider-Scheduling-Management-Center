@@ -204,7 +204,6 @@ export function getVisualConfigValidationErrors(
     requestRetry: getNonNegativeIntegerError(values.requestRetry),
     maxRetryCredentials: getNonNegativeIntegerError(values.maxRetryCredentials),
     maxRetryInterval: getNonNegativeIntegerError(values.maxRetryInterval),
-    authAutoRefreshWorkers: getNonNegativeIntegerError(values.authAutoRefreshWorkers),
     'streaming.keepaliveSeconds': getNonNegativeIntegerError(values.streaming.keepaliveSeconds),
     'streaming.bootstrapRetries': getNonNegativeIntegerError(values.streaming.bootstrapRetries),
     'streaming.nonstreamKeepaliveInterval': getNonNegativeIntegerError(
@@ -880,7 +879,6 @@ function getNextDirtyFields(
       'localCompact',
       'disableImageGeneration',
       'gptImage2BaseModel',
-      'authAutoRefreshWorkers',
       'antigravitySignatureCacheEnabled',
       'antigravitySignatureBypassStrict',
       'claudeHeaderUserAgent',
@@ -907,7 +905,6 @@ function getNextDirtyFields(
       'clusterAdvertiseUrl',
       'clusterSyncInterval',
       'clusterHeartbeatInterval',
-      'authDir',
       'apiKeysText',
       'debug',
       'commercialMode',
@@ -1128,7 +1125,6 @@ export function useVisualConfig() {
         clusterSyncInterval: String(cluster?.['sync-interval-seconds'] ?? ''),
         clusterHeartbeatInterval: String(cluster?.['heartbeat-interval-seconds'] ?? ''),
 
-        authDir: typeof parsed['auth-dir'] === 'string' ? parsed['auth-dir'] : '',
         apiKeysText: resolveApiKeysText(parsed),
         pluginsEnabled: Boolean(plugins?.enabled),
         pluginStoreSources: parseStringList(plugins?.['store-sources']),
@@ -1157,7 +1153,6 @@ export function useVisualConfig() {
           typeof parsed['gpt-image-2-base-model'] === 'string'
             ? parsed['gpt-image-2-base-model']
             : '',
-        authAutoRefreshWorkers: String(parsed['auth-auto-refresh-workers'] ?? ''),
         wsAuth: Boolean(parsed['ws-auth']),
         antigravitySensitiveWords: parseStringList(antigravity?.['sensitive-words']),
         antigravitySignatureCacheEnabled: Boolean(
@@ -1335,7 +1330,6 @@ export function useVisualConfig() {
           deleteIfMapEmpty(doc, ['cluster']);
         }
 
-        if (dirtyFields.has('authDir')) setStringInDoc(doc, ['auth-dir'], values.authDir);
         if (dirtyFields.has('apiKeysText')) {
           const apiKeys = values.apiKeysText
             .split('\n')
@@ -1427,9 +1421,6 @@ export function useVisualConfig() {
         }
         if (dirtyFields.has('gptImage2BaseModel')) {
           setStringInDoc(doc, ['gpt-image-2-base-model'], values.gptImage2BaseModel);
-        }
-        if (dirtyFields.has('authAutoRefreshWorkers')) {
-          setIntFromStringInDoc(doc, ['auth-auto-refresh-workers'], values.authAutoRefreshWorkers);
         }
         if (dirtyFields.has('wsAuth')) setBooleanInDoc(doc, ['ws-auth'], values.wsAuth);
         if (dirtyFields.has('antigravitySensitiveWords')) {

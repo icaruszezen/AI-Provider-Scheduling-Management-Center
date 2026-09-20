@@ -3,10 +3,8 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   IconBot,
-  IconFileText,
   IconSidebarConfig,
   IconSidebarLogs,
-  IconSidebarQuota,
   IconSidebarSystem,
 } from '@/components/ui/icons';
 import { useAuthStore } from '@/stores';
@@ -40,7 +38,7 @@ export function DashboardPage() {
   const serverVersion = useAuthStore((state) => state.serverVersion);
   const serverBuildDate = useAuthStore((state) => state.serverBuildDate);
 
-  const { connectionStatus, connected, config, counts, traffic, providers, credentials, refresh } =
+  const { connectionStatus, connected, config, counts, traffic, providers, refresh } =
     useDashboardOverview();
 
   useHeaderRefresh(refresh, connected);
@@ -124,22 +122,6 @@ export function DashboardPage() {
       tone: successRateTone,
     },
     {
-      key: 'credentials',
-      label: t('dashboard.stat_credentials'),
-      value: credentials ? credentials.total.toLocaleString() : DASH,
-      hint: credentials
-        ? t('dashboard.stat_credentials_hint', {
-            active: credentials.active,
-            disabled: credentials.disabled + credentials.unavailable,
-          })
-        : t('dashboard.stat_credentials_empty'),
-      meter:
-        credentials && credentials.total > 0
-          ? (credentials.active / credentials.total) * 100
-          : null,
-      tone: undefined,
-    },
-    {
       key: 'providerKeys',
       label: t('dashboard.stat_provider_keys'),
       value: counts.providerKeys === null ? DASH : counts.providerKeys.toLocaleString(),
@@ -190,22 +172,10 @@ export function DashboardPage() {
       description: t('dashboard.cta_providers_desc'),
     },
     {
-      to: '/auth-files',
-      icon: <IconFileText size={20} />,
-      title: t('nav.auth_files'),
-      description: t('dashboard.cta_auth_files_desc'),
-    },
-    {
       to: '/config',
       icon: <IconSidebarConfig size={20} />,
       title: t('nav.config_management'),
       description: t('dashboard.cta_config_desc'),
-    },
-    {
-      to: '/quota',
-      icon: <IconSidebarQuota size={20} />,
-      title: t('nav.quota_management'),
-      description: t('dashboard.cta_quota_desc'),
     },
     {
       to: '/logs',
@@ -405,81 +375,8 @@ export function DashboardPage() {
         </div>
       </section>
 
-      {/* ---------- Credential health + runtime ---------- */}
-      <section className={styles.detailGrid} ref={detailRef}>
-        <div className={styles.panel} data-reveal>
-          <header className={styles.panelHead}>
-            <span className={styles.eyebrow}>{t('dashboard.health_eyebrow')}</span>
-            <h2 className={styles.panelTitle}>{t('dashboard.health_title')}</h2>
-          </header>
-          {!credentials || credentials.total === 0 ? (
-            <p className={styles.emptyNote}>{t('dashboard.health_empty')}</p>
-          ) : (
-            <>
-              <div className={styles.healthBar}>
-                {credentials.active > 0 && (
-                  <span
-                    className={`${styles.healthSegment} ${styles.healthActive}`}
-                    style={{ flexGrow: credentials.active }}
-                  />
-                )}
-                {credentials.unavailable > 0 && (
-                  <span
-                    className={`${styles.healthSegment} ${styles.healthUnavailable}`}
-                    style={{ flexGrow: credentials.unavailable }}
-                  />
-                )}
-                {credentials.disabled > 0 && (
-                  <span
-                    className={`${styles.healthSegment} ${styles.healthDisabled}`}
-                    style={{ flexGrow: credentials.disabled }}
-                  />
-                )}
-              </div>
-              <ul className={styles.healthLegend}>
-                <li>
-                  <i className={`${styles.healthKey} ${styles.healthActive}`} aria-hidden="true" />
-                  {t('dashboard.health_active')}
-                  <b>{credentials.active.toLocaleString()}</b>
-                </li>
-                <li>
-                  <i
-                    className={`${styles.healthKey} ${styles.healthUnavailable}`}
-                    aria-hidden="true"
-                  />
-                  {t('dashboard.health_unavailable')}
-                  <b>{credentials.unavailable.toLocaleString()}</b>
-                </li>
-                <li>
-                  <i
-                    className={`${styles.healthKey} ${styles.healthDisabled}`}
-                    aria-hidden="true"
-                  />
-                  {t('dashboard.health_disabled')}
-                  <b>{credentials.disabled.toLocaleString()}</b>
-                </li>
-              </ul>
-              <div className={styles.typeBreakdown}>
-                <span className={styles.typeBreakdownLabel}>{t('dashboard.health_by_type')}</span>
-                <ul className={styles.typeList}>
-                  {credentials.byType.map((entry) => (
-                    <li key={entry.type} className={styles.typeChip}>
-                      {providerLabel(entry.type, unknownProviderLabel)}
-                      <b>{entry.count.toLocaleString()}</b>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <Link to="/auth-files" className={styles.panelLink}>
-                {t('dashboard.health_link')}{' '}
-                <span className={styles.linkArrow} aria-hidden="true">
-                  →
-                </span>
-              </Link>
-            </>
-          )}
-        </div>
-
+      {/* ---------- Runtime ---------- */}
+      <section className={styles.section} ref={detailRef}>
         <div className={styles.panel} data-reveal>
           <header className={styles.panelHead}>
             <span className={styles.eyebrow}>{t('dashboard.runtime_eyebrow')}</span>

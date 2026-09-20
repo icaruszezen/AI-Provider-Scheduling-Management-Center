@@ -25,9 +25,6 @@ export const BUILD_DATE_HEADER_KEYS = [...CPA_BUILD_DATE_HEADER_KEYS, 'x-server-
 // 日志相关
 export const LOGS_TIMEOUT_MS = 60 * 1000;
 
-// 认证文件分页
-export const MAX_AUTH_FILE_SIZE = 10 * 1024 * 1024;
-
 // 本地存储键名
 export const STORAGE_KEY_AUTH = 'cli-proxy-auth';
 export const STORAGE_KEY_THEME = 'cli-proxy-theme';

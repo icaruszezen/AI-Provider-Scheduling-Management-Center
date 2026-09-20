@@ -35,10 +35,6 @@ export function SectionNetwork({
   const requestRetryError = getValidationMessage(t, validationErrors?.requestRetry);
   const maxRetryCredentialsError = getValidationMessage(t, validationErrors?.maxRetryCredentials);
   const maxRetryIntervalError = getValidationMessage(t, validationErrors?.maxRetryInterval);
-  const authAutoRefreshWorkersError = getValidationMessage(
-    t,
-    validationErrors?.authAutoRefreshWorkers
-  );
 
   const disableImageGenerationOptions = [
     {
@@ -104,18 +100,6 @@ export function SectionNetwork({
               onChange={(e) => onChange({ maxRetryInterval: e.target.value })}
               disabled={disabled}
               error={maxRetryIntervalError}
-            />
-          </FieldAnchor>
-          <FieldAnchor fieldId="authAutoRefreshWorkers">
-            <Input
-              label={t('config_management.visual.sections.network.auth_auto_refresh_workers')}
-              type="number"
-              placeholder="16"
-              value={values.authAutoRefreshWorkers}
-              onChange={(e) => onChange({ authAutoRefreshWorkers: e.target.value })}
-              disabled={disabled}
-              hint={t('config_management.visual.sections.network.auth_auto_refresh_workers_hint')}
-              error={authAutoRefreshWorkersError}
             />
           </FieldAnchor>
           <FieldAnchor fieldId="routingStrategy">

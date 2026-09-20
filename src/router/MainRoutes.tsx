@@ -1,11 +1,6 @@
 import { Navigate, useRoutes, type Location } from 'react-router-dom';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
 import { ProvidersWorkbenchPage } from '@/features/providers/ProvidersWorkbenchPage';
-import { AuthFilesPage } from '@/features/authFiles/AuthFilesPage';
-import { AuthFilesOAuthExcludedEditPage } from '@/pages/AuthFilesOAuthExcludedEditPage';
-import { AuthFilesOAuthModelAliasEditPage } from '@/pages/AuthFilesOAuthModelAliasEditPage';
-import { OAuthPage } from '@/pages/OAuthPage';
-import { QuotaPage } from '@/features/quota/QuotaPage';
 import { PluginResourcePage } from '@/features/plugins/PluginResourcePage';
 import { PluginsPage } from '@/features/plugins/PluginsPage';
 import { PluginStorePage } from '@/features/plugins/PluginStorePage';
@@ -24,11 +19,6 @@ const createMainRoutes = (supportsPlugin: boolean) => [
   { path: '/quick-start/*', element: <Navigate to="/quick-start" replace /> },
   { path: '/ai-providers', element: <ProvidersWorkbenchPage /> },
   { path: '/ai-providers/*', element: <Navigate to="/ai-providers" replace /> },
-  { path: '/auth-files', element: <AuthFilesPage /> },
-  { path: '/auth-files/oauth-excluded', element: <AuthFilesOAuthExcludedEditPage /> },
-  { path: '/auth-files/oauth-model-alias', element: <AuthFilesOAuthModelAliasEditPage /> },
-  { path: '/oauth', element: <OAuthPage /> },
-  { path: '/quota', element: <QuotaPage /> },
   ...(supportsPlugin
     ? [
         { path: '/plugin-pages/:pluginId/:menuIndex', element: <PluginResourcePage /> },

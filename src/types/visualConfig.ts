@@ -14,7 +14,6 @@ export type VisualConfigFieldPath =
   | 'requestRetry'
   | 'maxRetryCredentials'
   | 'maxRetryInterval'
-  | 'authAutoRefreshWorkers'
   | 'streaming.keepaliveSeconds'
   | 'streaming.bootstrapRetries'
   | 'streaming.nonstreamKeepaliveInterval';
@@ -100,7 +99,6 @@ export type VisualConfigValues = {
   clusterAdvertiseUrl: string;
   clusterSyncInterval: string;
   clusterHeartbeatInterval: string;
-  authDir: string;
   apiKeysText: string;
   pluginsEnabled: boolean;
   pluginStoreSources: string[];
@@ -122,7 +120,6 @@ export type VisualConfigValues = {
   localCompact: boolean;
   disableImageGeneration: DisableImageGenerationMode;
   gptImage2BaseModel: string;
-  authAutoRefreshWorkers: string;
   quotaSwitchProject: boolean;
   quotaSwitchPreviewModel: boolean;
   quotaAntigravityCredits: boolean;
@@ -172,7 +169,6 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   clusterAdvertiseUrl: '',
   clusterSyncInterval: '',
   clusterHeartbeatInterval: '',
-  authDir: '',
   apiKeysText: '',
   pluginsEnabled: false,
   pluginStoreSources: [],
@@ -194,7 +190,6 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   localCompact: false,
   disableImageGeneration: 'false',
   gptImage2BaseModel: '',
-  authAutoRefreshWorkers: '',
   quotaSwitchProject: true,
   quotaSwitchPreviewModel: true,
   quotaAntigravityCredits: false,

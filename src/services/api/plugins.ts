@@ -1,9 +1,5 @@
 import { apiClient } from './client';
 import { isRecord } from '@/utils/helpers';
-import {
-  isManagementOAuthProviderKey,
-  normalizeManagementOAuthProviderKey,
-} from '@/utils/providerKeys';
 import type {
   PluginConfigField,
   PluginConfigObject,
@@ -25,14 +21,6 @@ const asString = (value: unknown): string => {
 };
 
 const asBoolean = (value: unknown): boolean => value === true;
-
-const normalizePluginOAuthProvider = (value: unknown): string | undefined => {
-  const provider = normalizeManagementOAuthProviderKey(asString(value));
-  return isManagementOAuthProviderKey(provider) ? provider : undefined;
-};
-
-const hasOwn = (source: Record<string, unknown>, key: string): boolean =>
-  Object.prototype.hasOwnProperty.call(source, key);
 
 const normalizeConfigField = (value: unknown): PluginConfigField | null => {
   if (!isRecord(value)) return null;
@@ -101,12 +89,6 @@ const normalizePluginEntry = (value: unknown): PluginListEntry | null => {
 
   const metadata = normalizeMetadata(value.metadata);
   const configFields = normalizeConfigFields(value.config_fields);
-  const supportsOAuth = asBoolean(value.supports_oauth);
-  const oauthProvider = normalizePluginOAuthProvider(value.oauth_provider);
-  const legacyOAuthProvider =
-    supportsOAuth && !hasOwn(value, 'oauth_provider')
-      ? normalizePluginOAuthProvider(id)
-      : undefined;
 
   return {
     id,
@@ -115,8 +97,6 @@ const normalizePluginEntry = (value: unknown): PluginListEntry | null => {
     registered: asBoolean(value.registered),
     enabled: value.enabled !== false,
     effectiveEnabled: asBoolean(value.effective_enabled),
-    supportsOAuth,
-    oauthProvider: oauthProvider ?? legacyOAuthProvider,
     logo: asString(value.logo || metadata?.logo).trim(),
     configFields: configFields.length > 0 ? configFields : (metadata?.configFields ?? []),
     menus: normalizeMenus(value.menus),

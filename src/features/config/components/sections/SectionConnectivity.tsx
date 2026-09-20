@@ -19,7 +19,7 @@ import { useClusterStore } from '@/stores';
 
 const Icon = CONFIG_TAB_ICONS.connectivity;
 
-/** 01 接入与认证：服务地址、端口、认证目录、API 密钥 + TLS / 远程管理折叠组。 */
+/** 01 接入与认证：服务地址、端口、API 密钥 + TLS / 远程管理折叠组。 */
 export function SectionConnectivity({
   values,
   validationErrors,
@@ -46,17 +46,6 @@ export function SectionConnectivity({
           <HostField values={values} disabled={disabled} onChange={onChange} />
           <PortField values={values} disabled={disabled} onChange={onChange} error={portError} />
         </FieldGrid>
-
-        <FieldAnchor fieldId="authDir">
-          <Input
-            label={t('config_management.visual.sections.auth.auth_dir')}
-            placeholder="~/.cli-proxy-api"
-            value={values.authDir}
-            onChange={(e) => onChange({ authDir: e.target.value })}
-            disabled={disabled}
-            hint={t('config_management.visual.sections.auth.auth_dir_hint')}
-          />
-        </FieldAnchor>
 
         <ApiKeysField values={values} disabled={disabled} onChange={onChange} />
 

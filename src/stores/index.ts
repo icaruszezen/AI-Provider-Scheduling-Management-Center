@@ -9,8 +9,3 @@ export { useAuthStore } from './useAuthStore';
 export { useClusterStore } from './useClusterStore';
 export { useConfigStore } from './useConfigStore';
 export { useModelsStore } from './useModelsStore';
-export {
-  captureQuotaCacheGeneration,
-  commitIfQuotaCacheCurrent,
-  useQuotaStore,
-} from './useQuotaStore';

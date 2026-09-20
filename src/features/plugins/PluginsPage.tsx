@@ -611,9 +611,6 @@ export function PluginsPage() {
                           ? t('plugin_management.configured')
                           : t('plugin_management.not_configured')}
                       </span>
-                      {plugin.supportsOAuth ? (
-                        <span className={styles.badge}>{t('plugin_management.oauth')}</span>
-                      ) : null}
                     </div>
                   </div>
 

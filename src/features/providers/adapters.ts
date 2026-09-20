@@ -77,12 +77,39 @@ const truncateForId = (value: string | undefined | null): string => {
   return trimmed.slice(0, 8);
 };
 
+function providerKeyIdentity(config: GeminiKeyConfig | ProviderKeyConfig): string {
+  const apiKey = config.apiKey ?? '';
+  if (apiKey.trim()) return apiKey;
+  const keyed = config as ProviderKeyConfig;
+  const email = keyed.email?.trim();
+  if (email) return email;
+  const projectId = keyed.projectId?.trim();
+  if (projectId) return projectId;
+  const sa = keyed.serviceAccount;
+  if (sa && typeof sa === 'object') {
+    const saEmail = typeof sa.client_email === 'string' ? sa.client_email.trim() : '';
+    if (saEmail) return saEmail;
+    const saProject = typeof sa.project_id === 'string' ? sa.project_id.trim() : '';
+    if (saProject) return saProject;
+  }
+  return '';
+}
+
 function providerKeyToResource(
-  brand: 'gemini' | 'interactions' | 'codex' | 'xai' | 'claude' | 'claudeApi' | 'vertex',
+  brand:
+    | 'gemini'
+    | 'interactions'
+    | 'codex'
+    | 'xai'
+    | 'claude'
+    | 'claudeApi'
+    | 'vertex'
+    | 'antigravity',
   config: GeminiKeyConfig | ProviderKeyConfig,
   index: number
 ): ProviderResource {
   const apiKey = config.apiKey ?? '';
+  const identity = providerKeyIdentity(config);
   const disabled = hasDisableAllModelsRule(config.excludedModels);
   const flags: ProviderResource['flags'] = {};
   if (brand === 'codex' || brand === 'xai') {
@@ -102,11 +129,11 @@ function providerKeyToResource(
   } as ProviderResourceSelector;
 
   return {
-    id: buildId(brand, index, truncateForId(apiKey)),
+    id: buildId(brand, index, truncateForId(identity) || `#${index}`),
     brand,
     originalIndex: index,
     name: null,
-    identifier: maskApiKey(apiKey) || `#${index + 1}`,
+    identifier: (apiKey ? maskApiKey(apiKey) : identity) || `#${index + 1}`,
     apiKeyPreview: apiKey ? maskApiKey(apiKey) : null,
     apiKey: apiKey || null,
     authIndex: config.authIndex ?? null,
@@ -156,6 +183,10 @@ export function claudeApiToResource(config: ProviderKeyConfig, index: number): P
 
 export function vertexToResource(config: ProviderKeyConfig, index: number): ProviderResource {
   return providerKeyToResource('vertex', config, index);
+}
+
+export function antigravityToResource(config: ProviderKeyConfig, index: number): ProviderResource {
+  return providerKeyToResource('antigravity', config, index);
 }
 
 export function openaiToResource(config: OpenAIProviderConfig, index: number): ProviderResource {

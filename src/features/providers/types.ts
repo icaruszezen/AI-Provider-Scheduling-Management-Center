@@ -14,6 +14,7 @@ export type ProviderBrand =
   | 'claude'
   | 'claudeApi'
   | 'vertex'
+  | 'antigravity'
   | 'openaiCompatibility'
   | 'apikeyFun'
   | 'code0'
@@ -40,6 +41,7 @@ export type ProviderResourceSelector =
   | { brand: 'claude'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'claudeApi'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'vertex'; apiKey: string; baseUrl?: string; index: number }
+  | { brand: 'antigravity'; apiKey: string; baseUrl?: string; index: number }
   | { brand: 'openaiCompatibility'; name: string; index: number }
   | {
       brand: 'apikeyFun';
@@ -235,4 +237,10 @@ export interface ProviderEntryFormInput {
   apiKeyEntries?: ApiKeyEntryInput[];
   /** APIKEY.FUN stores one grouped key per platform protocol. */
   sponsorKeyEntries?: SponsorKeyEntryInput[];
+  /** Antigravity required; Vertex optional override of the SA project. */
+  projectId?: string;
+  /** Official Vertex service-account JSON text. Empty on edit means keep existing. */
+  serviceAccountText?: string;
+  location?: string;
+  email?: string;
 }

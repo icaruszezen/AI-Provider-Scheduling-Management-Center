@@ -1,18 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { authFilesApi } from '@/services/api';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useAuthStore, useConfigStore, useModelsStore } from '@/stores';
 import { useApiKeysForModels } from '@/hooks/useApiKeysForModels';
 import { useProviderRecentRequests } from '@/components/providers/hooks/useProviderRecentRequests';
-import {
-  mergeRecentRequestBucketGroups,
-  normalizeRecentRequestUsageEntry,
-  type RecentRequestBucket,
-} from '@/utils/recentRequests';
+import { mergeRecentRequestBucketGroups, type RecentRequestBucket } from '@/utils/recentRequests';
 import type { Config } from '@/types';
-import type { AuthFileItem } from '@/types/authFile';
 import {
   TRAFFIC_BUCKET_MINUTES,
-  type CredentialHealth,
   type DashboardCounts,
   type ProviderTraffic,
   type TrafficWindow,
@@ -28,19 +21,6 @@ const EMPTY_TRAFFIC: TrafficWindow = {
   peakIndex: -1,
   activeBuckets: 0,
   windowMinutes: 0,
-};
-
-/** `api-key-usage` 的键形如 `<baseUrl>|<apiKey>`，取第一个分隔符之后的部分 */
-const apiKeyFromCompositeKey = (compositeKey: string): string => {
-  const separatorIndex = compositeKey.indexOf('|');
-  return separatorIndex < 0 ? '' : compositeKey.slice(separatorIndex + 1).trim();
-};
-
-const providerIdOfAuthFile = (file: AuthFileItem): string => {
-  const candidate = String(file.type ?? file.provider ?? '')
-    .trim()
-    .toLowerCase();
-  return candidate && candidate !== 'empty' ? candidate : 'unknown';
 };
 
 const buildTrafficWindow = (bucketGroups: RecentRequestBucket[][]): TrafficWindow => {
@@ -104,15 +84,14 @@ export const getProviderKeyCounts = (config: Config) => ({
   xai: config.xaiApiKeys?.length ?? 0,
   claude: config.claudeApiKeys?.length ?? 0,
   vertex: config.vertexApiKeys?.length ?? 0,
+  antigravity: config.antigravityApiKeys?.length ?? 0,
   openai: config.openaiCompatibility?.length ?? 0,
 });
 
 /**
  * 汇总仪表盘所需的全部数据。
  *
- * 流量数据有两个互不重叠的来源：`api-key-usage`（配置内联的 API Key 凭证）
- * 与 `auth-files`（文件/运行时凭证）。后端对二者的判定条件互斥，但插件提供的
- * 凭证理论上可同时命中，因此这里按 `account_type` + `account` 做一次防御性去重。
+ * 流量只来自入站 `api-key-usage`（配置内联的 API Key 凭证）与供应商近期请求。
  */
 export function useDashboardOverview() {
   const connectionStatus = useAuthStore((state) => state.connectionStatus);
@@ -132,22 +111,6 @@ export function useDashboardOverview() {
     enabled: connected,
   });
 
-  const [authFiles, setAuthFiles] = useState<AuthFileItem[] | null>(null);
-  const [authFilesLoading, setAuthFilesLoading] = useState(false);
-
-  const loadAuthFiles = useCallback(async () => {
-    if (!connected) return;
-    setAuthFilesLoading(true);
-    try {
-      const response = await authFilesApi.list();
-      setAuthFiles(response.files);
-    } catch {
-      setAuthFiles(null);
-    } finally {
-      setAuthFilesLoading(false);
-    }
-  }, [connected]);
-
   const loadModels = useCallback(async () => {
     if (!connected || !apiBase) return;
     try {
@@ -161,26 +124,19 @@ export function useDashboardOverview() {
   useEffect(() => {
     if (!connected) return;
     void fetchConfig().catch(() => undefined);
-    void loadAuthFiles();
     void loadModels();
-  }, [connected, fetchConfig, loadAuthFiles, loadModels]);
+  }, [connected, fetchConfig, loadModels]);
 
   const refresh = useCallback(async () => {
     if (!connected) return;
-    await Promise.allSettled([
-      fetchConfig(true),
-      loadAuthFiles(),
-      loadModels(),
-      refreshRecentRequests(),
-    ]);
-  }, [connected, fetchConfig, loadAuthFiles, loadModels, refreshRecentRequests]);
+    await Promise.allSettled([fetchConfig(true), loadModels(), refreshRecentRequests()]);
+  }, [connected, fetchConfig, loadModels, refreshRecentRequests]);
 
   const providerKeyCounts = useMemo(() => (config ? getProviderKeyCounts(config) : null), [config]);
 
   const { traffic, providers } = useMemo(() => {
     const accumulators = new Map<string, ProviderAccumulator>();
     const allBucketGroups: RecentRequestBucket[][] = [];
-    const apiKeysFromUsage = new Set<string>();
 
     const accumulatorFor = (providerId: string): ProviderAccumulator => {
       const existing = accumulators.get(providerId);
@@ -192,11 +148,7 @@ export function useDashboardOverview() {
 
     usageByProvider.forEach((entriesByKey, providerId) => {
       const accumulator = accumulatorFor(providerId);
-      entriesByKey.forEach((entry, compositeKey) => {
-        const apiKey = apiKeyFromCompositeKey(compositeKey);
-        if (apiKey) {
-          apiKeysFromUsage.add(apiKey);
-        }
+      entriesByKey.forEach((entry) => {
         accumulator.credentials += 1;
         accumulator.success += entry.success;
         accumulator.failure += entry.failed;
@@ -205,27 +157,6 @@ export function useDashboardOverview() {
           allBucketGroups.push(entry.recentRequests);
         }
       });
-    });
-
-    (authFiles ?? []).forEach((file) => {
-      const accountType = String(file.account_type ?? '')
-        .trim()
-        .toLowerCase();
-      const account = String(file.account ?? '').trim();
-      // 已经由 api-key-usage 统计过的凭证不再重复计入
-      if (accountType === 'api_key' && account && apiKeysFromUsage.has(account)) {
-        return;
-      }
-
-      const accumulator = accumulatorFor(providerIdOfAuthFile(file));
-      const entry = normalizeRecentRequestUsageEntry(file);
-      accumulator.credentials += 1;
-      accumulator.success += entry.success;
-      accumulator.failure += entry.failed;
-      if (entry.recentRequests.length > 0) {
-        accumulator.bucketGroups.push(entry.recentRequests);
-        allBucketGroups.push(entry.recentRequests);
-      }
     });
 
     const providerRows: ProviderTraffic[] = Array.from(accumulators.entries())
@@ -249,35 +180,7 @@ export function useDashboardOverview() {
       traffic: buildTrafficWindow(allBucketGroups),
       providers: providerRows,
     };
-  }, [usageByProvider, authFiles]);
-
-  const credentials = useMemo<CredentialHealth | null>(() => {
-    if (!authFiles) return null;
-
-    let disabled = 0;
-    let unavailable = 0;
-    const countsByType = new Map<string, number>();
-
-    authFiles.forEach((file) => {
-      if (file.disabled) {
-        disabled += 1;
-      } else if (file.unavailable) {
-        unavailable += 1;
-      }
-      const type = providerIdOfAuthFile(file);
-      countsByType.set(type, (countsByType.get(type) ?? 0) + 1);
-    });
-
-    return {
-      total: authFiles.length,
-      active: authFiles.length - disabled - unavailable,
-      disabled,
-      unavailable,
-      byType: Array.from(countsByType.entries())
-        .map(([type, count]) => ({ type, count }))
-        .sort((a, b) => b.count - a.count || a.type.localeCompare(b.type)),
-    };
-  }, [authFiles]);
+  }, [usageByProvider]);
 
   const counts = useMemo<DashboardCounts>(
     () => ({
@@ -285,10 +188,9 @@ export function useDashboardOverview() {
       providerKeys: providerKeyCounts
         ? Object.values(providerKeyCounts).reduce((sum, count) => sum + count, 0)
         : null,
-      credentials: authFiles ? authFiles.length : null,
       models: modelsLoading || modelsError ? null : models.length,
     }),
-    [config, providerKeyCounts, authFiles, models.length, modelsLoading, modelsError]
+    [config, providerKeyCounts, models.length, modelsLoading, modelsError]
   );
 
   return {
@@ -299,10 +201,7 @@ export function useDashboardOverview() {
     providerKeyCounts,
     traffic,
     providers,
-    credentials,
-    /** 首屏骨架的判定：配置与凭证都还没回来 */
-    initialLoading: connected && !config && authFiles === null,
-    authFilesLoading,
+    initialLoading: connected && !config,
     refresh,
   };
 }

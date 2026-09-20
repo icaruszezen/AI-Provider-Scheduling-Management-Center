@@ -72,7 +72,7 @@ export const COMMON_FIELD_IDS = [
 export const SECTION_VALIDATION_FIELDS: Record<VisualSectionId, readonly VisualConfigFieldPath[]> =
   {
     connectivity: ['port'],
-    network: ['requestRetry', 'maxRetryCredentials', 'maxRetryInterval', 'authAutoRefreshWorkers'],
+    network: ['requestRetry', 'maxRetryCredentials', 'maxRetryInterval'],
     logging: ['errorLogsMaxFiles', 'logsMaxTotalSizeMb', 'redisUsageQueueRetentionSeconds'],
     quota: [],
     streaming: [
@@ -86,14 +86,13 @@ export const SECTION_VALIDATION_FIELDS: Record<VisualSectionId, readonly VisualC
 
 /**
  * fieldId → useVisualConfig dirtyFields 的键（= VisualConfigValues 叶值键，streaming 用点号叶）。
- * 与搜索索引 58 条一一对应；三方对账由 tests/configFieldParity.test.ts 守护 ——
+ * 与搜索索引条目一一对应；三方对账由 tests/configFieldParity.test.ts 守护 ——
  * 增删字段时漏改任何一边（索引 / 本表 / 分区 JSX）都会红。
  */
 export const FIELD_VALUE_KEYS: Record<string, readonly string[]> = {
   // ── connectivity ──────────────────────────────────────────────────────────
   host: ['host'],
   port: ['port'],
-  authDir: ['authDir'],
   apiKeys: ['apiKeysText'],
   tlsEnable: ['tlsEnable'],
   tlsCert: ['tlsCert'],
@@ -114,7 +113,6 @@ export const FIELD_VALUE_KEYS: Record<string, readonly string[]> = {
   requestRetry: ['requestRetry'],
   maxRetryCredentials: ['maxRetryCredentials'],
   maxRetryInterval: ['maxRetryInterval'],
-  authAutoRefreshWorkers: ['authAutoRefreshWorkers'],
   routingStrategy: ['routingStrategy'],
   disableImageGeneration: ['disableImageGeneration'],
   gptImage2BaseModel: ['gptImage2BaseModel'],

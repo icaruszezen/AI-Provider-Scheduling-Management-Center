@@ -1,15 +1,9 @@
 /**
  * Timezone labelling, and the guard against the Asia/Shanghai hardcode
  * returning.
- *
- * Codex reset-credit expiry was rendered in a fixed GMT+8 while every other
- * timestamp on the same page used the browser's timezone — so one credit
- * appeared twice, in two timezones, on one screen.
  */
 
 import { describe, expect, test } from 'bun:test';
-import i18n from '@/i18n';
-import * as resetCredits from '@/utils/quota/resetCredits';
 import { formatUtcOffsetLabel, resolveTimeZoneLabel } from '@/utils/time/timezone';
 
 describe('formatUtcOffsetLabel', () => {
@@ -50,22 +44,5 @@ describe('resolveTimeZoneLabel', () => {
       formatUtcOffsetLabel(-january.getTimezoneOffset())
     );
     expect(resolveTimeZoneLabel(july)).toBe(formatUtcOffsetLabel(-july.getTimezoneOffset()));
-  });
-});
-
-describe('Asia/Shanghai hardcode', () => {
-  test('is gone from the reset-credit module', () => {
-    expect('formatShanghaiDateTime' in resetCredits).toBe(false);
-    expect(resetCredits.normalizeCodexResetCreditsPayload).toBeDefined();
-  });
-
-  test('the expiry heading interpolates a timezone in all four locales', async () => {
-    for (const locale of ['en', 'zh-CN', 'zh-TW', 'ru']) {
-      await i18n.changeLanguage(locale);
-      const label = i18n.t('codex_quota.reset_credits_expiry_label', { timezone: 'GMT+8' });
-      expect(label).toContain('GMT+8');
-      expect(label).not.toContain('{{');
-    }
-    await i18n.changeLanguage('en');
   });
 });

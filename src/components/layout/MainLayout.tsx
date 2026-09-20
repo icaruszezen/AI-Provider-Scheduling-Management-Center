@@ -16,17 +16,14 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/Button';
 import { PageTransition } from '@/components/common/PageTransition';
 import { MainRoutes } from '@/router/MainRoutes';
-import { authFilesApi, pluginsApi } from '@/services/api';
+import { pluginsApi } from '@/services/api';
 import {
-  IconSidebarAuthFiles,
   IconSidebarConfig,
   IconSidebarDashboard,
   IconSidebarLogs,
-  IconSidebarOauth,
   IconSidebarPlugins,
   IconSidebarProviders,
   IconSidebarQuickStart,
-  IconSidebarQuota,
   IconSidebarStore,
   IconSidebarSystem,
   IconModelCluster,
@@ -40,7 +37,6 @@ import {
   useNotificationStore,
   useThemeStore,
 } from '@/stores';
-import { AUTH_FILES_CHANGED_EVENT } from '@/features/authFiles/authFilesEvents';
 import {
   collectPluginResourceEntries,
   PLUGIN_RESOURCES_REFRESH_EVENT,
@@ -58,9 +54,6 @@ const sidebarIcons: Record<string, ReactNode> = {
   dashboard: <IconSidebarDashboard size={18} />,
   quickStart: <IconSidebarQuickStart size={18} />,
   aiProviders: <IconSidebarProviders size={18} />,
-  authFiles: <IconSidebarAuthFiles size={18} />,
-  oauth: <IconSidebarOauth size={18} />,
-  quota: <IconSidebarQuota size={18} />,
   plugins: <IconSidebarPlugins size={18} />,
   pluginStore: <IconSidebarStore size={18} />,
   config: <IconSidebarConfig size={18} />,
@@ -329,7 +322,6 @@ export function MainLayout() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [authFilesCount, setAuthFilesCount] = useState<number | null>(null);
   const [railTooltip, setRailTooltip] = useState<{
     targetID: string;
     label: string;
@@ -344,7 +336,6 @@ export function MainLayout() {
     () => new Set()
   );
   const contentRef = useRef<HTMLDivElement | null>(null);
-  const authFilesCountRequestRef = useRef(0);
   const railTooltipRef = useRef<HTMLDivElement | null>(null);
   const focusedRailItemRef = useRef<HTMLElement | null>(null);
   const languageMenuRef = useRef<HTMLDivElement | null>(null);
@@ -500,39 +491,18 @@ export function MainLayout() {
     }
   }, [connectionStatus, supportsPlugin]);
 
-  const loadAuthFilesCount = useCallback(async () => {
-    const requestID = ++authFilesCountRequestRef.current;
-    if (connectionStatus !== 'connected') {
-      setAuthFilesCount(null);
-      return;
-    }
-
-    try {
-      const response = await authFilesApi.list();
-      if (requestID !== authFilesCountRequestRef.current) return;
-      setAuthFilesCount(Array.isArray(response?.files) ? response.files.length : null);
-    } catch {
-      if (requestID !== authFilesCountRequestRef.current) return;
-      setAuthFilesCount(null);
-    }
-  }, [connectionStatus]);
-
   useEffect(() => {
     const timer = window.setTimeout(() => {
       void loadPluginResources();
-      void loadAuthFilesCount();
     }, 0);
 
     window.addEventListener(PLUGIN_RESOURCES_REFRESH_EVENT, loadPluginResources);
-    window.addEventListener(AUTH_FILES_CHANGED_EVENT, loadAuthFilesCount);
 
     return () => {
-      authFilesCountRequestRef.current += 1;
       window.clearTimeout(timer);
       window.removeEventListener(PLUGIN_RESOURCES_REFRESH_EVENT, loadPluginResources);
-      window.removeEventListener(AUTH_FILES_CHANGED_EVENT, loadAuthFilesCount);
     };
-  }, [apiBase, loadPluginResources, loadAuthFilesCount]);
+  }, [apiBase, loadPluginResources]);
 
   const pluginResourceGroups = pluginResources.reduce<
     Array<{ pluginID: string; pluginTitle: string; entries: PluginResourceEntry[] }>
@@ -618,23 +588,6 @@ export function MainLayout() {
           metaKey: 'nav_meta.ai_providers',
           icon: sidebarIcons.aiProviders,
         },
-        {
-          path: '/auth-files',
-          labelKey: 'nav.auth_files',
-          metaKey: 'nav_meta.auth_files',
-          badge: authFilesCount ?? undefined,
-          badgeLabel:
-            typeof authFilesCount === 'number'
-              ? t('sidebar.auth_files_count', { count: authFilesCount })
-              : undefined,
-          icon: sidebarIcons.authFiles,
-        },
-        {
-          path: '/oauth',
-          labelKey: 'nav.oauth',
-          metaKey: 'nav_meta.oauth',
-          icon: sidebarIcons.oauth,
-        },
         ...(isApiKeyFunConfigured ? [quickStartNavItem] : []),
       ],
     },
@@ -642,12 +595,6 @@ export function MainLayout() {
       id: 'observe',
       labelKey: 'nav_groups.observe',
       items: [
-        {
-          path: '/quota',
-          labelKey: 'nav.quota_management',
-          metaKey: 'nav_meta.quota_management',
-          icon: sidebarIcons.quota,
-        },
         {
           path: '/logs',
           labelKey: 'nav.logs',
@@ -713,16 +660,6 @@ export function MainLayout() {
       pathname.length > 1 && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
     const normalizedPath = trimmedPath === '/dashboard' ? '/' : trimmedPath;
 
-    const authFilesIndex = navOrder.indexOf('/auth-files');
-    if (authFilesIndex !== -1) {
-      if (normalizedPath === '/auth-files') return authFilesIndex;
-      if (normalizedPath.startsWith('/auth-files/')) {
-        if (normalizedPath.startsWith('/auth-files/oauth-excluded')) return authFilesIndex + 0.1;
-        if (normalizedPath.startsWith('/auth-files/oauth-model-alias')) return authFilesIndex + 0.2;
-        return authFilesIndex + 0.05;
-      }
-    }
-
     const exactIndex = navOrder.indexOf(normalizedPath);
     if (exactIndex !== -1) return exactIndex;
     const nestedIndex = navOrder.findIndex(
@@ -731,27 +668,13 @@ export function MainLayout() {
     return nestedIndex === -1 ? null : nestedIndex;
   };
 
-  const getTransitionVariant = useCallback((fromPathname: string, toPathname: string) => {
-    const normalize = (pathname: string) => {
-      const trimmed =
-        pathname.length > 1 && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
-      return trimmed === '/dashboard' ? '/' : trimmed;
-    };
-
-    const from = normalize(fromPathname);
-    const to = normalize(toPathname);
-    const isAuthFiles = (pathname: string) =>
-      pathname === '/auth-files' || pathname.startsWith('/auth-files/');
-    if (isAuthFiles(from) && isAuthFiles(to)) return 'ios';
-    return 'vertical';
-  }, []);
+  const getTransitionVariant = useCallback(() => 'vertical', []);
 
   const handleRefreshAll = async () => {
     clearCache();
     const results = await Promise.allSettled([
       fetchConfig(true),
       loadPluginResources(),
-      loadAuthFilesCount(),
       triggerHeaderRefresh(),
     ]);
     const rejected = results.find((result) => result.status === 'rejected');

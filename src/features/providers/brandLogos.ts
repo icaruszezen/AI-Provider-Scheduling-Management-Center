@@ -4,6 +4,7 @@ import geminiLogo from '@/assets/icons/gemini.svg';
 import openaiLightLogo from '@/assets/icons/openai-light.svg';
 import openaiDarkLogo from '@/assets/icons/openai-dark.svg';
 import vertexLogo from '@/assets/icons/vertex.svg';
+import antigravityLogo from '@/assets/icons/antigravity.svg';
 import claudeApiLogo from '@/assets/icons/claudeapi.png';
 import apikeyFunLogo from '@/assets/icons/apikey-fun.png';
 import code0Logo from '@/assets/icons/code0.png';
@@ -33,6 +34,7 @@ export const PROVIDER_LOGOS: Record<ProviderBrand, ProviderBrandLogo> = {
   codex: { src: codexLogo },
   xai: { src: xaiLightLogo, darkSrc: xaiDarkLogo, transparent: true },
   vertex: { src: vertexLogo },
+  antigravity: { src: antigravityLogo },
   openaiCompatibility: { src: openaiLightLogo, darkSrc: openaiDarkLogo, transparent: true },
   apikeyFun: { src: apikeyFunLogo },
   code0: { src: code0Logo },

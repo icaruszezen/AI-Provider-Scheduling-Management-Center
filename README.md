@@ -20,7 +20,7 @@ APIMart is a low-cost API platform for AI image & video generation — GPT-Image
 
 ## What this is (and isn’t)
 
-- This repository is the Web UI only. It talks to the AI Provider Scheduling **Management API** (`/v0/management`) to read/update config, upload credentials, and view logs.
+- This repository is the Web UI only. It talks to the AI Provider Scheduling **Management API** (`/v0/management`) to read/update config, provider API keys, and logs.
 - It is **not** a proxy and does not forward traffic.
 
 ## Quick start
@@ -84,11 +84,11 @@ Check the AI Provider Scheduling server documentation/config comments for the fu
 - **Dashboard**: connection status, server version/build date, quick counts, model availability snapshot.
 - **Config Panel**: visual editor for common `config.yaml` fields, basic settings, proxy `api-keys`, and source editing with YAML highlighting/search plus a save diff preview.
 - **AI Providers**:
-  - Gemini/Codex/Claude/Vertex key entries (base URL, headers, proxy, model aliases, excluded models, prefix).
+  - Gemini, Interactions, Codex, Claude, xAI, Vertex, and Antigravity key entries (base URL, headers, proxy, model aliases, excluded models, prefix).
+  - Antigravity requires `project-id`. Official Vertex can use an API key or paste a Google Cloud service-account JSON (`service-account`, optional `project-id` / `location` / `email`).
   - OpenAI-compatible providers (multiple API keys, custom headers, model alias import via `/v1/models`, optional browser-side "chat/completions" test).
-- **Auth Files**: upload/download/delete JSON credentials, filter/search/pagination, runtime-only indicators, view supported models per credential (when the server supports it), manage OAuth excluded models (supports `*` wildcards), configure OAuth model alias mappings.
-- **OAuth**: start OAuth/device flows for Codex, Anthropic/Claude, Antigravity, Kimi, and xAI/Grok; poll status; submit callback URLs or xAI/Grok displayed codes; import Vertex JSON credentials and iFlow cookies.
-- **Quota Management**: manage quota limits and usage for Claude, Antigravity, Codex, Kimi, xAI/Grok, and other providers.
+- **Plugins**: inspect loaded plugins and host ABI status.
+- **Cluster**: master/slave config sync for provider keys and runtime settings.
 - **Logs**: tail logs with incremental polling, auto-refresh, search, hide management traffic, clear logs; download request error log files.
 - **System**: quick links, update check, request logging toggle, local login data cleanup, and fetch `/v1/models` (grouped view). Requires at least one proxy API key to query models.
 
@@ -137,7 +137,7 @@ The UI language is automatically detected from browser settings and can be manua
 - **Can’t connect / 401**: confirm the API address and management key; remote access may require enabling remote management in the server config.
 - **Repeated auth failures**: the server may temporarily block remote IPs.
 - **Logs page missing**: enable “Logging to file” in Basic Settings; the navigation item is shown only when file logging is enabled.
-- **Some features show “unsupported”**: the backend may be too old or the endpoint is disabled/absent (common for model lists per auth file, excluded models, logs).
+- **Some features show “unsupported”**: the backend may be too old or the endpoint is disabled/absent (common for excluded models or logs).
 - **OpenAI provider test fails**: the test runs in the browser and depends on network/CORS of the provider endpoint; a failure here does not always mean the server cannot reach it.
 
 ## Development

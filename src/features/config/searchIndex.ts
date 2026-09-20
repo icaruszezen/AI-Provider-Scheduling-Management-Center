@@ -51,13 +51,6 @@ export const CONFIG_FIELD_SEARCH_INDEX: ConfigFieldSearchEntry[] = [
     yamlKeys: ['port'],
   },
   {
-    fieldId: 'authDir',
-    sectionId: 'connectivity',
-    labelKey: L('sections.auth.auth_dir'),
-    hintKey: L('sections.auth.auth_dir_hint'),
-    yamlKeys: ['auth-dir'],
-  },
-  {
     fieldId: 'apiKeys',
     sectionId: 'connectivity',
     labelKey: L('api_keys.label'),
@@ -178,13 +171,6 @@ export const CONFIG_FIELD_SEARCH_INDEX: ConfigFieldSearchEntry[] = [
     sectionId: 'network',
     labelKey: L('sections.network.max_retry_interval'),
     yamlKeys: ['max-retry-interval'],
-  },
-  {
-    fieldId: 'authAutoRefreshWorkers',
-    sectionId: 'network',
-    labelKey: L('sections.network.auth_auto_refresh_workers'),
-    hintKey: L('sections.network.auth_auto_refresh_workers_hint'),
-    yamlKeys: ['auth-auto-refresh-workers'],
   },
   {
     fieldId: 'routingStrategy',

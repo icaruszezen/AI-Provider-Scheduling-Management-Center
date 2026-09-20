@@ -24,6 +24,7 @@ import {
   lmuAIToResource,
   infistarToResource,
   kimiToResource,
+  antigravityToResource,
   vertexToResource,
   xaiToResource,
 } from './adapters';
@@ -182,8 +183,20 @@ const buildModelAliases = (
     })
     .filter((m) => m.name);
 
+const parseServiceAccountText = (
+  text: string | undefined
+): Record<string, unknown> | undefined => {
+  const trimmed = (text ?? '').trim();
+  if (!trimmed) return undefined;
+  const parsed = JSON.parse(trimmed) as unknown;
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error('Service account must be a JSON object');
+  }
+  return parsed as Record<string, unknown>;
+};
+
 const buildProviderKeyConfig = (
-  brand: 'gemini' | 'interactions' | 'codex' | 'xai' | 'claude' | 'vertex',
+  brand: 'gemini' | 'interactions' | 'codex' | 'xai' | 'claude' | 'vertex' | 'antigravity',
   input: ProviderEntryFormInput,
   existing?: ProviderKeyConfig | GeminiKeyConfig | null
 ): ProviderKeyConfig | GeminiKeyConfig => {
@@ -222,6 +235,17 @@ const buildProviderKeyConfig = (
   }
   if (brand === 'claude') {
     next.fingerprintProfile = input.fingerprintProfile?.trim() || undefined;
+  }
+  if (brand === 'antigravity' || brand === 'vertex') {
+    const existingKey = existing as ProviderKeyConfig | undefined;
+    next.projectId = input.projectId?.trim() || existingKey?.projectId;
+  }
+  if (brand === 'vertex') {
+    const existingKey = existing as ProviderKeyConfig | undefined;
+    next.location = input.location?.trim() || existingKey?.location;
+    next.email = input.email?.trim() || existingKey?.email;
+    next.serviceAccount =
+      parseServiceAccountText(input.serviceAccountText) ?? existingKey?.serviceAccount;
   }
   return next;
 };
@@ -434,16 +458,21 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
     setIsFetching(true);
     setErrorMessage(null);
     try {
-      const [configResult, vertexResult, openaiResult] = await Promise.allSettled([
-        fetchConfig(true),
-        providersApi.getVertexConfigs(),
-        providersApi.getOpenAIProviders(),
-      ]);
+      const [configResult, vertexResult, antigravityResult, openaiResult] =
+        await Promise.allSettled([
+          fetchConfig(true),
+          providersApi.getVertexConfigs(),
+          providersApi.getAntigravityConfigs(),
+          providersApi.getOpenAIProviders(),
+        ]);
       if (configResult.status !== 'fulfilled') {
         throw configResult.reason;
       }
       if (vertexResult.status === 'fulfilled') {
         updateConfigValue('vertex-api-key', vertexResult.value || []);
+      }
+      if (antigravityResult.status === 'fulfilled') {
+        updateConfigValue('antigravity-api-key', antigravityResult.value || []);
       }
       if (openaiResult.status === 'fulfilled') {
         updateConfigValue('openai-compatibility', openaiResult.value || []);
@@ -551,6 +580,9 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           break;
         case 'vertex':
           resources = (config.vertexApiKeys ?? []).map((c, i) => vertexToResource(c, i));
+          break;
+        case 'antigravity':
+          resources = (config.antigravityApiKeys ?? []).map((c, i) => antigravityToResource(c, i));
           break;
         case 'openaiCompatibility':
           resources = (config.openaiCompatibility ?? []).reduce<ProviderResource[]>(
@@ -762,6 +794,10 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           await providersApi.createVertexConfig(
             buildProviderKeyConfig('vertex', input) as ProviderKeyConfig
           );
+        } else if (brand === 'antigravity') {
+          await providersApi.createAntigravityConfig(
+            buildProviderKeyConfig('antigravity', input) as ProviderKeyConfig
+          );
         } else if (brand === 'openaiCompatibility') {
           await providersApi.createOpenAIProvider(buildOpenAIConfig(input));
         } else if (
@@ -835,7 +871,15 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           await providersApi.updateVertexConfig(
             selector.apiKey,
             selector.baseUrl,
-            buildProviderKeyConfig('vertex', input, existing) as ProviderKeyConfig
+            buildProviderKeyConfig('vertex', input, existing) as ProviderKeyConfig,
+            selector.index
+          );
+        } else if (brand === 'antigravity' && selector.brand === 'antigravity') {
+          const existing = resource.raw as ProviderKeyConfig;
+          await providersApi.updateAntigravityConfig(
+            selector.apiKey,
+            selector.baseUrl,
+            buildProviderKeyConfig('antigravity', input, existing) as ProviderKeyConfig
           );
         } else if (brand === 'openaiCompatibility' && selector.brand === 'openaiCompatibility') {
           await providersApi.updateOpenAIProvider(
@@ -892,9 +936,13 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           const next = (config?.claudeApiKeys ?? []).filter((_, i) => i !== sel.index);
           updateConfigValue('claude-api-key', next);
         } else if (sel.brand === 'vertex') {
-          await providersApi.deleteVertexConfig(sel.apiKey, sel.baseUrl);
+          await providersApi.deleteVertexConfig(sel.apiKey, sel.baseUrl, sel.index);
           const next = (config?.vertexApiKeys ?? []).filter((_, i) => i !== sel.index);
           updateConfigValue('vertex-api-key', next);
+        } else if (sel.brand === 'antigravity') {
+          await providersApi.deleteAntigravityConfig(sel.apiKey, sel.baseUrl);
+          const next = (config?.antigravityApiKeys ?? []).filter((_, i) => i !== sel.index);
+          updateConfigValue('antigravity-api-key', next);
         } else if (sel.brand === 'openaiCompatibility') {
           await providersApi.deleteOpenAIProvider(sel.index);
           const next = (config?.openaiCompatibility ?? []).filter(
@@ -966,7 +1014,8 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           (brand === 'xai' && selector.brand === 'xai') ||
           (brand === 'claude' && selector.brand === 'claude') ||
           (brand === 'claudeApi' && selector.brand === 'claudeApi') ||
-          (brand === 'vertex' && selector.brand === 'vertex')
+          (brand === 'vertex' && selector.brand === 'vertex') ||
+          (brand === 'antigravity' && selector.brand === 'antigravity')
         ) {
           const current = resource.raw as ProviderKeyConfig;
           const excluded = disabled
@@ -980,7 +1029,14 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
           } else if (selector.brand === 'claude' || selector.brand === 'claudeApi') {
             await providersApi.updateClaudeConfig(selector.apiKey, selector.baseUrl, next);
           } else if (selector.brand === 'vertex') {
-            await providersApi.updateVertexConfig(selector.apiKey, selector.baseUrl, next);
+            await providersApi.updateVertexConfig(
+              selector.apiKey,
+              selector.baseUrl,
+              next,
+              selector.index
+            );
+          } else if (selector.brand === 'antigravity') {
+            await providersApi.updateAntigravityConfig(selector.apiKey, selector.baseUrl, next);
           }
         } else if (brand === 'openaiCompatibility' && selector.brand === 'openaiCompatibility') {
           await providersApi.updateOpenAIProviderDisabled(selector.index, disabled);

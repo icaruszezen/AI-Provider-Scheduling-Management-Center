@@ -11,7 +11,6 @@ import { obfuscatedStorage } from '@/services/storage/secureStorage';
 import { apiClient } from '@/services/api/client';
 import { useConfigStore } from './useConfigStore';
 import { useModelsStore } from './useModelsStore';
-import { useQuotaStore } from './useQuotaStore';
 import { useClusterStore } from './useClusterStore';
 import { detectApiBaseFromLocation, normalizeApiBase } from '@/utils/connection';
 
@@ -104,7 +103,6 @@ export const useAuthStore = create<AuthStoreState>()(
             supportsPlugin: false,
           });
           useModelsStore.getState().clearCache();
-          useQuotaStore.getState().clearQuotaCache();
           useClusterStore.getState().clear();
 
           // 配置 API 客户端
@@ -141,7 +139,6 @@ export const useAuthStore = create<AuthStoreState>()(
         restoreSessionPromise = null;
         useConfigStore.getState().clearCache();
         useModelsStore.getState().clearCache();
-        useQuotaStore.getState().clearQuotaCache();
         useClusterStore.getState().clear();
         set({
           isAuthenticated: false,

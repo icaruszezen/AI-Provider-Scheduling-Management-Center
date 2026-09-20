@@ -461,34 +461,6 @@ export function IconSidebarStore({ size = 20, ...props }: IconProps) {
 
 export const IconSidebarProviders = IconNetwork;
 
-export function IconSidebarAuthFiles({ size = 20, ...props }: IconProps) {
-  return (
-    <svg {...baseSvgProps} width={size} height={size} {...props}>
-      <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
-      <path d="m9 12 2 2 4-4" />
-    </svg>
-  );
-}
-
-export function IconSidebarOauth({ size = 20, ...props }: IconProps) {
-  return (
-    <svg {...baseSvgProps} width={size} height={size} {...props}>
-      <path d="M2 21a8 8 0 0 1 13.292-6" />
-      <circle cx="10" cy="8" r="5" />
-      <path d="m16 19 2 2 4-4" />
-    </svg>
-  );
-}
-
-export function IconSidebarQuota({ size = 20, ...props }: IconProps) {
-  return (
-    <svg {...baseSvgProps} width={size} height={size} {...props}>
-      <path d="m12 14 4-4" />
-      <path d="M3.34 19a10 10 0 1 1 17.32 0" />
-    </svg>
-  );
-}
-
 export const IconSidebarLogs = IconScrollText;
 
 export function IconSidebarSystem({ size = 20, ...props }: IconProps) {

@@ -18,7 +18,7 @@ This is a React 19 + TypeScript Vite frontend for the AI Provider Scheduling Man
 
 ## Coding Style & Naming Conventions
 
-Use 2-space indentation, semicolons, single quotes, ES5 trailing commas, and 100-character line width. Prefer typed React components and avoid new `any` unless it marks a boundary. Use the `@/` alias for `src` imports. Component files use PascalCase, hooks use `useName`, API modules use domain names such as `oauth.ts`, and SCSS Modules sit beside their page or component as `Name.module.scss`.
+Use 2-space indentation, semicolons, single quotes, ES5 trailing commas, and 100-character line width. Prefer typed React components and avoid new `any` unless it marks a boundary. Use the `@/` alias for `src` imports. Component files use PascalCase, hooks use `useName`, API modules use domain names such as `providers.ts`, and SCSS Modules sit beside their page or component as `Name.module.scss`.
 
 ## Testing Guidelines
 
@@ -26,8 +26,8 @@ Tests use Bun's built-in test runner and are colocated under `tests/` as `*.test
 
 ## Commit & Pull Request Guidelines
 
-Git history follows Conventional Commit style, for example `feat: add support for xAI provider`, `fix(auth-files): keep disabled card actions visible`, and `ci: use node 24 for releases`. Keep commits focused and scoped when useful. Pull requests should include a change summary, linked issue when applicable, UI screenshots, backend version or reproduction details for integration work, and verification notes.
+Git history follows Conventional Commit style, for example `feat: add support for xAI provider` and `ci: use node 24 for releases`. Keep commits focused and scoped when useful. Pull requests should include a change summary, linked issue when applicable, UI screenshots, backend version or reproduction details for integration work, and verification notes.
 
 ## Architecture & Configuration Notes
 
-This UI is not the proxy; it talks to the backend Management API under `/v0/management`. Treat backend contracts as the source of truth. For OAuth/provider changes, inspect `../AIProviderScheduling` before changing route names, provider keys, callback parameters, or auth-file semantics. Store no secrets in the repo; management keys are entered at runtime and persisted only in browser storage.
+This UI is not the proxy; it talks to the backend Management API under `/v0/management`. Treat backend contracts as the source of truth. Provider credentials are `*-api-key` / `openai-compatibility` / `vertex-api-key` (including Vertex service accounts). Account OAuth and auth-file pages are not part of this UI. Store no secrets in the repo; management keys are entered at runtime and persisted only in browser storage.

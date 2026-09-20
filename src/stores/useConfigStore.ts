@@ -124,11 +124,11 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
         case 'vertex-api-key':
           nextConfig.vertexApiKeys = value as Config['vertexApiKeys'];
           break;
+        case 'antigravity-api-key':
+          nextConfig.antigravityApiKeys = value as Config['antigravityApiKeys'];
+          break;
         case 'openai-compatibility':
           nextConfig.openaiCompatibility = value as Config['openaiCompatibility'];
-          break;
-        case 'oauth-excluded-models':
-          nextConfig.oauthExcludedModels = value as Config['oauthExcludedModels'];
           break;
         default:
           break;
