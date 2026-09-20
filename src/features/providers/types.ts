@@ -221,6 +221,8 @@ export interface ProviderEntryFormInput {
   websockets?: boolean;
   /** Codex 专属：本地 compact 覆盖，'inherit' 表示跟随全局开关 */
   localCompact?: LocalCompactMode;
+  /** Codex 专属：流式假首字拦截列表，空表示关闭；条目不 trim */
+  streamFakeFirstTokens?: string[];
   /** Claude 专属 */
   cloak?: CloakInput;
   fingerprintProfile?: string;

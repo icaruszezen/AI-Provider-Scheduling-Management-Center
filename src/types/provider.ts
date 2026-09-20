@@ -68,6 +68,11 @@ export interface ProviderKeyConfig {
    * `undefined` inherits the global local-compact switch.
    */
   localCompact?: boolean;
+  /**
+   * Codex-only exact text deltas to drop as fake first tokens.
+   * Entries are not trimmed; a single space must remain a space.
+   */
+  streamFakeFirstTokens?: string[];
   cloak?: CloakConfig;
   fingerprintProfile?: string;
   hideNoAvailableChannel?: boolean;

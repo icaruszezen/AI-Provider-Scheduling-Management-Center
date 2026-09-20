@@ -10,6 +10,7 @@ import {
 import type { GeminiKeyConfig, ModelAlias, OpenAIProviderConfig, ProviderKeyConfig } from '@/types';
 import { localCompactModeToConfig } from '@/utils/localCompact';
 import { providerRetryFieldsFromForm as retryFieldsFromForm } from '@/utils/providerRetry';
+import { sanitizeStreamFakeFirstTokens } from '@/utils/streamFakeFirstTokens';
 import {
   claudeApiToResource,
   claudeToResource,
@@ -217,6 +218,10 @@ const buildProviderKeyConfig = (
   }
   if (brand === 'codex') {
     next.localCompact = localCompactModeToConfig(input.localCompact);
+    const streamFakeFirstTokens = sanitizeStreamFakeFirstTokens(input.streamFakeFirstTokens);
+    if (streamFakeFirstTokens.length) {
+      next.streamFakeFirstTokens = streamFakeFirstTokens;
+    }
   }
   if (brand === 'claude' && input.cloak) {
     next.cloak = {

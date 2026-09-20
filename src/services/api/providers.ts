@@ -13,6 +13,7 @@ import type {
   ModelAlias,
 } from '@/types';
 import { applyProviderRetryPayload } from '@/utils/providerRetry';
+import { applyStreamFakeFirstTokensPayload } from '@/utils/streamFakeFirstTokens';
 
 const serializeHeaders = (headers?: Record<string, string>) =>
   headers && Object.keys(headers).length ? headers : undefined;
@@ -37,9 +38,15 @@ const PROVIDER_COMMON_KEY_FIELDS = [
 
 const GEMINI_KEY_FIELDS = PROVIDER_COMMON_KEY_FIELDS;
 const INTERACTIONS_KEY_FIELDS = PROVIDER_COMMON_KEY_FIELDS;
-// local-compact is Codex-only. xAI shares the backend struct but the setting is
-// never read there, so leave any hand-written xAI value untouched on save.
-const CODEX_KEY_FIELDS = [...PROVIDER_COMMON_KEY_FIELDS, 'websockets', 'local-compact'] as const;
+// local-compact and stream-fake-first-tokens are Codex-only. xAI shares the
+// backend struct but those settings are never read there, so leave any
+// hand-written xAI value untouched on save.
+const CODEX_KEY_FIELDS = [
+  ...PROVIDER_COMMON_KEY_FIELDS,
+  'websockets',
+  'local-compact',
+  'stream-fake-first-tokens',
+] as const;
 const XAI_KEY_FIELDS = [...PROVIDER_COMMON_KEY_FIELDS, 'websockets'] as const;
 const CLAUDE_KEY_FIELDS = [
   ...PROVIDER_COMMON_KEY_FIELDS,
@@ -351,6 +358,7 @@ const serializeProviderKey = (config: ProviderKeyConfig) => {
   if (config.hideNoAvailableChannel) payload['hide-no-available-channel'] = true;
   // Omitting local-compact drops the override, so an explicit false must survive.
   if (config.localCompact !== undefined) payload['local-compact'] = config.localCompact;
+  applyStreamFakeFirstTokensPayload(payload, config.streamFakeFirstTokens);
   applyProviderRetryPayload(payload, config);
   const headers = serializeHeaders(config.headers);
   if (headers) payload.headers = headers;

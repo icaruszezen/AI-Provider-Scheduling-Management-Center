@@ -14,6 +14,7 @@ import {
   normalizeProviderRetryCount,
   normalizeProviderRetryStatusCodes,
 } from '@/utils/providerRetry';
+import { sanitizeStreamFakeFirstTokens } from '@/utils/streamFakeFirstTokens';
 
 const applyProviderRetryFields = <
   T extends {
@@ -205,6 +206,12 @@ const normalizeProviderKeyConfig = (item: unknown): ProviderKeyConfig | null => 
   if (hideNoAvailableChannel !== undefined) config.hideNoAvailableChannel = hideNoAvailableChannel;
   const localCompact = normalizeBoolean(record?.['local-compact']);
   if (localCompact !== undefined) config.localCompact = localCompact;
+  const streamFakeFirstTokens = sanitizeStreamFakeFirstTokens(
+    record?.['stream-fake-first-tokens']
+  );
+  if (streamFakeFirstTokens.length) {
+    config.streamFakeFirstTokens = streamFakeFirstTokens;
+  }
   const headers = normalizeHeaders(record?.headers);
   if (headers) config.headers = headers;
   const models = normalizeModelAliases(record?.models);

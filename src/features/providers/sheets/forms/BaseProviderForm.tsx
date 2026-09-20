@@ -44,7 +44,9 @@ import {
   MAX_PROVIDER_RETRY_COUNT,
   providerRetryStatusCodesInputIsValid,
 } from '@/utils/providerRetry';
+import { sanitizeStreamFakeFirstTokens } from '@/utils/streamFakeFirstTokens';
 import { ProviderRetryFields } from './ProviderRetryFields';
+import { StreamFakeFirstTokensFields } from './StreamFakeFirstTokensFields';
 
 /** ?�????�??�?�??�?�???�??�?��? picker �??�?��?��?�?�?��??*/
 const DISABLE_ALL_RULES = [DISABLE_ALL_RULE];
@@ -102,6 +104,7 @@ function buildInitialForm(
       excludedModelsText: '',
       websockets: brand === 'codex' || brand === 'xai' ? false : undefined,
       localCompact: brand === 'codex' ? 'inherit' : undefined,
+      streamFakeFirstTokens: brand === 'codex' ? [] : undefined,
       cloak: isClaudeLikeBrand(brand)
         ? { mode: '', strictMode: false, sensitiveWordsText: '', cacheUserId: false }
         : undefined,
@@ -209,6 +212,10 @@ function buildInitialForm(
     localCompact:
       brand === 'codex'
         ? localCompactModeFromConfig((cfg as ProviderKeyConfig).localCompact)
+        : undefined,
+    streamFakeFirstTokens:
+      brand === 'codex'
+        ? sanitizeStreamFakeFirstTokens((cfg as ProviderKeyConfig).streamFakeFirstTokens)
         : undefined,
     cloak: isClaudeLikeBrand(brand)
       ? {
@@ -975,6 +982,14 @@ export function BaseProviderForm({
           onCountChange={(value) => updateField('providerRetryCount', value)}
           onStatusCodesChange={(value) => updateField('providerRetryStatusCodesText', value)}
         />
+
+        {brand === 'codex' ? (
+          <StreamFakeFirstTokensFields
+            tokens={form.streamFakeFirstTokens ?? []}
+            mutating={mutating}
+            onChange={(tokens) => updateField('streamFakeFirstTokens', tokens)}
+          />
+        ) : null}
       </div>
 
       {/* �??�??�?��??*/}
