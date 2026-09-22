@@ -962,7 +962,8 @@
       "save": "Save",
       "create": "Create",
       "enable": "Enable",
-      "disable": "Disable"
+      "disable": "Disable",
+      "copy": "Copy"
     },
     "categories": {
       "title": "Providers",
@@ -1062,6 +1063,18 @@
         "codexResponses": "Codex API (Responses)"
       }
     },
+    "groups": {
+      "ungrouped": "Ungrouped",
+      "add": "New group",
+      "namePlaceholder": "Group name",
+      "rename": "Rename group",
+      "delete": "Delete group",
+      "deleteTitle": "Delete group",
+      "deleteMessage": "Deleting \"{{name}}\" moves its channels back to Ungrouped. The channels themselves stay.",
+      "empty": "This group has no channels yet.",
+      "copyFailed": "Failed to copy channel",
+      "saveFailed": "Failed to save group"
+    },
     "status": {
       "active": "Active",
       "disabled": "Disabled",
@@ -1122,7 +1135,8 @@
     "form": {
       "createEyebrow": "New",
       "editEyebrow": "Edit",
-      "name": "Name",
+      "name": "Channel name",
+      "group": "Group",
       "apiKey": "API key",
       "apiKeyCreatePlaceholder": "Enter API key",
       "apiKeyEditPlaceholder": "Leave empty to keep unchanged",

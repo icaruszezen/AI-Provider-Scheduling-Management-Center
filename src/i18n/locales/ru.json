@@ -952,7 +952,8 @@
       "save": "Сохранить",
       "create": "Создать",
       "enable": "Включить",
-      "disable": "Отключить"
+      "disable": "Отключить",
+      "copy": "Копировать"
     },
     "categories": {
       "title": "Провайдеры",
@@ -1052,6 +1053,18 @@
         "codexResponses": "Codex API (Responses)"
       }
     },
+    "groups": {
+      "ungrouped": "Без группы",
+      "add": "Новая группа",
+      "namePlaceholder": "Название группы",
+      "rename": "Переименовать группу",
+      "delete": "Удалить группу",
+      "deleteTitle": "Удалить группу",
+      "deleteMessage": "После удаления группы «{{name}}» её каналы вернутся в «Без группы». Сами каналы останутся.",
+      "empty": "В этой группе пока нет каналов.",
+      "copyFailed": "Не удалось скопировать канал",
+      "saveFailed": "Не удалось сохранить группу"
+    },
     "status": {
       "active": "Активен",
       "disabled": "Отключён",
@@ -1112,7 +1125,8 @@
     "form": {
       "createEyebrow": "Создать",
       "editEyebrow": "Изменить",
-      "name": "Название",
+      "name": "Имя канала",
+      "group": "Группа",
       "apiKey": "API-ключ",
       "apiKeyCreatePlaceholder": "Введите API-ключ",
       "apiKeyEditPlaceholder": "Оставьте пустым, чтобы не менять",

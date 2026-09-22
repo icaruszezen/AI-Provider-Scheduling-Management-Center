@@ -1,5 +1,13 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IconExternalLink, IconPlus, IconSearch } from '@/components/ui/icons';
+import {
+  IconExternalLink,
+  IconPencil,
+  IconPlus,
+  IconSearch,
+  IconTrash2,
+} from '@/components/ui/icons';
+import { groupChannelResources } from '../channelIdentity';
 import type { ProviderRecentUsageMap } from '@/components/providers/utils';
 import { PROVIDER_LOGOS } from '../brandLogos';
 import { getKimiAffiliateUrl } from '../kimi';
@@ -32,11 +40,16 @@ interface ProviderResourcePanelProps {
   monitorSummaries?: MonitorSummaries | null;
   onOpenMonitor?: (resource: ProviderResource) => void;
   toolbarControls?: ProviderPanelControls;
+  catalogGroups?: readonly string[];
   onView: (resource: ProviderResource) => void;
   onEdit: (resource: ProviderResource) => void;
+  onCopy?: (resource: ProviderResource) => void;
   onDelete: (resource: ProviderResource) => void;
   onToggleDisabled?: (resource: ProviderResource, disabled: boolean) => void;
   onCreate: () => void;
+  onCreateGroup?: (name: string) => void;
+  onRenameGroup?: (from: string, to: string) => void;
+  onDeleteGroup?: (name: string) => void;
 }
 
 export function ProviderResourcePanel({
@@ -50,13 +63,32 @@ export function ProviderResourcePanel({
   monitorSummaries,
   onOpenMonitor,
   toolbarControls,
+  catalogGroups = [],
   onView,
   onEdit,
+  onCopy,
   onDelete,
   onToggleDisabled,
   onCreate,
+  onCreateGroup,
+  onRenameGroup,
+  onDeleteGroup,
 }: ProviderResourcePanelProps) {
   const { t, i18n } = useTranslation();
+  const [newGroupName, setNewGroupName] = useState('');
+  const [renamingGroup, setRenamingGroup] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
+  const sections = groupChannelResources(
+    filteredResources,
+    catalogGroups,
+    filter.trim().length > 0
+  );
+  const submitNewGroup = () => {
+    const name = newGroupName.trim();
+    if (!name || !onCreateGroup) return;
+    onCreateGroup(name);
+    setNewGroupName('');
+  };
   const logo = PROVIDER_LOGOS[group.id];
   const providerTitle = t(`providersPage.providerNames.${group.id}`);
   const registrationUrl =
@@ -157,7 +189,30 @@ export function ProviderResourcePanel({
         ) : null}
       </div>
 
-      {filteredResources.length === 0 ? (
+      <form
+        className={styles.groupBar}
+        onSubmit={(event) => {
+          event.preventDefault();
+          submitNewGroup();
+        }}
+      >
+        <input
+          className={styles.groupInput}
+          value={newGroupName}
+          onChange={(event) => setNewGroupName(event.target.value)}
+          placeholder={t('providersPage.groups.namePlaceholder')}
+          disabled={disableMutations}
+          aria-label={t('providersPage.groups.namePlaceholder')}
+        />
+        <button type="submit" className={styles.groupAddButton} disabled={disableMutations}>
+          <IconPlus size={14} />
+          <span>{t('providersPage.groups.add')}</span>
+        </button>
+      </form>
+
+      {filteredResources.length === 0 && filter.trim() ? (
+        <div className={styles.empty}>{emptyText}</div>
+      ) : filteredResources.length === 0 && catalogGroups.length === 0 ? (
         <div className={styles.empty}>
           <div>{emptyText}</div>
           <div className={styles.emptyAction}>
@@ -168,18 +223,81 @@ export function ProviderResourcePanel({
           </div>
         </div>
       ) : (
-        <ProviderResourceTable
-          resources={filteredResources}
-          selectedId={selectedId}
-          disableMutations={disableMutations}
-          usageByProvider={usageByProvider}
-          monitorSummaries={monitorSummaries}
-          onOpenMonitor={onOpenMonitor}
-          onView={onView}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onToggleDisabled={onToggleDisabled}
-        />
+        sections.map((section) => (
+          <section key={section.id || 'ungrouped'} className={styles.groupSection}>
+            <div className={styles.groupHeader}>
+              {renamingGroup === section.id && section.id ? (
+                <form
+                  className={styles.groupRenameForm}
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    const next = renameValue.trim();
+                    if (next && onRenameGroup) onRenameGroup(section.id, next);
+                    setRenamingGroup(null);
+                  }}
+                >
+                  <input
+                    className={styles.groupInput}
+                    value={renameValue}
+                    onChange={(event) => setRenameValue(event.target.value)}
+                    autoFocus
+                    aria-label={t('providersPage.groups.rename')}
+                  />
+                  <button type="submit" className={styles.groupAddButton}>
+                    {t('providersPage.actions.save')}
+                  </button>
+                </form>
+              ) : (
+                <h3 className={styles.groupTitle}>
+                  {section.id || t('providersPage.groups.ungrouped')}
+                  <span className={styles.groupCount}>{section.resources.length}</span>
+                </h3>
+              )}
+              {section.id && renamingGroup !== section.id ? (
+                <div className={styles.groupActions}>
+                  <button
+                    type="button"
+                    className={styles.groupIconButton}
+                    disabled={disableMutations}
+                    aria-label={t('providersPage.groups.rename')}
+                    onClick={() => {
+                      setRenamingGroup(section.id);
+                      setRenameValue(section.id);
+                    }}
+                  >
+                    <IconPencil size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.groupIconButton}
+                    disabled={disableMutations}
+                    aria-label={t('providersPage.groups.delete')}
+                    onClick={() => onDeleteGroup?.(section.id)}
+                  >
+                    <IconTrash2 size={14} />
+                  </button>
+                </div>
+              ) : null}
+            </div>
+            {section.resources.length ? (
+              <ProviderResourceTable
+                resources={section.resources}
+                selectedId={selectedId}
+                disableMutations={disableMutations}
+                usageByProvider={usageByProvider}
+                monitorSummaries={monitorSummaries}
+                onOpenMonitor={onOpenMonitor}
+                onView={onView}
+                onEdit={onEdit}
+                onCopy={onCopy}
+                onDelete={onDelete}
+                onToggleDisabled={onToggleDisabled}
+              />
+            ) : (
+              <div className={styles.groupEmpty}>{t('providersPage.groups.empty')}</div>
+            )}
+          </section>
+        ))
       )}
     </section>
   );

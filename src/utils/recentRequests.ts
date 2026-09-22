@@ -64,10 +64,17 @@ export function normalizeUsageTotal(value: unknown): number {
   return 0;
 }
 
-export function buildRecentRequestCompositeKey(baseUrl: unknown, apiKey: unknown): string {
+export function buildRecentRequestCompositeKey(
+  baseUrl: unknown,
+  apiKey: unknown,
+  channelName?: unknown
+): string {
   const normalizedBaseUrl = String(baseUrl ?? '').trim();
   const normalizedApiKey = String(apiKey ?? '').trim();
-  return `${normalizedBaseUrl}|${normalizedApiKey}`;
+  const legacy = `${normalizedBaseUrl}|${normalizedApiKey}`;
+  const name = String(channelName ?? '').trim();
+  if (!name) return legacy;
+  return `${name}\u0000${legacy}`;
 }
 
 export function normalizeRecentRequestAuthIndex(value: unknown): string | null {

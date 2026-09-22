@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   IconAlertTriangle,
   IconCheckCircle2,
+  IconCopy,
   IconEye,
   IconPencil,
   IconTrash2,
@@ -27,10 +28,7 @@ import {
 } from '@/components/providers/utils';
 import type { OpenAIProviderConfig } from '@/types';
 import type { StatusBarData } from '@/utils/recentRequests';
-import {
-  resourceMonitorView,
-  type MonitorSummaries,
-} from '../channelMonitorView';
+import { resourceMonitorView, type MonitorSummaries } from '../channelMonitorView';
 import type { ProviderResource } from '../types';
 import { isMultiProtocolSponsorBrand } from '../sponsorDefinitions';
 import styles from './ProviderResourceTable.module.scss';
@@ -45,11 +43,12 @@ interface ProviderResourceTableProps {
   onOpenMonitor?: (resource: ProviderResource) => void;
   onView: (resource: ProviderResource) => void;
   onEdit: (resource: ProviderResource) => void;
+  onCopy?: (resource: ProviderResource) => void;
   onDelete: (resource: ProviderResource) => void;
   onToggleDisabled?: (resource: ProviderResource, disabled: boolean) => void;
 }
 
-const columnWidths = ['180px', '220px', '72px', '138px', '174px', '176px'];
+const columnWidths = ['180px', '220px', '72px', '138px', '174px', '214px'];
 
 const isSponsorResource = (resource: ProviderResource): boolean =>
   isMultiProtocolSponsorBrand(resource.brand);
@@ -65,7 +64,8 @@ const resolveStatusBarData = (
     usageByProvider,
     getProviderUsageKey(resource.brand),
     resource.apiKey ?? undefined,
-    resource.baseUrl ?? undefined
+    resource.baseUrl ?? undefined,
+    resource.channelName ?? undefined
   );
 };
 
@@ -80,7 +80,8 @@ const resolveTotalStats = (
     usageByProvider,
     getProviderUsageKey(resource.brand),
     resource.apiKey ?? undefined,
-    resource.baseUrl ?? undefined
+    resource.baseUrl ?? undefined,
+    resource.channelName ?? undefined
   );
 };
 
@@ -93,6 +94,7 @@ export function ProviderResourceTable({
   onOpenMonitor,
   onView,
   onEdit,
+  onCopy,
   onDelete,
   onToggleDisabled,
 }: ProviderResourceTableProps) {
@@ -182,6 +184,14 @@ export function ProviderResourceTable({
         <div className={styles.primaryCell}>
           <span className={styles.primaryName}>{r.name ?? r.identifier}</span>
           <span className={styles.primarySub}>{(r.apiKeyPreview ?? '—') + extra}</span>
+        </div>
+      );
+    }
+    if (r.channelName) {
+      return (
+        <div className={styles.primaryCell}>
+          <span className={styles.primaryName}>{r.channelName}</span>
+          <span className={styles.primarySub}>{r.apiKeyPreview ?? '—'}</span>
         </div>
       );
     }
@@ -302,6 +312,21 @@ export function ProviderResourceTable({
                   >
                     <IconPencil size={16} />
                   </button>
+                  {onCopy ? (
+                    <button
+                      type="button"
+                      className={styles.iconBtn}
+                      aria-label={t('providersPage.actions.copy')}
+                      title={t('providersPage.actions.copy')}
+                      disabled={disableMutations}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onCopy(resource);
+                      }}
+                    >
+                      <IconCopy size={16} />
+                    </button>
+                  ) : null}
                   <button
                     type="button"
                     className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
@@ -346,9 +371,7 @@ function MonitorThumbnail({
   const { t } = useTranslation();
   const monitor = resourceMonitorView(resource, monitorSummaries);
   const stats = monitor ?? resolveTotalStats(resource, usageByProvider);
-  const statusData = monitor
-    ? monitor.statusBar
-    : resolveStatusBarData(resource, usageByProvider);
+  const statusData = monitor ? monitor.statusBar : resolveStatusBarData(resource, usageByProvider);
   return (
     <button
       type="button"

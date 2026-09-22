@@ -334,3 +334,86 @@
     outline-color: var(--amber-color);
   }
 }
+
+.groupBar,
+.groupRenameForm {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.groupInput {
+  flex: 1;
+  min-width: 0;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.groupAddButton,
+.groupIconButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 13px;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.groupIconButton {
+  width: 34px;
+  justify-content: center;
+  padding: 0;
+}
+
+.groupSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.groupTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.groupCount {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.groupActions {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.groupEmpty {
+  color: var(--text-secondary);
+  font-size: 13px;
+}

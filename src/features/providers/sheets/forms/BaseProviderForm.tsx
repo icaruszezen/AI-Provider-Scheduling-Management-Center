@@ -56,6 +56,7 @@ interface BaseProviderFormProps {
   mode: 'create' | 'edit';
   mutating: boolean;
   formId: string;
+  groups?: readonly string[];
   onSubmit: (input: ProviderEntryFormInput) => Promise<void>;
   onDirtyChange?: (dirty: boolean) => void;
 }
@@ -88,6 +89,7 @@ function buildInitialForm(
     return {
       apiKey: '',
       name: '',
+      group: '',
       baseUrl: brand === 'xai' ? XAI_API_BASE_URL : '',
       proxyUrl: '',
       prefix: '',
@@ -131,6 +133,7 @@ function buildInitialForm(
     return {
       apiKey: '',
       name: cfg.name ?? '',
+      group: cfg.group ?? '',
       baseUrl: cfg.baseUrl ?? '',
       proxyUrl: '',
       prefix: cfg.prefix ?? '',
@@ -177,7 +180,8 @@ function buildInitialForm(
     // overwrite it) and defeats the "leave empty = keep unchanged" contract; an
     // empty field is preserved on save via buildProviderKeyConfig's existing fallback.
     apiKey: '',
-    name: '',
+    name: cfg.name ?? '',
+    group: cfg.group ?? '',
     baseUrl: cfg.baseUrl ?? '',
     proxyUrl: cfg.proxyUrl ?? '',
     prefix: cfg.prefix ?? '',
@@ -261,6 +265,7 @@ export function BaseProviderForm({
   mode,
   mutating,
   formId,
+  groups = [],
   onSubmit,
   onDirtyChange,
 }: BaseProviderFormProps) {
@@ -438,8 +443,11 @@ export function BaseProviderForm({
   };
 
   const validate = (): string | null => {
-    if (descriptor.supportsName && !form.name.trim()) {
-      return t('providersPage.form.validation.nameRequired');
+    if (descriptor.supportsName) {
+      const nameRequired = mode === 'create' || Boolean(resource?.channelName?.trim());
+      if (nameRequired && !form.name.trim()) {
+        return t('providersPage.form.validation.nameRequired');
+      }
     }
     if (brand === 'antigravity' && !form.projectId?.trim()) {
       return t('providersPage.form.validation.projectIdRequired');
@@ -613,6 +621,30 @@ export function BaseProviderForm({
           </div>
         ) : null}
 
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor={`${fid}-group`}>
+            {t('providersPage.form.group')}
+          </label>
+          <Select
+            id={`${fid}-group`}
+            value={form.group}
+            options={[
+              { value: '', label: t('providersPage.groups.ungrouped') },
+              ...Array.from(
+                new Set(
+                  [...groups, form.group]
+                    .map((name) => name.trim())
+                    .filter((name) => name.length > 0)
+                )
+              ).map((name) => ({ value: name, label: name })),
+            ]}
+            onChange={(value) => updateField('group', value)}
+            disabled={mutating}
+            fullWidth
+            ariaLabel={t('providersPage.form.group')}
+          />
+        </div>
+
         {descriptor.supportsApiKey ? (
           <div className={styles.field}>
             <label className={styles.label} htmlFor={`${fid}-apiKey`}>
@@ -718,7 +750,8 @@ export function BaseProviderForm({
                 value={form.serviceAccountText ?? ''}
                 onChange={(e) => updateField('serviceAccountText', e.target.value)}
                 placeholder={
-                  mode === 'edit' && (resource?.raw as ProviderKeyConfig | undefined)?.serviceAccount
+                  mode === 'edit' &&
+                  (resource?.raw as ProviderKeyConfig | undefined)?.serviceAccount
                     ? t('providersPage.form.serviceAccountEditPlaceholder')
                     : t('providersPage.form.serviceAccountCreatePlaceholder')
                 }
@@ -726,7 +759,8 @@ export function BaseProviderForm({
                 disabled={mutating}
                 spellCheck={false}
               />
-              {mode === 'edit' && (resource?.raw as ProviderKeyConfig | undefined)?.serviceAccount ? (
+              {mode === 'edit' &&
+              (resource?.raw as ProviderKeyConfig | undefined)?.serviceAccount ? (
                 <p className={styles.labelHint}>
                   {t('providersPage.form.serviceAccountConfiguredHint', {
                     identity:

@@ -51,6 +51,7 @@ interface SponsorProviderFormProps {
   mode: 'create' | 'edit';
   mutating: boolean;
   formId: string;
+  groups?: readonly string[];
   onSubmit: (input: ProviderEntryFormInput) => Promise<void>;
   onDirtyChange?: (dirty: boolean) => void;
 }
@@ -103,6 +104,7 @@ const emptySponsorKeyEntry = (
 const emptySponsorForm = (definition: SponsorProviderDefinition): ProviderEntryFormInput => ({
   apiKey: '',
   name: '',
+  group: '',
   baseUrl: '',
   proxyUrl: '',
   prefix: '',
@@ -686,6 +688,8 @@ const buildInitialForm = (
   const raw = getSponsorRaw(resource, definition.brand);
   return {
     ...emptySponsorForm(definition),
+    name: resource?.channelName ?? '',
+    group: resource?.group ?? '',
     sponsorKeyEntries: sponsorKeyEntriesFromRaw(raw, definition),
   };
 };
@@ -696,6 +700,7 @@ export function SponsorProviderForm({
   mode,
   mutating,
   formId,
+  groups = [],
   onSubmit,
   onDirtyChange,
 }: SponsorProviderFormProps) {
@@ -749,6 +754,10 @@ export function SponsorProviderForm({
   };
 
   const validateEntries = (): string | null => {
+    const nameRequired = mode === 'create' || Boolean(resource?.channelName?.trim());
+    if (nameRequired && !form.name.trim()) {
+      return t('providersPage.form.validation.nameRequired');
+    }
     if (!entries.length) {
       return mode === 'edit' ? null : t('providersPage.sponsor.validation.keyRequired');
     }
@@ -829,6 +838,43 @@ export function SponsorProviderForm({
 
   return (
     <form id={formId} className={styles.form} onSubmit={handleSubmit} noValidate>
+      <div className={styles.section}>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor={`${formId}-name`}>
+            {t('providersPage.form.name')}
+          </label>
+          <input
+            id={`${formId}-name`}
+            className={styles.input}
+            value={form.name}
+            onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+            disabled={mutating}
+          />
+        </div>
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor={`${formId}-group`}>
+            {t('providersPage.form.group')}
+          </label>
+          <Select
+            id={`${formId}-group`}
+            value={form.group}
+            options={[
+              { value: '', label: t('providersPage.groups.ungrouped') },
+              ...Array.from(
+                new Set(
+                  [...groups, form.group]
+                    .map((name) => name.trim())
+                    .filter((name) => name.length > 0)
+                )
+              ).map((name) => ({ value: name, label: name })),
+            ]}
+            onChange={(value) => setForm((prev) => ({ ...prev, group: value }))}
+            disabled={mutating}
+            fullWidth
+            ariaLabel={t('providersPage.form.group')}
+          />
+        </div>
+      </div>
       <div className={styles.section}>
         <h3 className={styles.sectionTitle}>{t('providersPage.sponsor.groupedKeysTitle')}</h3>
         {entries.map((entry, index) => (

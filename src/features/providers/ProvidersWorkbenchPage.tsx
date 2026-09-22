@@ -23,6 +23,7 @@ import { ProviderCategoryList } from './components/ProviderCategoryList';
 import { ProviderResourcePanel } from './components/ProviderResourcePanel';
 import type { ProviderPanelControls } from './components/ProviderResourcePanel';
 import { ProviderSheet, type ProviderSheetHandle } from './sheets/ProviderSheet';
+import { channelGroupKey } from './channelIdentity';
 import { isMultiProtocolSponsorBrand } from './sponsorDefinitions';
 import { isSponsorPartialMutationError } from './sponsorMutationRecovery';
 import { useProviderWorkbench } from './useProviderWorkbench';
@@ -69,6 +70,8 @@ const matchesFilter = (r: ProviderResource, normalized: string): boolean => {
     r.baseUrl,
     r.proxyUrl,
     r.prefix,
+    r.group,
+    r.channelName,
   ]
     .filter(Boolean)
     .map((v) => String(v).toLowerCase());
@@ -93,7 +96,8 @@ const getResourceRecentSuccess = (
     usageByProvider,
     getProviderUsageKey(resource.brand),
     resource.apiKey ?? undefined,
-    resource.baseUrl ?? undefined
+    resource.baseUrl ?? undefined,
+    resource.channelName ?? undefined
   ).success;
 };
 
@@ -250,7 +254,14 @@ export function ProvidersWorkbenchPage() {
     });
 
     return sorted;
-  }, [filteredResources, monitorSummaries, providerSortBy, providerSortDir, selectedModels, usageByProvider]);
+  }, [
+    filteredResources,
+    monitorSummaries,
+    providerSortBy,
+    providerSortDir,
+    selectedModels,
+    usageByProvider,
+  ]);
 
   const toolbarControls = useMemo<ProviderPanelControls | undefined>(() => {
     if (!activeGroup) return undefined;
@@ -457,11 +468,45 @@ export function ProvidersWorkbenchPage() {
           monitorSummaries={monitorSummaries}
           onOpenMonitor={setMonitorResource}
           toolbarControls={toolbarControls}
+          catalogGroups={workbench.channelGroups[channelGroupKey(activeGroup.id)] ?? []}
           onView={openView}
           onEdit={openEdit}
+          onCopy={(resource) => {
+            void workbench.copyProvider(resource).catch((err: unknown) => {
+              const msg = err instanceof Error ? err.message : String(err);
+              showNotification(msg || t('providersPage.groups.copyFailed'), 'error');
+            });
+          }}
           onDelete={handleDelete}
           onToggleDisabled={handleToggleDisabled}
           onCreate={openCreate}
+          onCreateGroup={(name) => {
+            void workbench.createChannelGroup(activeGroup.id, name).catch((err: unknown) => {
+              const msg = err instanceof Error ? err.message : String(err);
+              showNotification(msg || t('providersPage.groups.saveFailed'), 'error');
+            });
+          }}
+          onRenameGroup={(from, to) => {
+            void workbench.renameChannelGroup(activeGroup.id, from, to).catch((err: unknown) => {
+              const msg = err instanceof Error ? err.message : String(err);
+              showNotification(msg || t('providersPage.groups.saveFailed'), 'error');
+            });
+          }}
+          onDeleteGroup={(name) => {
+            showConfirmation({
+              title: t('providersPage.groups.deleteTitle'),
+              message: t('providersPage.groups.deleteMessage', { name }),
+              variant: 'danger',
+              confirmText: t('providersPage.groups.delete'),
+              cancelText: t('providersPage.actions.cancel'),
+              onConfirm: () => {
+                void workbench.deleteChannelGroup(activeGroup.id, name).catch((err: unknown) => {
+                  const msg = err instanceof Error ? err.message : String(err);
+                  showNotification(msg || t('providersPage.groups.saveFailed'), 'error');
+                });
+              },
+            });
+          }}
         />
       </div>
 

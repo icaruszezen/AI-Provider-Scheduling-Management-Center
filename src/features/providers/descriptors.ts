@@ -24,7 +24,7 @@ export interface ProviderDescriptor {
 export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
   gemini: {
     id: 'gemini',
-    supportsName: false,
+    supportsName: true,
     supportsApiKey: true,
     supportsDisabled: true,
     supportsBaseUrl: true,
@@ -43,7 +43,7 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
   },
   interactions: {
     id: 'interactions',
-    supportsName: false,
+    supportsName: true,
     supportsApiKey: true,
     supportsDisabled: true,
     supportsBaseUrl: true,
@@ -62,7 +62,7 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
   },
   codex: {
     id: 'codex',
-    supportsName: false,
+    supportsName: true,
     supportsApiKey: true,
     supportsDisabled: true,
     supportsBaseUrl: true,
@@ -81,7 +81,7 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
   },
   xai: {
     id: 'xai',
-    supportsName: false,
+    supportsName: true,
     supportsApiKey: true,
     supportsDisabled: true,
     supportsBaseUrl: true,
@@ -100,7 +100,7 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
   },
   claude: {
     id: 'claude',
-    supportsName: false,
+    supportsName: true,
     supportsApiKey: true,
     supportsDisabled: true,
     supportsBaseUrl: true,
@@ -119,7 +119,7 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
   },
   vertex: {
     id: 'vertex',
-    supportsName: false,
+    supportsName: true,
     supportsApiKey: true,
     supportsDisabled: true,
     supportsBaseUrl: true,
@@ -138,7 +138,7 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
   },
   antigravity: {
     id: 'antigravity',
-    supportsName: false,
+    supportsName: true,
     supportsApiKey: true,
     supportsDisabled: true,
     supportsBaseUrl: true,
@@ -176,7 +176,7 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
   },
   lmuAI: {
     id: 'lmuAI',
-    supportsName: false,
+    supportsName: true,
     supportsApiKey: true,
     supportsDisabled: true,
     supportsBaseUrl: false,
@@ -195,7 +195,7 @@ export const PROVIDER_DESCRIPTORS: Record<ProviderBrand, ProviderDescriptor> = {
   },
   kimi: {
     id: 'kimi',
-    supportsName: false,
+    supportsName: true,
     supportsApiKey: true,
     supportsDisabled: true,
     supportsBaseUrl: false,

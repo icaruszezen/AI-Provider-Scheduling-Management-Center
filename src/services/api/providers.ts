@@ -21,6 +21,8 @@ const serializeHeaders = (headers?: Record<string, string>) =>
 const RESPONSE_ONLY_FIELDS = ['auth-index'] as const;
 
 const PROVIDER_COMMON_KEY_FIELDS = [
+  'name',
+  'group',
   'api-key',
   'priority',
   'weight',
@@ -56,6 +58,8 @@ const CLAUDE_KEY_FIELDS = [
   'experimental-cch-signing',
 ] as const;
 const VERTEX_KEY_FIELDS = [
+  'name',
+  'group',
   'api-key',
   'service-account',
   'project-id',
@@ -77,6 +81,7 @@ const ANTIGRAVITY_KEY_FIELDS = [...PROVIDER_COMMON_KEY_FIELDS, 'project-id'] as 
 
 const OPENAI_PROVIDER_FIELDS = [
   'name',
+  'group',
   'priority',
   'disabled',
   'prefix',
@@ -243,9 +248,45 @@ const mutateLatestProviderList = async (
   await apiClient.put(`/${section}`, mutate(latestItems));
 };
 
-const matchesProviderKey = (record: Record<string, unknown>, apiKey: string, baseUrl?: string) =>
-  getStringField(record, ['api-key']) === apiKey.trim() &&
-  getStringField(record, ['base-url']) === (baseUrl ?? '').trim();
+export interface ChannelMatch {
+  name?: string | null;
+  index: number;
+}
+
+const matchesChannel = (
+  record: Record<string, unknown>,
+  index: number,
+  match: ChannelMatch
+): boolean => {
+  const name = String(match.name ?? '').trim();
+  if (name) return getStringField(record, ['name']) === name;
+  return index === match.index;
+};
+
+const deleteChannel = (section: string, match: ChannelMatch) => {
+  const params = new URLSearchParams();
+  const name = String(match.name ?? '').trim();
+  if (name) params.set('name', name);
+  else params.set('index', String(match.index));
+  return apiClient.delete(`/${section}?${params.toString()}`);
+};
+
+export const duplicateProviderRecord = (section: string, match: ChannelMatch, name: string) =>
+  mutateLatestProviderList(section, (latestItems) => {
+    const sourceIndex = latestItems.findIndex(
+      (item, index) => isRecord(item) && matchesChannel(item, index, match)
+    );
+    if (sourceIndex < 0) {
+      throw new Error('Provider configuration changed; refresh and try again.');
+    }
+    const source = latestItems[sourceIndex];
+    if (!isRecord(source)) {
+      throw new Error('Provider configuration changed; refresh and try again.');
+    }
+    const clone: Record<string, unknown> = { ...source, name };
+    delete clone['auth-index'];
+    return [...latestItems, clone];
+  });
 
 const matchesOpenAIProvider = (record: Record<string, unknown>, name: string) =>
   openAIProviderIdentity(record) === name.trim();
@@ -306,13 +347,6 @@ const extractArrayPayload = (data: unknown, key: string): unknown[] => {
   return Array.isArray(list) ? list : [];
 };
 
-const buildProviderDeleteQuery = (apiKey: string, baseUrl?: string) => {
-  const params = new URLSearchParams();
-  params.set('api-key', apiKey.trim());
-  params.set('base-url', (baseUrl ?? '').trim());
-  return `?${params.toString()}`;
-};
-
 const serializeModelAliases = (models?: ModelAlias[], includeOpenAIFields = false) =>
   Array.isArray(models)
     ? models
@@ -348,6 +382,8 @@ const serializeApiKeyEntry = (entry: ApiKeyEntry) => {
 
 const serializeProviderKey = (config: ProviderKeyConfig) => {
   const payload: Record<string, unknown> = { 'api-key': config.apiKey };
+  if (config.name?.trim()) payload.name = config.name.trim();
+  if (config.group?.trim()) payload.group = config.group.trim();
   if (config.priority !== undefined) payload.priority = config.priority;
   if (config.weight !== undefined) payload.weight = config.weight;
   if (config.prefix?.trim()) payload.prefix = config.prefix.trim();
@@ -407,6 +443,8 @@ const serializeVertexModelAliases = (models?: ModelAlias[]) =>
 
 const serializeVertexKey = (config: ProviderKeyConfig) => {
   const payload: Record<string, unknown> = { 'api-key': config.apiKey ?? '' };
+  if (config.name?.trim()) payload.name = config.name.trim();
+  if (config.group?.trim()) payload.group = config.group.trim();
   if (config.serviceAccount && Object.keys(config.serviceAccount).length) {
     payload['service-account'] = config.serviceAccount;
   }
@@ -438,6 +476,8 @@ const serializeAntigravityKey = (config: ProviderKeyConfig) => {
 
 const serializeGeminiKey = (config: GeminiKeyConfig) => {
   const payload: Record<string, unknown> = { 'api-key': config.apiKey };
+  if (config.name?.trim()) payload.name = config.name.trim();
+  if (config.group?.trim()) payload.group = config.group.trim();
   if (config.priority !== undefined) payload.priority = config.priority;
   if (config.weight !== undefined) payload.weight = config.weight;
   if (config.prefix?.trim()) payload.prefix = config.prefix.trim();
@@ -464,6 +504,7 @@ const serializeOpenAIProvider = (provider: OpenAIProviderConfig) => {
       ? provider.apiKeyEntries.map((entry) => serializeApiKeyEntry(entry))
       : [],
   };
+  if (provider.group?.trim()) payload.group = provider.group.trim();
   if (provider.prefix?.trim()) payload.prefix = provider.prefix.trim();
   if (provider.disabled !== undefined) payload.disabled = provider.disabled;
   const headers = serializeHeaders(provider.headers);
@@ -486,18 +527,17 @@ export const providersApi = {
       )
     ),
 
-  updateGeminiKey: (apiKey: string, baseUrl: string | undefined, config: GeminiKeyConfig) =>
+  updateGeminiKey: (match: ChannelMatch, config: GeminiKeyConfig) =>
     mutateLatestProviderList('gemini-api-key', (latestItems) =>
       replaceLatestProviderRecord(
         latestItems,
-        (record) => matchesProviderKey(record, apiKey, baseUrl),
+        (record, index) => matchesChannel(record, index, match),
         serializeGeminiKey(config),
         (raw, payload) => mergeProviderKeyPayload(raw, payload, GEMINI_KEY_FIELDS)
       )
     ),
 
-  deleteGeminiKey: (apiKey: string, baseUrl?: string) =>
-    apiClient.delete(`/gemini-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
+  deleteGeminiKey: (match: ChannelMatch) => deleteChannel('gemini-api-key', match),
 
   createInteractionsKey: (config: GeminiKeyConfig) =>
     mutateLatestProviderList('interactions-api-key', (latestItems) =>
@@ -506,18 +546,17 @@ export const providersApi = {
       )
     ),
 
-  updateInteractionsKey: (apiKey: string, baseUrl: string | undefined, config: GeminiKeyConfig) =>
+  updateInteractionsKey: (match: ChannelMatch, config: GeminiKeyConfig) =>
     mutateLatestProviderList('interactions-api-key', (latestItems) =>
       replaceLatestProviderRecord(
         latestItems,
-        (record) => matchesProviderKey(record, apiKey, baseUrl),
+        (record, index) => matchesChannel(record, index, match),
         serializeGeminiKey(config),
         (raw, payload) => mergeProviderKeyPayload(raw, payload, INTERACTIONS_KEY_FIELDS)
       )
     ),
 
-  deleteInteractionsKey: (apiKey: string, baseUrl?: string) =>
-    apiClient.delete(`/interactions-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
+  deleteInteractionsKey: (match: ChannelMatch) => deleteChannel('interactions-api-key', match),
 
   createCodexConfig: (config: ProviderKeyConfig) =>
     mutateLatestProviderList('codex-api-key', (latestItems) =>
@@ -526,18 +565,17 @@ export const providersApi = {
       )
     ),
 
-  updateCodexConfig: (apiKey: string, baseUrl: string | undefined, config: ProviderKeyConfig) =>
+  updateCodexConfig: (match: ChannelMatch, config: ProviderKeyConfig) =>
     mutateLatestProviderList('codex-api-key', (latestItems) =>
       replaceLatestProviderRecord(
         latestItems,
-        (record) => matchesProviderKey(record, apiKey, baseUrl),
+        (record, index) => matchesChannel(record, index, match),
         serializeProviderKey(config),
         (raw, payload) => mergeProviderKeyPayload(raw, payload, CODEX_KEY_FIELDS)
       )
     ),
 
-  deleteCodexConfig: (apiKey: string, baseUrl?: string) =>
-    apiClient.delete(`/codex-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
+  deleteCodexConfig: (match: ChannelMatch) => deleteChannel('codex-api-key', match),
 
   createXAIConfig: (config: ProviderKeyConfig) =>
     mutateLatestProviderList('xai-api-key', (latestItems) =>
@@ -546,18 +584,17 @@ export const providersApi = {
       )
     ),
 
-  updateXAIConfig: (apiKey: string, baseUrl: string | undefined, config: ProviderKeyConfig) =>
+  updateXAIConfig: (match: ChannelMatch, config: ProviderKeyConfig) =>
     mutateLatestProviderList('xai-api-key', (latestItems) =>
       replaceLatestProviderRecord(
         latestItems,
-        (record) => matchesProviderKey(record, apiKey, baseUrl),
+        (record, index) => matchesChannel(record, index, match),
         serializeProviderKey(config),
         (raw, payload) => mergeProviderKeyPayload(raw, payload, XAI_KEY_FIELDS)
       )
     ),
 
-  deleteXAIConfig: (apiKey: string, baseUrl?: string) =>
-    apiClient.delete(`/xai-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
+  deleteXAIConfig: (match: ChannelMatch) => deleteChannel('xai-api-key', match),
 
   createClaudeConfig: (config: ProviderKeyConfig) =>
     mutateLatestProviderList('claude-api-key', (latestItems) =>
@@ -566,18 +603,17 @@ export const providersApi = {
       )
     ),
 
-  updateClaudeConfig: (apiKey: string, baseUrl: string | undefined, config: ProviderKeyConfig) =>
+  updateClaudeConfig: (match: ChannelMatch, config: ProviderKeyConfig) =>
     mutateLatestProviderList('claude-api-key', (latestItems) =>
       replaceLatestProviderRecord(
         latestItems,
-        (record) => matchesProviderKey(record, apiKey, baseUrl),
+        (record, index) => matchesChannel(record, index, match),
         serializeProviderKey(config),
         (raw, payload) => mergeProviderKeyPayload(raw, payload, CLAUDE_KEY_FIELDS)
       )
     ),
 
-  deleteClaudeConfig: (apiKey: string, baseUrl?: string) =>
-    apiClient.delete(`/claude-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
+  deleteClaudeConfig: (match: ChannelMatch) => deleteChannel('claude-api-key', match),
 
   async getVertexConfigs(): Promise<ProviderKeyConfig[]> {
     const data = await apiClient.get('/vertex-api-key');
@@ -594,30 +630,17 @@ export const providersApi = {
       )
     ),
 
-  updateVertexConfig: (
-    apiKey: string,
-    baseUrl: string | undefined,
-    config: ProviderKeyConfig,
-    index?: number
-  ) =>
+  updateVertexConfig: (match: ChannelMatch, config: ProviderKeyConfig) =>
     mutateLatestProviderList('vertex-api-key', (latestItems) =>
       replaceLatestProviderRecord(
         latestItems,
-        (record, currentIndex) =>
-          typeof index === 'number'
-            ? currentIndex === index
-            : matchesProviderKey(record, apiKey, baseUrl),
+        (record, index) => matchesChannel(record, index, match),
         serializeVertexKey(config),
         (raw, payload) => mergeProviderKeyPayload(raw, payload, VERTEX_KEY_FIELDS)
       )
     ),
 
-  deleteVertexConfig: (apiKey: string, baseUrl?: string, index?: number) => {
-    if (!apiKey.trim() && typeof index === 'number') {
-      return apiClient.delete(`/vertex-api-key?index=${encodeURIComponent(String(index))}`);
-    }
-    return apiClient.delete(`/vertex-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`);
-  },
+  deleteVertexConfig: (match: ChannelMatch) => deleteChannel('vertex-api-key', match),
 
   async getAntigravityConfigs(): Promise<ProviderKeyConfig[]> {
     const data = await apiClient.get('/antigravity-api-key');
@@ -634,22 +657,20 @@ export const providersApi = {
       )
     ),
 
-  updateAntigravityConfig: (
-    apiKey: string,
-    baseUrl: string | undefined,
-    config: ProviderKeyConfig
-  ) =>
+  updateAntigravityConfig: (match: ChannelMatch, config: ProviderKeyConfig) =>
     mutateLatestProviderList('antigravity-api-key', (latestItems) =>
       replaceLatestProviderRecord(
         latestItems,
-        (record) => matchesProviderKey(record, apiKey, baseUrl),
+        (record, index) => matchesChannel(record, index, match),
         serializeAntigravityKey(config),
         (raw, payload) => mergeProviderKeyPayload(raw, payload, ANTIGRAVITY_KEY_FIELDS)
       )
     ),
 
-  deleteAntigravityConfig: (apiKey: string, baseUrl?: string) =>
-    apiClient.delete(`/antigravity-api-key${buildProviderDeleteQuery(apiKey, baseUrl)}`),
+  deleteAntigravityConfig: (match: ChannelMatch) => deleteChannel('antigravity-api-key', match),
+
+  putChannelGroups: (groups: Record<string, string[]>) =>
+    apiClient.put('/channel-groups', { 'channel-groups': groups }),
 
   async getOpenAIProviders(): Promise<OpenAIProviderConfig[]> {
     const data = await apiClient.get('/openai-compatibility');

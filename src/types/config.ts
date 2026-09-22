@@ -31,6 +31,7 @@ export interface Config {
   vertexApiKeys?: ProviderKeyConfig[];
   antigravityApiKeys?: ProviderKeyConfig[];
   openaiCompatibility?: OpenAIProviderConfig[];
+  channelGroups?: Record<string, string[]>;
   raw?: Record<string, unknown>;
 }
 
@@ -53,4 +54,5 @@ export type RawConfigSection =
   | 'claude-api-key'
   | 'vertex-api-key'
   | 'antigravity-api-key'
-  | 'openai-compatibility';
+  | 'openai-compatibility'
+  | 'channel-groups';

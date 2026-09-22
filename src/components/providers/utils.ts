@@ -155,14 +155,15 @@ const getProviderRecentUsageEntry = (
   usageByProvider: ProviderRecentUsageMap,
   provider: string,
   apiKey?: string,
-  baseUrl?: string
+  baseUrl?: string,
+  channelName?: string
 ): RecentRequestUsageEntry => {
   if (!String(apiKey ?? '').trim()) {
     return EMPTY_RECENT_USAGE_ENTRY;
   }
 
   const providerKey = normalizeProviderRecentKey(provider);
-  const compositeKey = buildRecentRequestCompositeKey(baseUrl, apiKey);
+  const compositeKey = buildRecentRequestCompositeKey(baseUrl, apiKey, channelName);
   return usageByProvider.get(providerKey)?.get(compositeKey) ?? EMPTY_RECENT_USAGE_ENTRY;
 };
 
@@ -170,18 +171,21 @@ const getProviderRecentBuckets = (
   usageByProvider: ProviderRecentUsageMap,
   provider: string,
   apiKey?: string,
-  baseUrl?: string
+  baseUrl?: string,
+  channelName?: string
 ): RecentRequestBucket[] =>
-  getProviderRecentUsageEntry(usageByProvider, provider, apiKey, baseUrl).recentRequests;
+  getProviderRecentUsageEntry(usageByProvider, provider, apiKey, baseUrl, channelName)
+    .recentRequests;
 
 export function getProviderRecentStatusData(
   usageByProvider: ProviderRecentUsageMap,
   provider: string,
   apiKey?: string,
-  baseUrl?: string
+  baseUrl?: string,
+  channelName?: string
 ): StatusBarData {
   return statusBarDataFromRecentRequests(
-    getProviderRecentBuckets(usageByProvider, provider, apiKey, baseUrl)
+    getProviderRecentBuckets(usageByProvider, provider, apiKey, baseUrl, channelName)
   );
 }
 
@@ -189,9 +193,16 @@ export function getProviderTotalStats(
   usageByProvider: ProviderRecentUsageMap,
   provider: string,
   apiKey?: string,
-  baseUrl?: string
+  baseUrl?: string,
+  channelName?: string
 ): { success: number; failure: number } {
-  const entry = getProviderRecentUsageEntry(usageByProvider, provider, apiKey, baseUrl);
+  const entry = getProviderRecentUsageEntry(
+    usageByProvider,
+    provider,
+    apiKey,
+    baseUrl,
+    channelName
+  );
   return { success: entry.success, failure: entry.failed };
 }
 
@@ -199,9 +210,12 @@ export function getProviderRecentWindowStats(
   usageByProvider: ProviderRecentUsageMap,
   provider: string,
   apiKey?: string,
-  baseUrl?: string
+  baseUrl?: string,
+  channelName?: string
 ): { success: number; failure: number } {
-  return sumRecentRequests(getProviderRecentBuckets(usageByProvider, provider, apiKey, baseUrl));
+  return sumRecentRequests(
+    getProviderRecentBuckets(usageByProvider, provider, apiKey, baseUrl, channelName)
+  );
 }
 
 const collectOpenAIProviderRecentBuckets = (

@@ -176,6 +176,10 @@ const normalizeProviderKeyConfig = (item: unknown): ProviderKeyConfig | null => 
   if (!trimmed && !serviceAccount) return null;
 
   const config: ProviderKeyConfig = { apiKey: trimmed };
+  const channelName = normalizeOptionalString(record?.name);
+  if (channelName) config.name = channelName;
+  const group = normalizeOptionalString(record?.group);
+  if (group) config.group = group;
   const projectId = normalizeOptionalString(record?.['project-id']);
   if (projectId) config.projectId = projectId;
   if (serviceAccount) config.serviceAccount = serviceAccount;
@@ -206,9 +210,7 @@ const normalizeProviderKeyConfig = (item: unknown): ProviderKeyConfig | null => 
   if (hideNoAvailableChannel !== undefined) config.hideNoAvailableChannel = hideNoAvailableChannel;
   const localCompact = normalizeBoolean(record?.['local-compact']);
   if (localCompact !== undefined) config.localCompact = localCompact;
-  const streamFakeFirstTokens = sanitizeStreamFakeFirstTokens(
-    record?.['stream-fake-first-tokens']
-  );
+  const streamFakeFirstTokens = sanitizeStreamFakeFirstTokens(record?.['stream-fake-first-tokens']);
   if (streamFakeFirstTokens.length) {
     config.streamFakeFirstTokens = streamFakeFirstTokens;
   }
@@ -264,6 +266,10 @@ const normalizeGeminiKeyConfig = (item: unknown): GeminiKeyConfig | null => {
   if (!trimmed) return null;
 
   const config: GeminiKeyConfig = { apiKey: trimmed };
+  const channelName = normalizeOptionalString(record?.name);
+  if (channelName) config.name = channelName;
+  const group = normalizeOptionalString(record?.group);
+  if (group) config.group = group;
   const weight = readCredentialWeight(record?.weight);
   if (weight !== undefined) config.weight = weight;
   const priority = record?.priority;
@@ -320,6 +326,8 @@ const normalizeOpenAIProvider = (
     baseUrl: String(baseUrl),
     apiKeyEntries,
   };
+  const group = normalizeOptionalString(provider.group);
+  if (group) result.group = group;
 
   const disabled = normalizeBoolean(provider.disabled);
   if (disabled !== undefined) result.disabled = disabled;
@@ -453,6 +461,17 @@ export const normalizeConfigResponse = (raw: unknown): Config => {
     config.openaiCompatibility = openaiList
       .map((item, index) => normalizeOpenAIProvider(item, index))
       .filter(Boolean) as OpenAIProviderConfig[];
+  }
+
+  const channelGroupsRaw = raw['channel-groups'];
+  if (isRecord(channelGroupsRaw)) {
+    const channelGroups: Record<string, string[]> = {};
+    Object.entries(channelGroupsRaw).forEach(([key, value]) => {
+      if (!Array.isArray(value)) return;
+      const names = value.map((item) => String(item).trim()).filter((item) => item.length > 0);
+      if (names.length) channelGroups[key] = names;
+    });
+    config.channelGroups = channelGroups;
   }
 
   return config;

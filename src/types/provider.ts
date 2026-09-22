@@ -28,6 +28,10 @@ export interface CloakConfig {
 
 export interface GeminiKeyConfig {
   apiKey: string;
+  /** Unique channel name within this provider. Empty means a legacy unnamed channel. */
+  name?: string;
+  /** Custom group under this provider. Empty means ungrouped. */
+  group?: string;
   priority?: number;
   weight?: number;
   prefix?: string;
@@ -45,6 +49,10 @@ export interface GeminiKeyConfig {
 
 export interface ProviderKeyConfig {
   apiKey: string;
+  /** Unique channel name within this provider. Empty means a legacy unnamed channel. */
+  name?: string;
+  /** Custom group under this provider. Empty means ungrouped. */
+  group?: string;
   /** Antigravity routing project, or Vertex override for official SA credentials. */
   projectId?: string;
   /** Official Vertex service-account JSON (private key lives here). */
@@ -83,6 +91,8 @@ export interface ProviderKeyConfig {
 
 export interface OpenAIProviderConfig {
   name: string;
+  /** Custom group under OpenAI compatibility. Empty means ungrouped. */
+  group?: string;
   prefix?: string;
   baseUrl: string;
   apiKeyEntries: ApiKeyEntry[];

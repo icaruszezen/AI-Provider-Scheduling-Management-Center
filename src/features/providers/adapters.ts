@@ -13,6 +13,7 @@ import {
   getKimiProtocolUrls,
   resolveKimiBaseUrl,
 } from './kimi';
+import { sponsorChannelKey } from './channelIdentity';
 import type {
   ProviderBrand,
   ProviderResource,
@@ -65,19 +66,14 @@ function providerKeyIdentity(config: GeminiKeyConfig | ProviderKeyConfig): strin
 }
 
 function providerKeyToResource(
-  brand:
-    | 'gemini'
-    | 'interactions'
-    | 'codex'
-    | 'xai'
-    | 'claude'
-    | 'vertex'
-    | 'antigravity',
+  brand: 'gemini' | 'interactions' | 'codex' | 'xai' | 'claude' | 'vertex' | 'antigravity',
   config: GeminiKeyConfig | ProviderKeyConfig,
   index: number
 ): ProviderResource {
   const apiKey = config.apiKey ?? '';
   const identity = providerKeyIdentity(config);
+  const channelName = String(config.name ?? '').trim();
+  const group = String(config.group ?? '').trim();
   const disabled = hasDisableAllModelsRule(config.excludedModels);
   const flags: ProviderResource['flags'] = {};
   if (brand === 'codex' || brand === 'xai') {
@@ -100,8 +96,10 @@ function providerKeyToResource(
     id: buildId(brand, index, truncateForId(identity) || `#${index}`),
     brand,
     originalIndex: index,
-    name: null,
-    identifier: (apiKey ? maskApiKey(apiKey) : identity) || `#${index + 1}`,
+    name: channelName || null,
+    channelName: channelName || null,
+    group: group || null,
+    identifier: channelName || (apiKey ? maskApiKey(apiKey) : identity) || `#${index + 1}`,
     apiKeyPreview: apiKey ? maskApiKey(apiKey) : null,
     apiKey: apiKey || null,
     authIndex: config.authIndex ?? null,
@@ -152,6 +150,7 @@ export function antigravityToResource(config: ProviderKeyConfig, index: number):
 export function openaiToResource(config: OpenAIProviderConfig, index: number): ProviderResource {
   const sourceIndex = config.sourceIndex ?? index;
   const name = (config.name ?? '').trim();
+  const group = String(config.group ?? '').trim();
   const firstEntry = config.apiKeyEntries?.[0];
   const previewApiKey = firstEntry?.apiKey ? maskApiKey(firstEntry.apiKey) : null;
   return {
@@ -159,6 +158,8 @@ export function openaiToResource(config: OpenAIProviderConfig, index: number): P
     brand: 'openaiCompatibility',
     originalIndex: sourceIndex,
     name: name || null,
+    channelName: name || null,
+    group: group || null,
     identifier: name || `#${sourceIndex + 1}`,
     apiKeyPreview: previewApiKey,
     apiKey: null,
@@ -181,6 +182,9 @@ export function openaiToResource(config: OpenAIProviderConfig, index: number): P
 
 interface SponsorResourceOptions {
   displayName: string;
+  legacyName: string;
+  channelName?: string;
+  group?: string;
   protocolLabels: readonly string[];
   resolveBaseUrl: (value: string | undefined | null) => string;
   getProtocolUrls: (value: string | undefined | null) => {
@@ -267,13 +271,18 @@ function sponsorRawToResource(
       raw.gemini[0]?.config.baseUrl
   );
   const protocolUrls = options.getProtocolUrls(baseUrl);
+  const channelName = String(options.channelName ?? '').trim();
+  const group = String(options.group ?? '').trim();
+  const displayName = channelName || options.displayName;
 
   return {
-    id: buildId(brand, 0, 'sponsor'),
+    id: buildId(brand, 0, channelName || 'legacy'),
     brand,
     originalIndex: 0,
-    name: options.displayName,
-    identifier: options.displayName,
+    name: displayName,
+    channelName: channelName || null,
+    group: group || null,
+    identifier: displayName,
     apiKeyPreview: apiKey ? maskApiKey(apiKey) : null,
     apiKey: apiKey || null,
     authIndex: null,
@@ -325,20 +334,95 @@ function sponsorRawToResource(
   };
 }
 
-export function lmuAIToResource(raw: SponsorProviderRaw): ProviderResource | null {
-  return sponsorRawToResource('lmuAI', raw, {
+const sharedGroup = (names: Array<string | undefined>): string => {
+  const trimmed = names.map((name) => String(name ?? '').trim());
+  if (!trimmed.length) return '';
+  const first = trimmed[0];
+  return trimmed.every((name) => name === first) ? first : '';
+};
+
+const splitSponsorRaw = (
+  raw: SponsorProviderRaw,
+  legacyName: string
+): Array<{ channelName: string; group: string; raw: SponsorProviderRaw }> => {
+  const buckets = new Map<string, SponsorProviderRaw>();
+  const ensure = (key: string): SponsorProviderRaw => {
+    const existing = buckets.get(key);
+    if (existing) return existing;
+    const created: SponsorProviderRaw = { openai: [], claude: [], codex: [], gemini: [] };
+    buckets.set(key, created);
+    return created;
+  };
+  raw.openai.forEach((item) => {
+    ensure(sponsorChannelKey(item.config.name, legacyName)).openai.push(item);
+  });
+  raw.claude.forEach((item) => {
+    ensure(sponsorChannelKey(item.config.name, legacyName)).claude.push(item);
+  });
+  raw.codex.forEach((item) => {
+    ensure(sponsorChannelKey(item.config.name, legacyName)).codex.push(item);
+  });
+  raw.gemini.forEach((item) => {
+    ensure(sponsorChannelKey(item.config.name, legacyName)).gemini.push(item);
+  });
+  const keys = Array.from(buckets.keys()).sort((left, right) => {
+    if (!left) return -1;
+    if (!right) return 1;
+    return left.localeCompare(right);
+  });
+  return keys.map((channelName) => {
+    const bucket = buckets.get(channelName) ?? { openai: [], claude: [], codex: [], gemini: [] };
+    return {
+      channelName,
+      group: sharedGroup([
+        ...bucket.openai.map((item) => item.config.group),
+        ...bucket.claude.map((item) => item.config.group),
+        ...bucket.codex.map((item) => item.config.group),
+        ...bucket.gemini.map((item) => item.config.group),
+      ]),
+      raw: bucket,
+    };
+  });
+};
+
+const sponsorResources = (
+  brand: SponsorProviderBrand,
+  raw: SponsorProviderRaw,
+  options: Omit<SponsorResourceOptions, 'channelName' | 'group'>
+): ProviderResource[] =>
+  splitSponsorRaw(raw, options.legacyName).flatMap((bucket) => {
+    const resource = sponsorRawToResource(brand, bucket.raw, {
+      ...options,
+      channelName: bucket.channelName,
+      group: bucket.group,
+    });
+    return resource ? [resource] : [];
+  });
+
+export function lmuAIToResources(raw: SponsorProviderRaw): ProviderResource[] {
+  return sponsorResources('lmuAI', raw, {
     displayName: LMU_AI_DISPLAY_NAME,
+    legacyName: 'lmuAI',
     protocolLabels: LMU_AI_PROTOCOL_LABELS,
     resolveBaseUrl: resolveLmuAIBaseUrl,
     getProtocolUrls: getLmuAIProtocolUrls,
   });
 }
 
-export function kimiToResource(raw: SponsorProviderRaw): ProviderResource | null {
-  return sponsorRawToResource('kimi', raw, {
+export function lmuAIToResource(raw: SponsorProviderRaw): ProviderResource | null {
+  return lmuAIToResources(raw)[0] ?? null;
+}
+
+export function kimiToResources(raw: SponsorProviderRaw): ProviderResource[] {
+  return sponsorResources('kimi', raw, {
     displayName: KIMI_DISPLAY_NAME,
+    legacyName: 'kimi',
     protocolLabels: KIMI_PROTOCOL_LABELS,
     resolveBaseUrl: resolveKimiBaseUrl,
     getProtocolUrls: getKimiProtocolUrls,
   });
+}
+
+export function kimiToResource(raw: SponsorProviderRaw): ProviderResource | null {
+  return kimiToResources(raw)[0] ?? null;
 }

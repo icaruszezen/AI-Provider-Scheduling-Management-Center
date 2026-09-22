@@ -4,6 +4,7 @@ import { Sheet } from '@/components/ui/Sheet';
 import { IconLoader2, IconPencil } from '@/components/ui/icons';
 import type { ProviderRecentUsageMap } from '@/components/providers/utils';
 import { useNotificationStore } from '@/stores';
+import { channelGroupKey } from '../channelIdentity';
 import { PROVIDER_DESCRIPTORS } from '../descriptors';
 import { isMultiProtocolSponsorBrand } from '../sponsorDefinitions';
 import type { ProviderBrand, ProviderEntryFormInput, ProviderResource } from '../types';
@@ -143,6 +144,7 @@ export function ProviderSheet({
       return <ResourceDetailView resource={state.resource} usageByProvider={usageByProvider} />;
     }
     const formKey = `${state.brand}:${state.resource?.id ?? 'new'}:${state.mode}`;
+    const groups = workbench.channelGroups[channelGroupKey(state.brand)] ?? [];
     if (isMultiProtocolSponsorBrand(state.brand)) {
       return (
         <SponsorProviderForm
@@ -152,6 +154,7 @@ export function ProviderSheet({
           mode={state.mode}
           mutating={formMutating}
           formId={formId}
+          groups={groups}
           onSubmit={state.mode === 'create' ? handleCreate : handleUpdate}
           onDirtyChange={handleDirtyChange}
         />
@@ -165,6 +168,7 @@ export function ProviderSheet({
         mode={state.mode}
         mutating={formMutating}
         formId={formId}
+        groups={groups}
         onSubmit={state.mode === 'create' ? handleCreate : handleUpdate}
         onDirtyChange={handleDirtyChange}
       />

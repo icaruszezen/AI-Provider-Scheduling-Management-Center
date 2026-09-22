@@ -130,6 +130,9 @@ export const useConfigStore = create<ConfigState>((set, get) => ({
         case 'openai-compatibility':
           nextConfig.openaiCompatibility = value as Config['openaiCompatibility'];
           break;
+        case 'channel-groups':
+          nextConfig.channelGroups = value as Config['channelGroups'];
+          break;
         default:
           break;
       }

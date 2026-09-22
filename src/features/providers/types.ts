@@ -63,8 +63,12 @@ export interface ProviderResource {
   brand: ProviderBrand;
   /** 在原数组中的下标 */
   originalIndex: number;
-  /** 表格 key 列显示名(OpenAI=name,其余=null) */
+  /** 表格主列显示名。没有渠道名时为 null，改用 identifier。 */
   name: string | null;
+  /** 配置里的渠道名。空表示旧的未命名渠道。 */
+  channelName: string | null;
+  /** 所属分组。空表示未分组。 */
+  group: string | null;
   /** 备用展示文字(API 密钥脱敏或 fallback) */
   identifier: string;
   /** apiKey 脱敏预览,展示用 */
@@ -164,8 +168,10 @@ export interface CloakInput {
 export interface ProviderEntryFormInput {
   /** OpenAI 创建时只在 apiKeyEntries 中传 */
   apiKey: string;
-  /** OpenAI 必填,其余 brand 不展示 */
+  /** 渠道名。新建必填；未命名的旧渠道编辑时可以继续留空。 */
   name: string;
+  /** 所属分组。空字符串表示未分组。 */
+  group: string;
   baseUrl: string;
   proxyUrl: string;
   prefix: string;

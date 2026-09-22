@@ -962,7 +962,8 @@
       "save": "儲存",
       "create": "建立",
       "enable": "啟用",
-      "disable": "停用"
+      "disable": "停用",
+      "copy": "複製"
     },
     "categories": {
       "title": "提供商",
@@ -1062,6 +1063,18 @@
         "codexResponses": "Codex API (Responses)"
       }
     },
+    "groups": {
+      "ungrouped": "未分組",
+      "add": "新建分組",
+      "namePlaceholder": "分組名稱",
+      "rename": "重新命名分組",
+      "delete": "刪除分組",
+      "deleteTitle": "刪除分組",
+      "deleteMessage": "刪除分組「{{name}}」後，其中的渠道會回到未分組，渠道本身不會被刪除。",
+      "empty": "這個分組裡還沒有渠道。",
+      "copyFailed": "複製渠道失敗",
+      "saveFailed": "儲存分組失敗"
+    },
     "status": {
       "active": "活躍",
       "disabled": "已停用",
@@ -1122,7 +1135,8 @@
     "form": {
       "createEyebrow": "新增",
       "editEyebrow": "編輯",
-      "name": "名稱",
+      "name": "渠道名",
+      "group": "分組",
       "apiKey": "API 金鑰",
       "apiKeyCreatePlaceholder": "輸入 API 金鑰",
       "apiKeyEditPlaceholder": "留空表示不修改",
