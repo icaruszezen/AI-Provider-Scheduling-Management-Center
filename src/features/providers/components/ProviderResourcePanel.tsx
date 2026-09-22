@@ -5,9 +5,12 @@ import {
   IconPencil,
   IconPlus,
   IconSearch,
+  IconSettings,
   IconTrash2,
 } from '@/components/ui/icons';
 import { groupChannelResources } from '../channelIdentity';
+import type { ChannelGroupSettings } from '../channelGroups';
+import { ChannelGroupSettingsDialog } from './ChannelGroupSettingsDialog';
 import type { ProviderRecentUsageMap } from '@/components/providers/utils';
 import { PROVIDER_LOGOS } from '../brandLogos';
 import { getKimiAffiliateUrl } from '../kimi';
@@ -40,7 +43,7 @@ interface ProviderResourcePanelProps {
   monitorSummaries?: MonitorSummaries | null;
   onOpenMonitor?: (resource: ProviderResource) => void;
   toolbarControls?: ProviderPanelControls;
-  catalogGroups?: readonly string[];
+  catalogGroups?: readonly ChannelGroupSettings[];
   onView: (resource: ProviderResource) => void;
   onEdit: (resource: ProviderResource) => void;
   onCopy?: (resource: ProviderResource) => void;
@@ -50,6 +53,7 @@ interface ProviderResourcePanelProps {
   onCreateGroup?: (name: string) => void;
   onRenameGroup?: (from: string, to: string) => void;
   onDeleteGroup?: (name: string) => void;
+  onSaveGroup?: (settings: ChannelGroupSettings) => Promise<void>;
 }
 
 export function ProviderResourcePanel({
@@ -73,14 +77,16 @@ export function ProviderResourcePanel({
   onCreateGroup,
   onRenameGroup,
   onDeleteGroup,
+  onSaveGroup,
 }: ProviderResourcePanelProps) {
   const { t, i18n } = useTranslation();
   const [newGroupName, setNewGroupName] = useState('');
   const [renamingGroup, setRenamingGroup] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
+  const [settingsGroup, setSettingsGroup] = useState<ChannelGroupSettings | null>(null);
   const sections = groupChannelResources(
     filteredResources,
-    catalogGroups,
+    catalogGroups.map((group) => group.name),
     filter.trim().length > 0
   );
   const submitNewGroup = () => {
@@ -259,6 +265,25 @@ export function ProviderResourcePanel({
                     type="button"
                     className={styles.groupIconButton}
                     disabled={disableMutations}
+                    aria-label={t('providersPage.groups.settings.open')}
+                    onClick={() => {
+                      const current = catalogGroups.find((group) => group.name === section.id);
+                      setSettingsGroup(
+                        current ?? {
+                          name: section.id,
+                          apiKeys: [],
+                          channelRetryStatusCodes: [],
+                          channelRetryErrorContains: [],
+                        }
+                      );
+                    }}
+                  >
+                    <IconSettings size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.groupIconButton}
+                    disabled={disableMutations}
                     aria-label={t('providersPage.groups.rename')}
                     onClick={() => {
                       setRenamingGroup(section.id);
@@ -299,6 +324,16 @@ export function ProviderResourcePanel({
           </section>
         ))
       )}
+      <ChannelGroupSettingsDialog
+        key={settingsGroup?.name ?? 'channel-group-settings'}
+        group={settingsGroup}
+        mutating={disableMutations}
+        onClose={() => setSettingsGroup(null)}
+        onSave={async (settings) => {
+          if (!onSaveGroup) return;
+          await onSaveGroup(settings);
+        }}
+      />
     </section>
   );
 }

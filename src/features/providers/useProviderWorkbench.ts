@@ -24,6 +24,11 @@ import {
   xaiToResource,
 } from './adapters';
 import { channelGroupKey, nextCopyName } from './channelIdentity';
+import {
+  emptyChannelGroup,
+  serializeChannelGroups,
+  type ChannelGroupSettings,
+} from './channelGroups';
 import { PROVIDER_BRAND_ORDER } from './descriptors';
 import { buildThinkingFromLevels } from './thinkingLevels';
 import type {
@@ -63,7 +68,7 @@ export interface UseProviderWorkbenchResult {
   isError: boolean;
   errorMessage: string | null;
   snapshot: ProviderSnapshot | null;
-  channelGroups: Record<string, string[]>;
+  channelGroups: Record<string, ChannelGroupSettings[]>;
   refetch: () => Promise<void>;
 
   createProvider: (brand: ProviderBrand, input: ProviderEntryFormInput) => Promise<void>;
@@ -74,6 +79,7 @@ export interface UseProviderWorkbenchResult {
   createChannelGroup: (brand: ProviderBrand, name: string) => Promise<void>;
   renameChannelGroup: (brand: ProviderBrand, from: string, to: string) => Promise<void>;
   deleteChannelGroup: (brand: ProviderBrand, name: string) => Promise<void>;
+  updateChannelGroup: (brand: ProviderBrand, settings: ChannelGroupSettings) => Promise<void>;
   mutating: boolean;
   refreshSnapshot: () => void;
 }
@@ -1036,8 +1042,8 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
   }, []);
 
   const saveChannelGroups = useCallback(
-    async (next: Record<string, string[]>) => {
-      await providersApi.putChannelGroups(next);
+    async (next: Record<string, ChannelGroupSettings[]>) => {
+      await providersApi.putChannelGroups(serializeChannelGroups(next));
       updateConfigValue('channel-groups', next);
     },
     [updateConfigValue]
@@ -1052,8 +1058,8 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
         const key = channelGroupKey(brand);
         const current = { ...(config?.channelGroups ?? {}) };
         const list = current[key] ?? [];
-        if (!list.includes(trimmed)) {
-          current[key] = [...list, trimmed];
+        if (!list.some((item) => item.name === trimmed)) {
+          current[key] = [...list, emptyChannelGroup(trimmed)];
           await saveChannelGroups(current);
         }
         await refetch();
@@ -1073,8 +1079,13 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       try {
         const key = channelGroupKey(brand);
         const current = { ...(config?.channelGroups ?? {}) };
-        const list = (current[key] ?? []).filter((item) => item !== previous && item !== nextName);
-        current[key] = [...list, nextName];
+        const existing =
+          (current[key] ?? []).find((item) => item.name === previous) ??
+          emptyChannelGroup(previous);
+        const list = (current[key] ?? []).filter(
+          (item) => item.name !== previous && item.name !== nextName
+        );
+        current[key] = [...list, { ...existing, name: nextName }];
         await saveChannelGroups(current);
         const resources = snapshot?.groups.find((group) => group.id === brand)?.resources ?? [];
         for (const resource of resources) {
@@ -1098,7 +1109,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       try {
         const key = channelGroupKey(brand);
         const current = { ...(config?.channelGroups ?? {}) };
-        current[key] = (current[key] ?? []).filter((item) => item !== previous);
+        current[key] = (current[key] ?? []).filter((item) => item.name !== previous);
         if (!current[key]?.length) delete current[key];
         await saveChannelGroups(current);
         const resources = snapshot?.groups.find((group) => group.id === brand)?.resources ?? [];
@@ -1113,6 +1124,28 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
       }
     },
     [config?.channelGroups, refetch, saveChannelGroups, snapshot?.groups, writeResourceGroup]
+  );
+
+  const updateChannelGroup = useCallback(
+    async (brand: ProviderBrand, settings: ChannelGroupSettings) => {
+      const name = settings.name.trim();
+      if (!name) return;
+      setMutating(true);
+      try {
+        const key = channelGroupKey(brand);
+        const current = { ...(config?.channelGroups ?? {}) };
+        const list = current[key] ?? [];
+        const next = { ...settings, name };
+        current[key] = list.some((item) => item.name === name)
+          ? list.map((item) => (item.name === name ? next : item))
+          : [...list, next];
+        await saveChannelGroups(current);
+        await refetch();
+      } finally {
+        setMutating(false);
+      }
+    },
+    [config?.channelGroups, refetch, saveChannelGroups]
   );
 
   const copyProvider = useCallback(
@@ -1183,6 +1216,7 @@ export function useProviderWorkbench(): UseProviderWorkbenchResult {
     createChannelGroup,
     renameChannelGroup,
     deleteChannelGroup,
+    updateChannelGroup,
     mutating,
     refreshSnapshot,
   };

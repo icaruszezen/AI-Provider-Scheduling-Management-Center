@@ -5,6 +5,14 @@
 
 import type { GeminiKeyConfig, ProviderKeyConfig, OpenAIProviderConfig } from './provider';
 
+export interface ChannelGroupSettings {
+  name: string;
+  apiKeys: string[];
+  channelRetryCount?: number;
+  channelRetryStatusCodes: number[];
+  channelRetryErrorContains: string[];
+}
+
 export interface QuotaExceededConfig {
   switchProject?: boolean;
   switchPreviewModel?: boolean;
@@ -31,7 +39,7 @@ export interface Config {
   vertexApiKeys?: ProviderKeyConfig[];
   antigravityApiKeys?: ProviderKeyConfig[];
   openaiCompatibility?: OpenAIProviderConfig[];
-  channelGroups?: Record<string, string[]>;
+  channelGroups?: Record<string, ChannelGroupSettings[]>;
   raw?: Record<string, unknown>;
 }
 

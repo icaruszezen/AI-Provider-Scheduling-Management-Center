@@ -1073,7 +1073,26 @@
       "deleteMessage": "删除分组「{{name}}」后，其中的渠道会回到未分组，渠道本身不会被删除。",
       "empty": "这个分组里还没有渠道。",
       "copyFailed": "复制渠道失败",
-      "saveFailed": "保存分组失败"
+      "saveFailed": "保存分组失败",
+      "settings": {
+        "open": "分组调用设置",
+        "title": "分组「{{name}}」",
+        "description": "使用这里的 API Key 时，只在这个分组里按渠道优先级调用。总对外 API Key 不受影响。",
+        "apiKeys": "分组 API Key",
+        "generateKey": "生成随机 Key",
+        "apiKeysHint": "每行一个。访问这些 Key 时，只使用本组渠道。",
+        "retryCount": "渠道间重试次数",
+        "retryCountHint": "一个渠道按自身次数重试结束后仍失败，才换下一个渠道。0 表示不换渠道。最大 {{max}}。",
+        "statusCodes": "重试状态码",
+        "statusCodesHint": "用逗号分隔。与错误文案是或关系，命中任意一个就换渠道。都留空则不换渠道。",
+        "errorText": "错误文案",
+        "errorTextHint": "每行一条。响应或错误文本包含该内容即算命中，区分大小写。",
+        "errors": {
+          "emptyKey": "API Key 不能为空",
+          "retryCount": "渠道间重试次数必须是 0 到 100 的整数",
+          "statusCode": "状态码必须在 100 到 599 之间"
+        }
+      }
     },
     "status": {
       "active": "活跃",

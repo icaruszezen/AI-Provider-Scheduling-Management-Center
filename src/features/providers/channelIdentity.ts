@@ -53,7 +53,13 @@ export const groupChannelResources = (
     seen.add(id);
     const items = buckets.get(id) ?? [];
     if (filterActive && items.length === 0) return;
-    sections.push({ id, resources: items });
+    const resources = id
+      ? [...items].sort(
+          (left, right) =>
+            (right.priority ?? 0) - (left.priority ?? 0) || left.originalIndex - right.originalIndex
+        )
+      : items;
+    sections.push({ id, resources });
   };
 
   push('');

@@ -15,6 +15,7 @@ import {
   normalizeProviderRetryStatusCodes,
 } from '@/utils/providerRetry';
 import { sanitizeStreamFakeFirstTokens } from '@/utils/streamFakeFirstTokens';
+import { parseChannelGroups } from '@/features/providers/channelGroups';
 
 const applyProviderRetryFields = <
   T extends {
@@ -465,13 +466,7 @@ export const normalizeConfigResponse = (raw: unknown): Config => {
 
   const channelGroupsRaw = raw['channel-groups'];
   if (isRecord(channelGroupsRaw)) {
-    const channelGroups: Record<string, string[]> = {};
-    Object.entries(channelGroupsRaw).forEach(([key, value]) => {
-      if (!Array.isArray(value)) return;
-      const names = value.map((item) => String(item).trim()).filter((item) => item.length > 0);
-      if (names.length) channelGroups[key] = names;
-    });
-    config.channelGroups = channelGroups;
+    config.channelGroups = parseChannelGroups(channelGroupsRaw);
   }
 
   return config;

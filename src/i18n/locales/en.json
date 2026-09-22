@@ -1073,7 +1073,26 @@
       "deleteMessage": "Deleting \"{{name}}\" moves its channels back to Ungrouped. The channels themselves stay.",
       "empty": "This group has no channels yet.",
       "copyFailed": "Failed to copy channel",
-      "saveFailed": "Failed to save group"
+      "saveFailed": "Failed to save group",
+      "settings": {
+        "open": "Group access settings",
+        "title": "Group \"{{name}}\"",
+        "description": "Requests that use these API keys stay inside this group and follow channel priority. The main API keys are unchanged.",
+        "apiKeys": "Group API keys",
+        "generateKey": "Generate key",
+        "apiKeysHint": "One key per line. These keys can call only the channels in this group.",
+        "retryCount": "Cross-channel retries",
+        "retryCountHint": "After one channel finishes its own retries and still fails, switch to another channel this many times. 0 does not switch. Maximum {{max}}.",
+        "statusCodes": "Retry status codes",
+        "statusCodesHint": "Comma-separated. A status code or an error phrase is enough to switch. Leave both empty to never switch.",
+        "errorText": "Error text",
+        "errorTextHint": "One phrase per line. A case-sensitive substring match counts.",
+        "errors": {
+          "emptyKey": "API key cannot be empty",
+          "retryCount": "Cross-channel retries must be an integer from 0 to 100",
+          "statusCode": "Status codes must be between 100 and 599"
+        }
+      }
     },
     "status": {
       "active": "Active",

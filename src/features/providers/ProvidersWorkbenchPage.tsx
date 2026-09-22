@@ -492,6 +492,7 @@ export function ProvidersWorkbenchPage() {
               showNotification(msg || t('providersPage.groups.saveFailed'), 'error');
             });
           }}
+          onSaveGroup={(settings) => workbench.updateChannelGroup(activeGroup.id, settings)}
           onDeleteGroup={(name) => {
             showConfirmation({
               title: t('providersPage.groups.deleteTitle'),

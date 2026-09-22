@@ -669,7 +669,7 @@ export const providersApi = {
 
   deleteAntigravityConfig: (match: ChannelMatch) => deleteChannel('antigravity-api-key', match),
 
-  putChannelGroups: (groups: Record<string, string[]>) =>
+  putChannelGroups: (groups: Record<string, Array<Record<string, unknown>>>) =>
     apiClient.put('/channel-groups', { 'channel-groups': groups }),
 
   async getOpenAIProviders(): Promise<OpenAIProviderConfig[]> {

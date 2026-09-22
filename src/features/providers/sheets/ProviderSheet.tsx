@@ -144,7 +144,9 @@ export function ProviderSheet({
       return <ResourceDetailView resource={state.resource} usageByProvider={usageByProvider} />;
     }
     const formKey = `${state.brand}:${state.resource?.id ?? 'new'}:${state.mode}`;
-    const groups = workbench.channelGroups[channelGroupKey(state.brand)] ?? [];
+    const groups = (workbench.channelGroups[channelGroupKey(state.brand)] ?? []).map(
+      (group) => group.name
+    );
     if (isMultiProtocolSponsorBrand(state.brand)) {
       return (
         <SponsorProviderForm
