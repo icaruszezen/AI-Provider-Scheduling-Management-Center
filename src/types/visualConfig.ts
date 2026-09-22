@@ -11,6 +11,15 @@ export type VisualConfigFieldPath =
   | 'errorLogsMaxFiles'
   | 'logsMaxTotalSizeMb'
   | 'redisUsageQueueRetentionSeconds'
+  | 'channelMonitorRefreshIntervalSeconds'
+  | 'channelMonitorMinimumSample'
+  | 'channelMonitorWarningErrorRate'
+  | 'channelMonitorCriticalErrorRate'
+  | 'channelMonitorTargetTtftMs'
+  | 'channelMonitorCriticalTtftMs'
+  | 'channelMonitorErrorWeight'
+  | 'channelMonitorTtftWeight'
+  | 'channelMonitorCacheWeight'
   | 'requestRetry'
   | 'maxRetryCredentials'
   | 'maxRetryInterval'
@@ -19,7 +28,12 @@ export type VisualConfigFieldPath =
   | 'streaming.nonstreamKeepaliveInterval';
 
 export type VisualConfigValidationErrorCode =
-  'port_range' | 'non_negative_integer' | 'integer_range_1_3600';
+  | 'port_range'
+  | 'non_negative_integer'
+  | 'integer_range_1_3600'
+  | 'channel_monitor_refresh'
+  | 'unit_interval'
+  | 'non_negative_number';
 
 export type VisualConfigValidationErrors = Partial<
   Record<VisualConfigFieldPath, VisualConfigValidationErrorCode>
@@ -110,6 +124,21 @@ export type VisualConfigValues = {
   errorLogsMaxFiles: string;
   usageStatisticsEnabled: boolean;
   redisUsageQueueRetentionSeconds: string;
+  channelMonitorEnabled: boolean;
+  channelMonitorRefreshIntervalSeconds: string;
+  channelMonitorDatabasePath: string;
+  channelMonitorAuthIndexes: string;
+  channelMonitorProviders: string;
+  channelMonitorModels: string;
+  channelMonitorIgnoredErrorCategories: string;
+  channelMonitorMinimumSample: string;
+  channelMonitorWarningErrorRate: string;
+  channelMonitorCriticalErrorRate: string;
+  channelMonitorTargetTtftMs: string;
+  channelMonitorCriticalTtftMs: string;
+  channelMonitorErrorWeight: string;
+  channelMonitorTtftWeight: string;
+  channelMonitorCacheWeight: string;
   proxyUrl: string;
   forceModelPrefix: boolean;
   passthroughHeaders: boolean;
@@ -180,6 +209,21 @@ export const DEFAULT_VISUAL_VALUES: VisualConfigValues = {
   errorLogsMaxFiles: '',
   usageStatisticsEnabled: false,
   redisUsageQueueRetentionSeconds: '',
+  channelMonitorEnabled: false,
+  channelMonitorRefreshIntervalSeconds: '',
+  channelMonitorDatabasePath: '',
+  channelMonitorAuthIndexes: '',
+  channelMonitorProviders: '',
+  channelMonitorModels: '',
+  channelMonitorIgnoredErrorCategories: '',
+  channelMonitorMinimumSample: '',
+  channelMonitorWarningErrorRate: '',
+  channelMonitorCriticalErrorRate: '',
+  channelMonitorTargetTtftMs: '',
+  channelMonitorCriticalTtftMs: '',
+  channelMonitorErrorWeight: '',
+  channelMonitorTtftWeight: '',
+  channelMonitorCacheWeight: '',
   proxyUrl: '',
   forceModelPrefix: false,
   passthroughHeaders: false,

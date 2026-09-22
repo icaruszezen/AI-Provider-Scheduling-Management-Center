@@ -411,7 +411,30 @@
         },
         "logging": {
           "title": "日志与诊断",
-          "description": "调试、日志输出与使用统计"
+          "description": "调试、日志输出、使用统计与渠道监控",
+          "channel_monitor_enabled": "启用渠道监控",
+          "channel_monitor_enabled_hint": "只聚合真实流量，不向上游发探测请求",
+          "channel_monitor_refresh": "监控刷新间隔（秒）",
+          "channel_monitor_refresh_hint": "只能是 60 或 300",
+          "channel_monitor_refresh_default": "默认 300 秒",
+          "channel_monitor_database_path": "监控数据库路径",
+          "channel_monitor_database_path_hint": "留空则使用配置文件同目录的 channel-monitor.db。此路径不会随集群同步",
+          "channel_monitor_auth_indexes": "凭据白名单",
+          "channel_monitor_auth_indexes_hint": "auth index，逗号或换行分隔。留空表示全部",
+          "channel_monitor_providers": "提供商白名单",
+          "channel_monitor_providers_hint": "提供商名称，逗号或换行分隔。留空表示全部",
+          "channel_monitor_models": "模型白名单",
+          "channel_monitor_models_hint": "模型名，逗号或换行分隔。留空表示全部",
+          "channel_monitor_ignored": "忽略的错误类型",
+          "channel_monitor_ignored_hint": "这些错误仍会显示，但不计入错误率和健康分。留空使用默认集合",
+          "channel_monitor_minimum_sample": "最小样本数",
+          "channel_monitor_warning_error_rate": "错误率警告阈值",
+          "channel_monitor_critical_error_rate": "错误率异常阈值",
+          "channel_monitor_target_ttft": "目标首 Token（毫秒）",
+          "channel_monitor_critical_ttft": "异常首 Token（毫秒）",
+          "channel_monitor_error_weight": "错误率权重",
+          "channel_monitor_ttft_weight": "首 Token 权重",
+          "channel_monitor_cache_weight": "缓存率权重"
         },
         "advanced": {
           "title": "高级与实验",
@@ -671,6 +694,9 @@
         "port_range": "请输入 1 到 65535 之间的有效端口",
         "non_negative_integer": "请输入非负整数",
         "integer_range_1_3600": "请输入 1 到 3600 之间的整数",
+        "channel_monitor_refresh": "请输入 60 或 300，或留空",
+        "unit_interval": "请输入 0 到 1 之间的数字",
+        "non_negative_number": "请输入非负数",
         "payload_invalid_number": "请输入有效数字",
         "payload_invalid_boolean": "请选择 true 或 false",
         "payload_invalid_json": "请输入有效的 JSON"
@@ -949,15 +975,10 @@
       "codex": "Codex",
       "xai": "xAI",
       "claude": "Claude",
-      "claudeApi": "Claudeapi.com",
       "vertex": "Vertex",
       "antigravity": "Antigravity",
       "openaiCompatibility": "OpenAI 兼容",
-      "code0": "Code0",
-      "fennoAI": "FennoAI",
-      "qiniuCloud": "七牛云",
       "lmuAI": "LMU AI（灵眸AI）",
-      "infistar": "无限星河",
       "kimi": "Kimi"
     },
     "table": {
@@ -1048,6 +1069,40 @@
       "none": "无",
       "notConfigured": "未配置",
       "defaultSuffix": "(默认)"
+    },
+    "channelMonitor": {
+      "open": "查看渠道监控",
+      "title": "渠道监控",
+      "disabled": "渠道监控未开启。可在配置面板的日志分区打开。",
+      "empty": "这个时间窗还没有流量。监控开启之后的请求才会出现在这里。",
+      "loadFailed": "加载监控详情失败",
+      "coveragePartial": "历史从开启监控后开始累计，当前窗口尚未完整覆盖。",
+      "ranges": {
+        "90m": "90 分钟",
+        "24h": "24 小时",
+        "7d": "7 天",
+        "30d": "30 天"
+      },
+      "kpi": {
+        "successRate": "成功率",
+        "ttft": "首 Token P50",
+        "cache": "缓存率",
+        "rpm": "RPM",
+        "tpm": "TPM"
+      },
+      "health": {
+        "healthy": "健康",
+        "warning": "需关注",
+        "critical": "异常",
+        "unknown": "样本不足"
+      },
+      "trend": "趋势",
+      "models": "模型",
+      "errors": "错误",
+      "ignored": "不计入健康分",
+      "authAll": "全部密钥",
+      "requests": "请求",
+      "noErrors": "没有错误"
     },
     "detail": {
       "title": "详情",

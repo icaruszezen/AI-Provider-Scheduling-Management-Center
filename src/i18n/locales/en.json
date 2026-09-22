@@ -411,7 +411,30 @@
         },
         "logging": {
           "title": "Logging & Diagnostics",
-          "description": "Debug, log output, and usage statistics"
+          "description": "Debug, log output, usage statistics, and channel monitoring",
+          "channel_monitor_enabled": "Enable channel monitor",
+          "channel_monitor_enabled_hint": "Aggregates real traffic only and does not probe upstreams",
+          "channel_monitor_refresh": "Monitor refresh interval (seconds)",
+          "channel_monitor_refresh_hint": "Must be 60 or 300",
+          "channel_monitor_refresh_default": "Default 300 seconds",
+          "channel_monitor_database_path": "Monitor database path",
+          "channel_monitor_database_path_hint": "Empty uses channel-monitor.db next to the config file. This path is not cluster-synced",
+          "channel_monitor_auth_indexes": "Credential allowlist",
+          "channel_monitor_auth_indexes_hint": "Auth indexes, separated by commas or new lines. Empty includes all",
+          "channel_monitor_providers": "Provider allowlist",
+          "channel_monitor_providers_hint": "Provider names, separated by commas or new lines. Empty includes all",
+          "channel_monitor_models": "Model allowlist",
+          "channel_monitor_models_hint": "Model names, separated by commas or new lines. Empty includes all",
+          "channel_monitor_ignored": "Ignored error categories",
+          "channel_monitor_ignored_hint": "These errors stay visible but are excluded from error rate and health. Empty uses the defaults",
+          "channel_monitor_minimum_sample": "Minimum sample",
+          "channel_monitor_warning_error_rate": "Warning error rate",
+          "channel_monitor_critical_error_rate": "Critical error rate",
+          "channel_monitor_target_ttft": "Target first token (ms)",
+          "channel_monitor_critical_ttft": "Critical first token (ms)",
+          "channel_monitor_error_weight": "Error-rate weight",
+          "channel_monitor_ttft_weight": "First-token weight",
+          "channel_monitor_cache_weight": "Cache-rate weight"
         },
         "advanced": {
           "title": "Advanced & Experimental",
@@ -671,6 +694,9 @@
         "port_range": "Enter a valid port between 1 and 65535",
         "non_negative_integer": "Enter a non-negative whole number",
         "integer_range_1_3600": "Enter a whole number between 1 and 3600",
+        "channel_monitor_refresh": "Enter 60 or 300, or leave empty",
+        "unit_interval": "Enter a number between 0 and 1",
+        "non_negative_number": "Enter a non-negative number",
         "payload_invalid_number": "Enter a valid number",
         "payload_invalid_boolean": "Choose true or false",
         "payload_invalid_json": "Enter valid JSON"
@@ -949,15 +975,10 @@
       "codex": "Codex",
       "xai": "xAI",
       "claude": "Claude",
-      "claudeApi": "Claudeapi.com",
       "vertex": "Vertex",
       "antigravity": "Antigravity",
       "openaiCompatibility": "OpenAI Compatible",
-      "code0": "Code0",
-      "fennoAI": "FennoAI",
-      "qiniuCloud": "Qiniu Cloud",
       "lmuAI": "LMU AI (Lingmou AI)",
-      "infistar": "Infistar",
       "kimi": "Kimi"
     },
     "table": {
@@ -1048,6 +1069,40 @@
       "none": "None",
       "notConfigured": "Not configured",
       "defaultSuffix": "(default)"
+    },
+    "channelMonitor": {
+      "open": "View channel monitor",
+      "title": "Channel monitor",
+      "disabled": "Channel monitor is off. Turn it on in the logging section of config.",
+      "empty": "No traffic in this window yet. Requests are recorded after monitoring is enabled.",
+      "loadFailed": "Failed to load monitor details",
+      "coveragePartial": "History starts when monitoring is enabled, so this window is not fully covered yet.",
+      "ranges": {
+        "90m": "90 minutes",
+        "24h": "24 hours",
+        "7d": "7 days",
+        "30d": "30 days"
+      },
+      "kpi": {
+        "successRate": "Success rate",
+        "ttft": "TTFT P50",
+        "cache": "Cache rate",
+        "rpm": "RPM",
+        "tpm": "TPM"
+      },
+      "health": {
+        "healthy": "Healthy",
+        "warning": "Watch",
+        "critical": "Unhealthy",
+        "unknown": "Not enough samples"
+      },
+      "trend": "Trend",
+      "models": "Models",
+      "errors": "Errors",
+      "ignored": "Excluded from health",
+      "authAll": "All keys",
+      "requests": "Requests",
+      "noErrors": "No errors"
     },
     "detail": {
       "title": "Details",

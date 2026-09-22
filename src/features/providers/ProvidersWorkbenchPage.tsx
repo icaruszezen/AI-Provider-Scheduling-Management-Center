@@ -1,7 +1,9 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePageTransitionLayer } from '@/components/common/PageTransitionLayer';
 import { useHeaderRefresh } from '@/hooks/useHeaderRefresh';
+import { useInterval } from '@/hooks/useInterval';
+import { channelMonitorApi } from '@/services/api';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { SlaveSyncBanner } from '@/components/cluster/SlaveSyncBanner';
 import { useSlaveReadonly } from '@/hooks/useSlaveReadonly';
@@ -14,6 +16,8 @@ import {
   type ProviderRecentUsageMap,
 } from '@/components/providers/utils';
 import type { OpenAIProviderConfig } from '@/types';
+import { ChannelMonitorDialog } from './components/ChannelMonitorDialog';
+import { resourceMonitorView, type MonitorSummaries } from './channelMonitorView';
 import { ProviderHeaderCard } from './components/ProviderHeaderCard';
 import { ProviderCategoryList } from './components/ProviderCategoryList';
 import { ProviderResourcePanel } from './components/ProviderResourcePanel';
@@ -115,10 +119,34 @@ export function ProvidersWorkbenchPage() {
   const { usageByProvider, refreshRecentRequests } = useProviderRecentRequests({
     enabled: connected,
   });
+  const [monitorSummaries, setMonitorSummaries] = useState<MonitorSummaries | null>(null);
+  const [monitorResource, setMonitorResource] = useState<ProviderResource | null>(null);
+  const refreshMonitor = useCallback(async () => {
+    try {
+      setMonitorSummaries(await channelMonitorApi.summaries('90m'));
+    } catch {
+      setMonitorSummaries(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!connected || !isCurrentLayer) return;
+    void refreshMonitor();
+  }, [connected, isCurrentLayer, refreshMonitor]);
+  useInterval(
+    () => {
+      if (connected && isCurrentLayer) void refreshMonitor();
+    },
+    connected && isCurrentLayer ? 15_000 : null
+  );
 
   const handleRefresh = useCallback(async () => {
-    await Promise.allSettled([workbench.refetch(), refreshRecentRequests().catch(() => undefined)]);
-  }, [refreshRecentRequests, workbench]);
+    await Promise.allSettled([
+      workbench.refetch(),
+      refreshRecentRequests().catch(() => undefined),
+      refreshMonitor(),
+    ]);
+  }, [refreshMonitor, refreshRecentRequests, workbench]);
 
   useHeaderRefresh(handleRefresh, isCurrentLayer);
 
@@ -213,14 +241,16 @@ export function ProvidersWorkbenchPage() {
           ? getResourceSortName(a).localeCompare(getResourceSortName(b))
           : providerSortBy === 'priority'
             ? a.priority - b.priority
-            : getResourceRecentSuccess(a, usageByProvider) -
-              getResourceRecentSuccess(b, usageByProvider);
+            : (resourceMonitorView(a, monitorSummaries)?.success ??
+                getResourceRecentSuccess(a, usageByProvider)) -
+              (resourceMonitorView(b, monitorSummaries)?.success ??
+                getResourceRecentSuccess(b, usageByProvider));
       const diff = sortDiff || a.originalIndex - b.originalIndex;
       return providerSortDir === 'asc' ? diff : -diff;
     });
 
     return sorted;
-  }, [filteredResources, providerSortBy, providerSortDir, selectedModels, usageByProvider]);
+  }, [filteredResources, monitorSummaries, providerSortBy, providerSortDir, selectedModels, usageByProvider]);
 
   const toolbarControls = useMemo<ProviderPanelControls | undefined>(() => {
     if (!activeGroup) return undefined;
@@ -424,6 +454,8 @@ export function ProvidersWorkbenchPage() {
           selectedId={sheetState.open ? (sheetState.resource?.id ?? null) : null}
           disableMutations={disableMutations}
           usageByProvider={usageByProvider}
+          monitorSummaries={monitorSummaries}
+          onOpenMonitor={setMonitorResource}
           toolbarControls={toolbarControls}
           onView={openView}
           onEdit={openEdit}
@@ -446,6 +478,7 @@ export function ProvidersWorkbenchPage() {
         mutationDisabled={disableMutations}
         usageByProvider={usageByProvider}
       />
+      <ChannelMonitorDialog resource={monitorResource} onClose={() => setMonitorResource(null)} />
     </div>
   );
 }

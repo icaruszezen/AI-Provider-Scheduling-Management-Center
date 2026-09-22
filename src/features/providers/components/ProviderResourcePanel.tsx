@@ -2,9 +2,9 @@ import { useTranslation } from 'react-i18next';
 import { IconExternalLink, IconPlus, IconSearch } from '@/components/ui/icons';
 import type { ProviderRecentUsageMap } from '@/components/providers/utils';
 import { PROVIDER_LOGOS } from '../brandLogos';
-import { CLAUDE_API_AFFILIATE_URL } from '../claudeApi';
 import { getKimiAffiliateUrl } from '../kimi';
 import { getSponsorProviderDefinition } from '../sponsorDefinitions';
+import type { MonitorSummaries } from '../channelMonitorView';
 import type { ProviderGroup, ProviderResource } from '../types';
 import { ProviderResourceTable } from './ProviderResourceTable';
 import { ProviderResourceToolbar } from './ProviderResourceToolbar';
@@ -29,6 +29,8 @@ interface ProviderResourcePanelProps {
   selectedId: string | null;
   disableMutations?: boolean;
   usageByProvider?: ProviderRecentUsageMap;
+  monitorSummaries?: MonitorSummaries | null;
+  onOpenMonitor?: (resource: ProviderResource) => void;
   toolbarControls?: ProviderPanelControls;
   onView: (resource: ProviderResource) => void;
   onEdit: (resource: ProviderResource) => void;
@@ -45,6 +47,8 @@ export function ProviderResourcePanel({
   selectedId,
   disableMutations,
   usageByProvider,
+  monitorSummaries,
+  onOpenMonitor,
   toolbarControls,
   onView,
   onEdit,
@@ -55,19 +59,12 @@ export function ProviderResourcePanel({
   const { t, i18n } = useTranslation();
   const logo = PROVIDER_LOGOS[group.id];
   const providerTitle = t(`providersPage.providerNames.${group.id}`);
-  const showClaudeApiSponsorLink = group.id === 'claudeApi';
   const registrationUrl =
-    group.id === 'claudeApi'
-      ? CLAUDE_API_AFFILIATE_URL
-      : group.id === 'kimi'
-        ? getKimiAffiliateUrl(i18n.resolvedLanguage ?? i18n.language)
-        : group.id === 'code0' ||
-            group.id === 'lmuAI' ||
-            group.id === 'infistar' ||
-            group.id === 'fennoAI' ||
-            group.id === 'qiniuCloud'
-          ? getSponsorProviderDefinition(group.id).affiliateUrl
-          : null;
+    group.id === 'kimi'
+      ? getKimiAffiliateUrl(i18n.resolvedLanguage ?? i18n.language)
+      : group.id === 'lmuAI'
+        ? getSponsorProviderDefinition(group.id).affiliateUrl
+        : null;
   const registrationLabel = t(
     group.id === 'kimi' ? 'providersPage.sponsor.registerNow' : 'providersPage.sponsor.registerLink'
   );
@@ -108,7 +105,7 @@ export function ProviderResourcePanel({
         <div className={styles.headerMain}>
           <div className={styles.titleArea}>
             <div className={styles.titleRow}>{titleContent}</div>
-            {showClaudeApiSponsorLink || registrationUrl ? (
+            {registrationUrl ? (
               <>
                 <a
                   className={[
@@ -118,7 +115,7 @@ export function ProviderResourcePanel({
                   ]
                     .filter(Boolean)
                     .join(' ')}
-                  href={registrationUrl ?? CLAUDE_API_AFFILIATE_URL}
+                  href={registrationUrl}
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -176,6 +173,8 @@ export function ProviderResourcePanel({
           selectedId={selectedId}
           disableMutations={disableMutations}
           usageByProvider={usageByProvider}
+          monitorSummaries={monitorSummaries}
+          onOpenMonitor={onOpenMonitor}
           onView={onView}
           onEdit={onEdit}
           onDelete={onDelete}

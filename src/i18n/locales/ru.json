@@ -410,7 +410,30 @@
         },
         "logging": {
           "title": "Логи и диагностика",
-          "description": "Отладка, вывод логов и статистика использования"
+          "description": "Отладка, вывод логов, статистика и мониторинг каналов",
+          "channel_monitor_enabled": "Включить мониторинг каналов",
+          "channel_monitor_enabled_hint": "Считает только реальный трафик и не отправляет пробные запросы",
+          "channel_monitor_refresh": "Интервал обновления (секунды)",
+          "channel_monitor_refresh_hint": "Только 60 или 300",
+          "channel_monitor_refresh_default": "По умолчанию 300 секунд",
+          "channel_monitor_database_path": "Путь к базе мониторинга",
+          "channel_monitor_database_path_hint": "Пустое значение использует channel-monitor.db рядом с конфигом. Путь не синхронизируется в кластере",
+          "channel_monitor_auth_indexes": "Белый список учетных данных",
+          "channel_monitor_auth_indexes_hint": "auth index через запятую или с новой строки. Пусто — все",
+          "channel_monitor_providers": "Белый список провайдеров",
+          "channel_monitor_providers_hint": "Имена провайдеров через запятую или с новой строки. Пусто — все",
+          "channel_monitor_models": "Белый список моделей",
+          "channel_monitor_models_hint": "Имена моделей через запятую или с новой строки. Пусто — все",
+          "channel_monitor_ignored": "Игнорируемые категории ошибок",
+          "channel_monitor_ignored_hint": "Эти ошибки видны, но не входят в долю ошибок и здоровье. Пусто — набор по умолчанию",
+          "channel_monitor_minimum_sample": "Минимальная выборка",
+          "channel_monitor_warning_error_rate": "Порог предупреждения по ошибкам",
+          "channel_monitor_critical_error_rate": "Критический порог ошибок",
+          "channel_monitor_target_ttft": "Целевой первый токен (мс)",
+          "channel_monitor_critical_ttft": "Критический первый токен (мс)",
+          "channel_monitor_error_weight": "Вес доли ошибок",
+          "channel_monitor_ttft_weight": "Вес первого токена",
+          "channel_monitor_cache_weight": "Вес доли кэша"
         },
         "advanced": {
           "title": "Дополнительно и эксперименты",
@@ -670,6 +693,9 @@
         "port_range": "Введите корректный порт от 1 до 65535",
         "non_negative_integer": "Введите неотрицательное целое число",
         "integer_range_1_3600": "Введите целое число от 1 до 3600",
+        "channel_monitor_refresh": "Введите 60 или 300, либо оставьте пустым",
+        "unit_interval": "Введите число от 0 до 1",
+        "non_negative_number": "Введите неотрицательное число",
         "payload_invalid_number": "Введите корректное число",
         "payload_invalid_boolean": "Выберите true или false",
         "payload_invalid_json": "Введите корректный JSON"
@@ -939,15 +965,10 @@
       "codex": "Codex",
       "xai": "xAI",
       "claude": "Claude",
-      "claudeApi": "Claudeapi.com",
       "vertex": "Vertex",
       "antigravity": "Antigravity",
       "openaiCompatibility": "OpenAI-совместимый",
-      "code0": "Code0",
-      "fennoAI": "FennoAI",
-      "qiniuCloud": "Qiniu Cloud",
       "lmuAI": "LMU AI (Lingmou AI)",
-      "infistar": "Infistar",
       "kimi": "Kimi"
     },
     "table": {
@@ -1038,6 +1059,40 @@
       "none": "Нет",
       "notConfigured": "Не настроено",
       "defaultSuffix": "(по умолчанию)"
+    },
+    "channelMonitor": {
+      "open": "Открыть мониторинг канала",
+      "title": "Мониторинг канала",
+      "disabled": "Мониторинг выключен. Включите его в разделе логов конфигурации.",
+      "empty": "В этом окне еще нет трафика. Запросы появятся после включения мониторинга.",
+      "loadFailed": "Не удалось загрузить детали мониторинга",
+      "coveragePartial": "История начинается с момента включения, поэтому окно покрыто не полностью.",
+      "ranges": {
+        "90m": "90 минут",
+        "24h": "24 часа",
+        "7d": "7 дней",
+        "30d": "30 дней"
+      },
+      "kpi": {
+        "successRate": "Успешность",
+        "ttft": "TTFT P50",
+        "cache": "Доля кэша",
+        "rpm": "RPM",
+        "tpm": "TPM"
+      },
+      "health": {
+        "healthy": "Норма",
+        "warning": "Внимание",
+        "critical": "Проблема",
+        "unknown": "Мало данных"
+      },
+      "trend": "Тренд",
+      "models": "Модели",
+      "errors": "Ошибки",
+      "ignored": "Не входит в оценку",
+      "authAll": "Все ключи",
+      "requests": "Запросы",
+      "noErrors": "Нет ошибок"
     },
     "detail": {
       "title": "Подробности",

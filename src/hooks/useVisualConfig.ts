@@ -121,6 +121,163 @@ function setStringListInDoc(doc: YamlDocument, path: YamlPath, values: string[])
   if (docHas(doc, path)) doc.deleteIn(path);
 }
 
+function setNumberFromStringInDoc(doc: YamlDocument, path: YamlPath, value: unknown): void {
+  const safe = typeof value === 'string' ? value : '';
+  const trimmed = safe.trim();
+  if (trimmed === '') {
+    if (docHas(doc, path)) doc.deleteIn(path);
+    return;
+  }
+  const parsed = Number(trimmed);
+  if (!Number.isFinite(parsed)) return;
+  doc.setIn(path, parsed);
+}
+
+function splitMonitorList(value: string): string[] {
+  return value
+    .split(/[\n,]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function writeChannelMonitorValues(
+  doc: YamlDocument,
+  values: VisualConfigValues,
+  dirtyFields: Set<string>
+): void {
+  const keys = [
+    'channelMonitorEnabled',
+    'channelMonitorRefreshIntervalSeconds',
+    'channelMonitorDatabasePath',
+    'channelMonitorAuthIndexes',
+    'channelMonitorProviders',
+    'channelMonitorModels',
+    'channelMonitorIgnoredErrorCategories',
+    'channelMonitorMinimumSample',
+    'channelMonitorWarningErrorRate',
+    'channelMonitorCriticalErrorRate',
+    'channelMonitorTargetTtftMs',
+    'channelMonitorCriticalTtftMs',
+    'channelMonitorErrorWeight',
+    'channelMonitorTtftWeight',
+    'channelMonitorCacheWeight',
+  ] as const;
+  if (!keys.some((key) => dirtyFields.has(key))) return;
+
+  ensureMapInDoc(doc, ['channel-monitor']);
+  if (dirtyFields.has('channelMonitorEnabled')) {
+    setBooleanInDoc(doc, ['channel-monitor', 'enabled'], values.channelMonitorEnabled);
+  }
+  if (dirtyFields.has('channelMonitorRefreshIntervalSeconds')) {
+    setIntFromStringInDoc(
+      doc,
+      ['channel-monitor', 'refresh-interval-seconds'],
+      values.channelMonitorRefreshIntervalSeconds
+    );
+  }
+  if (dirtyFields.has('channelMonitorDatabasePath')) {
+    setStringInDoc(doc, ['channel-monitor', 'database-path'], values.channelMonitorDatabasePath);
+  }
+  if (dirtyFields.has('channelMonitorAuthIndexes')) {
+    setStringListInDoc(
+      doc,
+      ['channel-monitor', 'auth-indexes'],
+      splitMonitorList(values.channelMonitorAuthIndexes)
+    );
+  }
+  if (dirtyFields.has('channelMonitorProviders')) {
+    setStringListInDoc(
+      doc,
+      ['channel-monitor', 'providers'],
+      splitMonitorList(values.channelMonitorProviders)
+    );
+  }
+  if (dirtyFields.has('channelMonitorModels')) {
+    setStringListInDoc(
+      doc,
+      ['channel-monitor', 'models'],
+      splitMonitorList(values.channelMonitorModels)
+    );
+  }
+  if (dirtyFields.has('channelMonitorIgnoredErrorCategories')) {
+    setStringListInDoc(
+      doc,
+      ['channel-monitor', 'ignored-error-categories'],
+      splitMonitorList(values.channelMonitorIgnoredErrorCategories)
+    );
+  }
+
+  const healthDirty = [
+    'channelMonitorMinimumSample',
+    'channelMonitorWarningErrorRate',
+    'channelMonitorCriticalErrorRate',
+    'channelMonitorTargetTtftMs',
+    'channelMonitorCriticalTtftMs',
+    'channelMonitorErrorWeight',
+    'channelMonitorTtftWeight',
+    'channelMonitorCacheWeight',
+  ].some((key) => dirtyFields.has(key));
+  if (!healthDirty) return;
+  ensureMapInDoc(doc, ['channel-monitor', 'health-thresholds']);
+  if (dirtyFields.has('channelMonitorMinimumSample')) {
+    setIntFromStringInDoc(
+      doc,
+      ['channel-monitor', 'health-thresholds', 'minimum-sample'],
+      values.channelMonitorMinimumSample
+    );
+  }
+  if (dirtyFields.has('channelMonitorWarningErrorRate')) {
+    setNumberFromStringInDoc(
+      doc,
+      ['channel-monitor', 'health-thresholds', 'warning-error-rate'],
+      values.channelMonitorWarningErrorRate
+    );
+  }
+  if (dirtyFields.has('channelMonitorCriticalErrorRate')) {
+    setNumberFromStringInDoc(
+      doc,
+      ['channel-monitor', 'health-thresholds', 'critical-error-rate'],
+      values.channelMonitorCriticalErrorRate
+    );
+  }
+  if (dirtyFields.has('channelMonitorTargetTtftMs')) {
+    setIntFromStringInDoc(
+      doc,
+      ['channel-monitor', 'health-thresholds', 'target-ttft-ms'],
+      values.channelMonitorTargetTtftMs
+    );
+  }
+  if (dirtyFields.has('channelMonitorCriticalTtftMs')) {
+    setIntFromStringInDoc(
+      doc,
+      ['channel-monitor', 'health-thresholds', 'critical-ttft-ms'],
+      values.channelMonitorCriticalTtftMs
+    );
+  }
+  if (dirtyFields.has('channelMonitorErrorWeight')) {
+    setNumberFromStringInDoc(
+      doc,
+      ['channel-monitor', 'health-thresholds', 'error-weight'],
+      values.channelMonitorErrorWeight
+    );
+  }
+  if (dirtyFields.has('channelMonitorTtftWeight')) {
+    setNumberFromStringInDoc(
+      doc,
+      ['channel-monitor', 'health-thresholds', 'ttft-weight'],
+      values.channelMonitorTtftWeight
+    );
+  }
+  if (dirtyFields.has('channelMonitorCacheWeight')) {
+    setNumberFromStringInDoc(
+      doc,
+      ['channel-monitor', 'health-thresholds', 'cache-weight'],
+      values.channelMonitorCacheWeight
+    );
+  }
+  deleteIfMapEmpty(doc, ['channel-monitor', 'health-thresholds']);
+}
+
 function setIntFromStringInDoc(doc: YamlDocument, path: YamlPath, value: unknown): void {
   const safe = typeof value === 'string' ? value : '';
   const trimmed = safe.trim();
@@ -185,6 +342,27 @@ function getPortError(value: string): 'port_range' | undefined {
   return parsed >= 1 && parsed <= 65535 ? undefined : 'port_range';
 }
 
+function getChannelMonitorRefreshError(value: string): 'channel_monitor_refresh' | undefined {
+  const trimmed = value.trim();
+  if (!trimmed || trimmed === '60' || trimmed === '300') return undefined;
+  return 'channel_monitor_refresh';
+}
+
+function getUnitIntervalError(value: string): 'unit_interval' | undefined {
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  if (!/^\d+(\.\d+)?$/.test(trimmed)) return 'unit_interval';
+  const parsed = Number(trimmed);
+  return parsed >= 0 && parsed <= 1 ? undefined : 'unit_interval';
+}
+
+function getNonNegativeNumberError(value: string): 'non_negative_number' | undefined {
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  if (!/^\d+(\.\d+)?$/.test(trimmed)) return 'non_negative_number';
+  return Number(trimmed) >= 0 ? undefined : 'non_negative_number';
+}
+
 function getRedisRetentionError(value: string): 'integer_range_1_3600' | undefined {
   const trimmed = value.trim();
   if (!trimmed) return undefined;
@@ -201,6 +379,17 @@ export function getVisualConfigValidationErrors(
     errorLogsMaxFiles: getNonNegativeIntegerError(values.errorLogsMaxFiles),
     logsMaxTotalSizeMb: getNonNegativeIntegerError(values.logsMaxTotalSizeMb),
     redisUsageQueueRetentionSeconds: getRedisRetentionError(values.redisUsageQueueRetentionSeconds),
+    channelMonitorRefreshIntervalSeconds: getChannelMonitorRefreshError(
+      values.channelMonitorRefreshIntervalSeconds
+    ),
+    channelMonitorMinimumSample: getNonNegativeIntegerError(values.channelMonitorMinimumSample),
+    channelMonitorWarningErrorRate: getUnitIntervalError(values.channelMonitorWarningErrorRate),
+    channelMonitorCriticalErrorRate: getUnitIntervalError(values.channelMonitorCriticalErrorRate),
+    channelMonitorTargetTtftMs: getNonNegativeIntegerError(values.channelMonitorTargetTtftMs),
+    channelMonitorCriticalTtftMs: getNonNegativeIntegerError(values.channelMonitorCriticalTtftMs),
+    channelMonitorErrorWeight: getNonNegativeNumberError(values.channelMonitorErrorWeight),
+    channelMonitorTtftWeight: getNonNegativeNumberError(values.channelMonitorTtftWeight),
+    channelMonitorCacheWeight: getNonNegativeNumberError(values.channelMonitorCacheWeight),
     requestRetry: getNonNegativeIntegerError(values.requestRetry),
     maxRetryCredentials: getNonNegativeIntegerError(values.maxRetryCredentials),
     maxRetryInterval: getNonNegativeIntegerError(values.maxRetryInterval),
@@ -499,6 +688,29 @@ function parsePayloadConditions(raw: unknown, idPrefix: string): PayloadParamEnt
 
 function parseStringList(raw: unknown): string[] {
   return Array.isArray(raw) ? raw.map((item) => String(item ?? '').trim()).filter(Boolean) : [];
+}
+
+function parseChannelMonitorValues(monitor: Record<string, unknown> | null) {
+  const thresholds = asRecord(monitor?.['health-thresholds']);
+  const list = (value: unknown) => parseStringList(value).join('\n');
+  return {
+    channelMonitorEnabled: Boolean(monitor?.enabled),
+    channelMonitorRefreshIntervalSeconds: String(monitor?.['refresh-interval-seconds'] ?? ''),
+    channelMonitorDatabasePath:
+      typeof monitor?.['database-path'] === 'string' ? monitor['database-path'] : '',
+    channelMonitorAuthIndexes: list(monitor?.['auth-indexes']),
+    channelMonitorProviders: list(monitor?.providers),
+    channelMonitorModels: list(monitor?.models),
+    channelMonitorIgnoredErrorCategories: list(monitor?.['ignored-error-categories']),
+    channelMonitorMinimumSample: String(thresholds?.['minimum-sample'] ?? ''),
+    channelMonitorWarningErrorRate: String(thresholds?.['warning-error-rate'] ?? ''),
+    channelMonitorCriticalErrorRate: String(thresholds?.['critical-error-rate'] ?? ''),
+    channelMonitorTargetTtftMs: String(thresholds?.['target-ttft-ms'] ?? ''),
+    channelMonitorCriticalTtftMs: String(thresholds?.['critical-ttft-ms'] ?? ''),
+    channelMonitorErrorWeight: String(thresholds?.['error-weight'] ?? ''),
+    channelMonitorTtftWeight: String(thresholds?.['ttft-weight'] ?? ''),
+    channelMonitorCacheWeight: String(thresholds?.['cache-weight'] ?? ''),
+  };
 }
 
 const PLUGIN_STORE_AUTH_TYPES: PluginStoreAuthType[] = [
@@ -873,6 +1085,21 @@ function getNextDirtyFields(
       'errorLogsMaxFiles',
       'usageStatisticsEnabled',
       'redisUsageQueueRetentionSeconds',
+      'channelMonitorEnabled',
+      'channelMonitorRefreshIntervalSeconds',
+      'channelMonitorDatabasePath',
+      'channelMonitorAuthIndexes',
+      'channelMonitorProviders',
+      'channelMonitorModels',
+      'channelMonitorIgnoredErrorCategories',
+      'channelMonitorMinimumSample',
+      'channelMonitorWarningErrorRate',
+      'channelMonitorCriticalErrorRate',
+      'channelMonitorTargetTtftMs',
+      'channelMonitorCriticalTtftMs',
+      'channelMonitorErrorWeight',
+      'channelMonitorTtftWeight',
+      'channelMonitorCacheWeight',
       'pluginsEnabled',
       'passthroughHeaders',
       'disableCooling',
@@ -1139,6 +1366,7 @@ export function useVisualConfig() {
         redisUsageQueueRetentionSeconds: String(
           parsed['redis-usage-queue-retention-seconds'] ?? ''
         ),
+        ...parseChannelMonitorValues(asRecord(parsed['channel-monitor'])),
 
         proxyUrl: typeof parsed['proxy-url'] === 'string' ? parsed['proxy-url'] : '',
         forceModelPrefix: Boolean(parsed['force-model-prefix']),
@@ -1389,6 +1617,7 @@ export function useVisualConfig() {
             values.redisUsageQueueRetentionSeconds
           );
         }
+        writeChannelMonitorValues(doc, values, dirtyFields);
 
         if (dirtyFields.has('proxyUrl')) setStringInDoc(doc, ['proxy-url'], values.proxyUrl);
         if (dirtyFields.has('forceModelPrefix')) {

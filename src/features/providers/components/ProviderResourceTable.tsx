@@ -27,6 +27,10 @@ import {
 } from '@/components/providers/utils';
 import type { OpenAIProviderConfig } from '@/types';
 import type { StatusBarData } from '@/utils/recentRequests';
+import {
+  resourceMonitorView,
+  type MonitorSummaries,
+} from '../channelMonitorView';
 import type { ProviderResource } from '../types';
 import { isMultiProtocolSponsorBrand } from '../sponsorDefinitions';
 import styles from './ProviderResourceTable.module.scss';
@@ -37,6 +41,8 @@ interface ProviderResourceTableProps {
   selectedId?: string | null;
   disableMutations?: boolean;
   usageByProvider?: ProviderRecentUsageMap;
+  monitorSummaries?: MonitorSummaries | null;
+  onOpenMonitor?: (resource: ProviderResource) => void;
   onView: (resource: ProviderResource) => void;
   onEdit: (resource: ProviderResource) => void;
   onDelete: (resource: ProviderResource) => void;
@@ -83,6 +89,8 @@ export function ProviderResourceTable({
   selectedId,
   disableMutations,
   usageByProvider,
+  monitorSummaries,
+  onOpenMonitor,
   onView,
   onEdit,
   onDelete,
@@ -130,13 +138,10 @@ export function ProviderResourceTable({
       if ((r.brand === 'codex' || r.brand === 'xai') && r.flags.websockets) {
         items.push(renderFlagTag('ws', t('providersPage.table.websocketsTag')));
       }
-      if ((r.brand === 'claude' || r.brand === 'claudeApi') && r.flags.cloakEnabled) {
+      if (r.brand === 'claude' && r.flags.cloakEnabled) {
         items.push(renderFlagTag('cloak', t('providersPage.table.cloakTag')));
       }
-      if (
-        (r.brand === 'claude' || r.brand === 'claudeApi') &&
-        r.flags.claudeCodeCliProfile
-      ) {
+      if (r.brand === 'claude' && r.flags.claudeCodeCliProfile) {
         items.push(renderFlagTag('cli-profile', t('providersPage.table.cliProfileTag')));
       }
     }
@@ -239,27 +244,12 @@ export function ProviderResourceTable({
                 <div className={styles.statusCell}>
                   {renderStatus(resource)}
                   {usageByProvider && !isSponsorResource(resource) ? (
-                    <>
-                      {(() => {
-                        const stats = resolveTotalStats(resource, usageByProvider);
-                        return (
-                          <div className={styles.stats}>
-                            <span className={`${styles.statPill} ${styles.statSuccess}`}>
-                              {t('stats.success')}: {stats.success}
-                            </span>
-                            <span className={`${styles.statPill} ${styles.statFailure}`}>
-                              {t('stats.failure')}: {stats.failure}
-                            </span>
-                          </div>
-                        );
-                      })()}
-                      <div className={styles.statusBarWrap}>
-                        <ProviderStatusBar
-                          statusData={resolveStatusBarData(resource, usageByProvider)}
-                          styles={statusBarStyles}
-                        />
-                      </div>
-                    </>
+                    <MonitorThumbnail
+                      resource={resource}
+                      usageByProvider={usageByProvider}
+                      monitorSummaries={monitorSummaries}
+                      onOpen={onOpenMonitor}
+                    />
                   ) : null}
                 </div>
               </TableCell>
@@ -332,5 +322,63 @@ export function ProviderResourceTable({
         })}
       </TableBody>
     </Table>
+  );
+}
+
+function healthDotClass(health: string): string {
+  if (health === 'healthy') return styles.health_healthy;
+  if (health === 'warning') return styles.health_warning;
+  if (health === 'critical') return styles.health_critical;
+  return styles.health_unknown;
+}
+
+function MonitorThumbnail({
+  resource,
+  usageByProvider,
+  monitorSummaries,
+  onOpen,
+}: {
+  resource: ProviderResource;
+  usageByProvider: ProviderRecentUsageMap;
+  monitorSummaries?: MonitorSummaries | null;
+  onOpen?: (resource: ProviderResource) => void;
+}) {
+  const { t } = useTranslation();
+  const monitor = resourceMonitorView(resource, monitorSummaries);
+  const stats = monitor ?? resolveTotalStats(resource, usageByProvider);
+  const statusData = monitor
+    ? monitor.statusBar
+    : resolveStatusBarData(resource, usageByProvider);
+  return (
+    <button
+      type="button"
+      className={styles.monitorButton}
+      aria-haspopup="dialog"
+      aria-label={t('providersPage.channelMonitor.open')}
+      onClick={(event) => {
+        event.stopPropagation();
+        onOpen?.(resource);
+      }}
+    >
+      <div className={styles.stats}>
+        {monitor ? (
+          <span
+            className={`${styles.healthDot} ${healthDotClass(monitor.health)}`}
+            title={t(`providersPage.channelMonitor.health.${monitor.health}`, {
+              defaultValue: monitor.health,
+            })}
+          />
+        ) : null}
+        <span className={`${styles.statPill} ${styles.statSuccess}`}>
+          {t('stats.success')}: {stats.success}
+        </span>
+        <span className={`${styles.statPill} ${styles.statFailure}`}>
+          {t('stats.failure')}: {stats.failure}
+        </span>
+      </div>
+      <div className={styles.statusBarWrap}>
+        <ProviderStatusBar statusData={statusData} styles={statusBarStyles} />
+      </div>
+    </button>
   );
 }

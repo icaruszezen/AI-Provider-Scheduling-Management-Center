@@ -1,31 +1,4 @@
 import {
-  CODE0_AFFILIATE_URL,
-  CODE0_BASE_URL_OPTIONS,
-  CODE0_DISPLAY_NAME,
-  CODE0_PROTOCOL_LABELS,
-  CODE0_PROVIDER_NAME,
-  getCode0ProtocolUrls,
-  resolveCode0BaseUrl,
-} from './code0';
-import {
-  FENNO_AI_AFFILIATE_URL,
-  FENNO_AI_BASE_URL_OPTIONS,
-  FENNO_AI_DISPLAY_NAME,
-  FENNO_AI_PROTOCOL_LABELS,
-  FENNO_AI_PROVIDER_NAME,
-  getFennoAIProtocolUrls,
-  resolveFennoAIBaseUrl,
-} from './fennoAI';
-import {
-  QINIU_CLOUD_AFFILIATE_URL,
-  QINIU_CLOUD_BASE_URL_OPTIONS,
-  QINIU_CLOUD_DISPLAY_NAME,
-  QINIU_CLOUD_PROTOCOL_LABELS,
-  QINIU_CLOUD_PROVIDER_NAME,
-  getQiniuCloudProtocolUrls,
-  resolveQiniuCloudBaseUrl,
-} from './qiniuCloud';
-import {
   LMU_AI_AFFILIATE_URL,
   LMU_AI_BASE_URL_OPTIONS,
   LMU_AI_DISPLAY_NAME,
@@ -34,15 +7,6 @@ import {
   getLmuAIProtocolUrls,
   resolveLmuAIBaseUrl,
 } from './lmuAI';
-import {
-  INFISTAR_AFFILIATE_URL,
-  INFISTAR_BASE_URL_OPTIONS,
-  INFISTAR_DISPLAY_NAME,
-  INFISTAR_PROTOCOL_LABELS,
-  INFISTAR_PROVIDER_NAME,
-  getInfistarProtocolUrls,
-  resolveInfistarBaseUrl,
-} from './infistar';
 import {
   KIMI_BASE_URL_OPTIONS,
   KIMI_DISPLAY_NAME,
@@ -90,42 +54,6 @@ export interface SponsorProviderDefinition {
 }
 
 const SPONSOR_DEFINITIONS: Record<SponsorProviderBrand, SponsorProviderDefinition> = {
-  code0: {
-    brand: 'code0',
-    displayName: CODE0_DISPLAY_NAME,
-    providerName: CODE0_PROVIDER_NAME,
-    affiliateUrl: CODE0_AFFILIATE_URL,
-    protocols: ['openai', 'claude', 'gemini', 'codex'],
-    protocolLabels: CODE0_PROTOCOL_LABELS,
-    defaultProtocol: 'openai',
-    baseUrlOptions: CODE0_BASE_URL_OPTIONS,
-    resolveBaseUrl: resolveCode0BaseUrl,
-    getProtocolUrls: getCode0ProtocolUrls,
-  },
-  fennoAI: {
-    brand: 'fennoAI',
-    displayName: FENNO_AI_DISPLAY_NAME,
-    providerName: FENNO_AI_PROVIDER_NAME,
-    affiliateUrl: FENNO_AI_AFFILIATE_URL,
-    protocols: ['codex', 'claude'],
-    protocolLabels: FENNO_AI_PROTOCOL_LABELS,
-    defaultProtocol: 'codex',
-    baseUrlOptions: FENNO_AI_BASE_URL_OPTIONS,
-    resolveBaseUrl: resolveFennoAIBaseUrl,
-    getProtocolUrls: getFennoAIProtocolUrls,
-  },
-  qiniuCloud: {
-    brand: 'qiniuCloud',
-    displayName: QINIU_CLOUD_DISPLAY_NAME,
-    providerName: QINIU_CLOUD_PROVIDER_NAME,
-    affiliateUrl: QINIU_CLOUD_AFFILIATE_URL,
-    protocols: ['openai', 'claude', 'gemini', 'codex'],
-    protocolLabels: QINIU_CLOUD_PROTOCOL_LABELS,
-    defaultProtocol: 'openai',
-    baseUrlOptions: QINIU_CLOUD_BASE_URL_OPTIONS,
-    resolveBaseUrl: resolveQiniuCloudBaseUrl,
-    getProtocolUrls: getQiniuCloudProtocolUrls,
-  },
   lmuAI: {
     brand: 'lmuAI',
     displayName: LMU_AI_DISPLAY_NAME,
@@ -137,18 +65,6 @@ const SPONSOR_DEFINITIONS: Record<SponsorProviderBrand, SponsorProviderDefinitio
     baseUrlOptions: LMU_AI_BASE_URL_OPTIONS,
     resolveBaseUrl: resolveLmuAIBaseUrl,
     getProtocolUrls: getLmuAIProtocolUrls,
-  },
-  infistar: {
-    brand: 'infistar',
-    displayName: INFISTAR_DISPLAY_NAME,
-    providerName: INFISTAR_PROVIDER_NAME,
-    affiliateUrl: INFISTAR_AFFILIATE_URL,
-    protocols: ['openai', 'claude', 'gemini', 'codex'],
-    protocolLabels: INFISTAR_PROTOCOL_LABELS,
-    defaultProtocol: 'openai',
-    baseUrlOptions: INFISTAR_BASE_URL_OPTIONS,
-    resolveBaseUrl: resolveInfistarBaseUrl,
-    getProtocolUrls: getInfistarProtocolUrls,
   },
   kimi: {
     brand: 'kimi',
@@ -164,12 +80,7 @@ const SPONSOR_DEFINITIONS: Record<SponsorProviderBrand, SponsorProviderDefinitio
 };
 
 export const isMultiProtocolSponsorBrand = (brand: ProviderBrand): brand is SponsorProviderBrand =>
-  brand === 'code0' ||
-  brand === 'fennoAI' ||
-  brand === 'qiniuCloud' ||
-  brand === 'lmuAI' ||
-  brand === 'infistar' ||
-  brand === 'kimi';
+  brand === 'lmuAI' || brand === 'kimi';
 
 /**
  * 临时隐藏的赞助商品牌：入口从提供商列表隐藏，其配置改由对应协议分组

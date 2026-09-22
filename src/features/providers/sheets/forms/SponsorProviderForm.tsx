@@ -691,7 +691,7 @@ const buildInitialForm = (
 };
 
 export function SponsorProviderForm({
-  brand = 'code0',
+  brand = 'kimi',
   resource,
   mode,
   mutating,

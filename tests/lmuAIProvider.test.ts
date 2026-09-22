@@ -70,9 +70,7 @@ describe('LMU AI provider', () => {
 
   test('remains in the provider catalog with the sponsor logo', () => {
     expect(PROVIDER_BRAND_ORDER).toContain('lmuAI');
-    expect(PROVIDER_BRAND_ORDER.indexOf('lmuAI')).toBeLessThan(
-      PROVIDER_BRAND_ORDER.indexOf('infistar')
-    );
+    expect(PROVIDER_BRAND_ORDER.at(-1)).toBe('lmuAI');
     expect(PROVIDER_LOGOS.lmuAI.src).toContain('lmu-ai.png');
   });
 });
