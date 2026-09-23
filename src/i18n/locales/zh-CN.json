@@ -1065,6 +1065,7 @@
     },
     "groups": {
       "ungrouped": "未分组",
+      "all": "全部",
       "add": "新建分组",
       "namePlaceholder": "分组名称",
       "rename": "重命名分组",

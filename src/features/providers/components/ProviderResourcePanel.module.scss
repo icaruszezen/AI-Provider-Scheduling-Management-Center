@@ -342,6 +342,63 @@
   align-items: center;
 }
 
+.groupTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.groupTab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 240px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+
+  &:hover {
+    color: var(--text-primary);
+    border-color: var(--primary-color);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+}
+
+.groupTabActive {
+  color: var(--primary-color);
+  border-color: color-mix(in srgb, var(--primary-color) 45%, transparent);
+  background: color-mix(in srgb, var(--primary-color) 14%, var(--bg-primary));
+}
+
+.groupTabLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.groupTabCount {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  font-weight: 500;
+
+  .groupTabActive & {
+    color: var(--primary-color);
+  }
+}
+
 .groupInput {
   flex: 1;
   min-width: 0;

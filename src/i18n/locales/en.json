@@ -1065,6 +1065,7 @@
     },
     "groups": {
       "ungrouped": "Ungrouped",
+      "all": "All",
       "add": "New group",
       "namePlaceholder": "Group name",
       "rename": "Rename group",

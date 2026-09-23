@@ -84,11 +84,40 @@ export function ProviderResourcePanel({
   const [renamingGroup, setRenamingGroup] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [settingsGroup, setSettingsGroup] = useState<ChannelGroupSettings | null>(null);
+  const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
+  const [trackedBrand, setTrackedBrand] = useState(group.id);
+  if (trackedBrand !== group.id) {
+    setTrackedBrand(group.id);
+    setActiveGroupId(null);
+    setRenamingGroup(null);
+  }
   const sections = groupChannelResources(
     filteredResources,
-    catalogGroups.map((group) => group.name),
+    catalogGroups.map((item) => item.name),
     filter.trim().length > 0
   );
+  const hasNamedGroups = sections.some((section) => section.id !== '');
+  const brandChanged = trackedBrand !== group.id;
+  const resolvedGroupId = brandChanged ? null : activeGroupId;
+  const selectedGroupId =
+    resolvedGroupId !== null && sections.some((section) => section.id === resolvedGroupId)
+      ? resolvedGroupId
+      : null;
+  if (
+    !brandChanged &&
+    activeGroupId !== null &&
+    !sections.some((section) => section.id === activeGroupId)
+  ) {
+    setActiveGroupId(null);
+  }
+  const visibleSections =
+    selectedGroupId === null
+      ? sections
+      : sections.filter((section) => section.id === selectedGroupId);
+  const selectGroup = (id: string | null) => {
+    setActiveGroupId(id);
+    setRenamingGroup(null);
+  };
   const submitNewGroup = () => {
     const name = newGroupName.trim();
     if (!name || !onCreateGroup) return;
@@ -216,6 +245,44 @@ export function ProviderResourcePanel({
         </button>
       </form>
 
+      {hasNamedGroups ? (
+        <div className={styles.groupTabs} role="tablist" aria-label={providerTitle}>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={selectedGroupId === null}
+            className={[styles.groupTab, selectedGroupId === null ? styles.groupTabActive : '']
+              .filter(Boolean)
+              .join(' ')}
+            onClick={() => selectGroup(null)}
+          >
+            <span className={styles.groupTabLabel}>{t('providersPage.groups.all')}</span>
+            <span className={styles.groupTabCount}>
+              {sections.reduce((total, section) => total + section.resources.length, 0)}
+            </span>
+          </button>
+          {sections.map((section) => {
+            const label = section.id || t('providersPage.groups.ungrouped');
+            const selected = selectedGroupId === section.id;
+            return (
+              <button
+                key={section.id || 'ungrouped'}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                className={[styles.groupTab, selected ? styles.groupTabActive : '']
+                  .filter(Boolean)
+                  .join(' ')}
+                onClick={() => selectGroup(section.id)}
+              >
+                <span className={styles.groupTabLabel}>{label}</span>
+                <span className={styles.groupTabCount}>{section.resources.length}</span>
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+
       {filteredResources.length === 0 && filter.trim() ? (
         <div className={styles.empty}>{emptyText}</div>
       ) : filteredResources.length === 0 && catalogGroups.length === 0 ? (
@@ -229,7 +296,7 @@ export function ProviderResourcePanel({
           </div>
         </div>
       ) : (
-        sections.map((section) => (
+        visibleSections.map((section) => (
           <section key={section.id || 'ungrouped'} className={styles.groupSection}>
             <div className={styles.groupHeader}>
               {renamingGroup === section.id && section.id ? (
