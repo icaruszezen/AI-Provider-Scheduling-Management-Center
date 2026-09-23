@@ -44,6 +44,7 @@ import {
   providerRetryStatusCodesInputIsValid,
 } from '@/utils/providerRetry';
 import { sanitizeStreamFakeFirstTokens } from '@/utils/streamFakeFirstTokens';
+import { MAX_STREAM_FIRST_TOKEN_TIMEOUT_SECONDS } from '@/utils/streamFirstTokenTimeout';
 import { ProviderRetryFields } from './ProviderRetryFields';
 import { StreamFakeFirstTokensFields } from './StreamFakeFirstTokensFields';
 
@@ -120,6 +121,7 @@ function buildInitialForm(
       apiKeyEntries: brand === 'openaiCompatibility' ? [emptyApiKeyEntry()] : undefined,
       providerRetryCount: undefined,
       providerRetryStatusCodesText: '',
+      streamFirstTokenTimeoutSeconds: undefined,
       projectId: '',
       serviceAccountText: brand === 'vertex' ? '' : undefined,
       location: brand === 'vertex' ? '' : undefined,
@@ -159,6 +161,7 @@ function buildInitialForm(
       testModel: cfg.testModel ?? '',
       providerRetryCount: cfg.providerRetryCount ?? undefined,
       providerRetryStatusCodesText: formatProviderRetryStatusCodes(cfg.providerRetryStatusCodes),
+      streamFirstTokenTimeoutSeconds: cfg.streamFirstTokenTimeoutSeconds ?? undefined,
       apiKeyEntries: cfg.apiKeyEntries?.length
         ? cfg.apiKeyEntries.map((entry) => ({
             apiKey: '',
@@ -190,6 +193,7 @@ function buildInitialForm(
     hideNoAvailableChannel: cfg.hideNoAvailableChannel === true,
     providerRetryCount: cfg.providerRetryCount ?? undefined,
     providerRetryStatusCodesText: formatProviderRetryStatusCodes(cfg.providerRetryStatusCodes),
+    streamFirstTokenTimeoutSeconds: cfg.streamFirstTokenTimeoutSeconds ?? undefined,
     priority: cfg.priority,
     weight: cfg.weight,
     models: cfg.models?.length
@@ -495,6 +499,16 @@ export function BaseProviderForm({
     }
     if (!providerRetryStatusCodesInputIsValid(form.providerRetryStatusCodesText ?? '')) {
       return t('providersPage.form.validation.providerRetryStatusCodes');
+    }
+    if (
+      form.streamFirstTokenTimeoutSeconds !== undefined &&
+      (!Number.isSafeInteger(form.streamFirstTokenTimeoutSeconds) ||
+        form.streamFirstTokenTimeoutSeconds < 0 ||
+        form.streamFirstTokenTimeoutSeconds > MAX_STREAM_FIRST_TOKEN_TIMEOUT_SECONDS)
+    ) {
+      return t('providersPage.form.validation.streamFirstTokenTimeout', {
+        max: MAX_STREAM_FIRST_TOKEN_TIMEOUT_SECONDS,
+      });
     }
     return null;
   };
@@ -1005,6 +1019,34 @@ export function BaseProviderForm({
             <span className={styles.labelHint}>{t('providersPage.form.localCompactHint')}</span>
           </div>
         ) : null}
+
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor={`${fid}-first-token-timeout`}>
+            {t('providersPage.form.streamFirstTokenTimeout')}
+          </label>
+          <input
+            id={`${fid}-first-token-timeout`}
+            type="number"
+            min={0}
+            max={MAX_STREAM_FIRST_TOKEN_TIMEOUT_SECONDS}
+            step="1"
+            className={styles.input}
+            value={form.streamFirstTokenTimeoutSeconds ?? ''}
+            placeholder={t('providersPage.form.streamFirstTokenTimeoutPlaceholder')}
+            disabled={mutating}
+            onChange={(event) =>
+              updateField(
+                'streamFirstTokenTimeoutSeconds',
+                event.target.value === '' ? undefined : Number(event.target.value)
+              )
+            }
+          />
+          <span className={styles.labelHint}>
+            {t('providersPage.form.streamFirstTokenTimeoutHint', {
+              max: MAX_STREAM_FIRST_TOKEN_TIMEOUT_SECONDS,
+            })}
+          </span>
+        </div>
 
         <ProviderRetryFields
           count={form.providerRetryCount}

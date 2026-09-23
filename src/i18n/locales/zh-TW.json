@@ -1212,6 +1212,9 @@
       "localCompactDisabled": "停用（透傳上游）",
       "providerRetryCount": "同提供商重試次數",
       "providerRetryCountHint": "命中狀態碼時先在目前憑證上立即重試，兩次之間不等待，用盡後再換下一把。0 或不填表示不原地重試，最大 {{max}}。",
+      "streamFirstTokenTimeout": "流式首字逾時（秒）",
+      "streamFirstTokenTimeoutPlaceholder": "不開啟",
+      "streamFirstTokenTimeoutHint": "流式請求在該秒數內沒有首字時，取消這次上游呼叫並換到下一個渠道。留空或 0 表示不開啟，最大 {{max}} 秒。",
       "providerRetryStatusCodes": "同提供商重試狀態碼",
       "providerRetryStatusCodesHint": "以逗號或空格分隔的 HTTP 狀態碼。清空此欄位會移除此憑證的覆寫值，回落到預設值（{{default}}）。",
       "streamFakeFirstTokens": "串流假首字攔截",
@@ -1254,6 +1257,7 @@
         "weightInteger": "調度權重必須是整數",
         "weightMax": "調度權重不能超過 {{max}}",
         "providerRetryCount": "同提供商重試次數必須是 0 到 {{max}} 的整數",
+        "streamFirstTokenTimeout": "流式首字逾時必須是 0 到 {{max}} 的整數秒",
         "providerRetryStatusCodes": "重試狀態碼必須是 100 到 599 之間的 HTTP 狀態碼，以逗號或空格分隔"
       }
     },

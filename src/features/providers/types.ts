@@ -145,6 +145,7 @@ export interface SponsorKeyEntryInput {
   hideNoAvailableChannel?: boolean;
   providerRetryCount?: number;
   providerRetryStatusCodesText?: string;
+  streamFirstTokenTimeoutSeconds?: number;
   priority?: number;
   weight?: number;
   models: ModelEntryInput[];
@@ -180,6 +181,7 @@ export interface ProviderEntryFormInput {
   hideNoAvailableChannel?: boolean;
   providerRetryCount?: number;
   providerRetryStatusCodesText?: string;
+  streamFirstTokenTimeoutSeconds?: number;
   priority?: number;
   weight?: number;
 

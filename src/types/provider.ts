@@ -44,6 +44,8 @@ export interface GeminiKeyConfig {
   hideNoAvailableChannel?: boolean;
   providerRetryCount?: number | null;
   providerRetryStatusCodes?: number[] | null;
+  /** Seconds to wait for the first streaming token. Empty or 0 disables failover. */
+  streamFirstTokenTimeoutSeconds?: number | null;
   authIndex?: string;
 }
 
@@ -86,6 +88,8 @@ export interface ProviderKeyConfig {
   hideNoAvailableChannel?: boolean;
   providerRetryCount?: number | null;
   providerRetryStatusCodes?: number[] | null;
+  /** Seconds to wait for the first streaming token. Empty or 0 disables failover. */
+  streamFirstTokenTimeoutSeconds?: number | null;
   authIndex?: string;
 }
 
@@ -105,6 +109,8 @@ export interface OpenAIProviderConfig {
   hideNoAvailableChannel?: boolean;
   providerRetryCount?: number | null;
   providerRetryStatusCodes?: number[] | null;
+  /** Seconds to wait for the first streaming token. Empty or 0 disables failover. */
+  streamFirstTokenTimeoutSeconds?: number | null;
   authIndex?: string;
   /** Original index in the backend openai-compatibility array. */
   sourceIndex?: number;

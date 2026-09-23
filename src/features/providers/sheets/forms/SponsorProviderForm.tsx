@@ -18,6 +18,7 @@ import {
   MAX_PROVIDER_RETRY_COUNT,
   providerRetryStatusCodesInputIsValid,
 } from '@/utils/providerRetry';
+import { MAX_STREAM_FIRST_TOKEN_TIMEOUT_SECONDS } from '@/utils/streamFirstTokenTimeout';
 import { ProviderRetryFields } from './ProviderRetryFields';
 import type { ModelInfo } from '@/utils/models';
 import { readThinkingLevels } from '../../thinkingLevels';
@@ -96,6 +97,7 @@ const emptySponsorKeyEntry = (
   hideNoAvailableChannel: false,
   providerRetryCount: undefined,
   providerRetryStatusCodesText: '',
+  streamFirstTokenTimeoutSeconds: undefined,
   priority: undefined,
   weight: undefined,
   models: [emptyModel()],
@@ -174,6 +176,7 @@ const sponsorEntryFromProviderKey = (
   hideNoAvailableChannel: config.hideNoAvailableChannel === true,
   providerRetryCount: config.providerRetryCount ?? undefined,
   providerRetryStatusCodesText: formatProviderRetryStatusCodes(config.providerRetryStatusCodes),
+  streamFirstTokenTimeoutSeconds: config.streamFirstTokenTimeoutSeconds ?? undefined,
   priority: config.priority,
   weight: config.weight,
   models: modelsFromConfig(config.models),
@@ -195,6 +198,7 @@ const sponsorEntryFromOpenAI = (
     hideNoAvailableChannel: config.hideNoAvailableChannel === true,
     providerRetryCount: config.providerRetryCount ?? undefined,
     providerRetryStatusCodesText: formatProviderRetryStatusCodes(config.providerRetryStatusCodes),
+    streamFirstTokenTimeoutSeconds: config.streamFirstTokenTimeoutSeconds ?? undefined,
     priority: config.priority,
     weight: firstEntry?.weight,
     models: modelsFromConfig(config.models),
@@ -656,6 +660,34 @@ function SponsorKeyEntryCard({
             </span>
           </label>
 
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor={`${formId}-group-${index}-first-token-timeout`}>
+              {t('providersPage.form.streamFirstTokenTimeout')}
+            </label>
+            <input
+              id={`${formId}-group-${index}-first-token-timeout`}
+              type="number"
+              min={0}
+              max={MAX_STREAM_FIRST_TOKEN_TIMEOUT_SECONDS}
+              step="1"
+              className={styles.input}
+              value={entry.streamFirstTokenTimeoutSeconds ?? ''}
+              placeholder={t('providersPage.form.streamFirstTokenTimeoutPlaceholder')}
+              disabled={mutating}
+              onChange={(event) =>
+                updateEntry({
+                  streamFirstTokenTimeoutSeconds:
+                    event.target.value === '' ? undefined : Number(event.target.value),
+                })
+              }
+            />
+            <span className={styles.labelHint}>
+              {t('providersPage.form.streamFirstTokenTimeoutHint', {
+                max: MAX_STREAM_FIRST_TOKEN_TIMEOUT_SECONDS,
+              })}
+            </span>
+          </div>
+
           <ProviderRetryFields
             count={entry.providerRetryCount}
             statusCodesText={entry.providerRetryStatusCodesText}
@@ -790,6 +822,19 @@ export function SponsorProviderForm({
     ) {
       return t('providersPage.form.validation.providerRetryCount', {
         max: MAX_PROVIDER_RETRY_COUNT,
+      });
+    }
+    if (
+      entries.some(
+        (entry) =>
+          entry.streamFirstTokenTimeoutSeconds !== undefined &&
+          (!Number.isSafeInteger(entry.streamFirstTokenTimeoutSeconds) ||
+            entry.streamFirstTokenTimeoutSeconds < 0 ||
+            entry.streamFirstTokenTimeoutSeconds > MAX_STREAM_FIRST_TOKEN_TIMEOUT_SECONDS)
+      )
+    ) {
+      return t('providersPage.form.validation.streamFirstTokenTimeout', {
+        max: MAX_STREAM_FIRST_TOKEN_TIMEOUT_SECONDS,
       });
     }
     if (

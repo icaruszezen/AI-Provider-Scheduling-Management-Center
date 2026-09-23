@@ -1212,6 +1212,9 @@
       "localCompactDisabled": "关闭（透传上游）",
       "providerRetryCount": "同提供商重试次数",
       "providerRetryCountHint": "命中状态码时先在当前凭据上立即重试，两次之间不等待，用尽后再换下一把。0 或不填表示不原地重试，最大 {{max}}。",
+      "streamFirstTokenTimeout": "流式首字超时（秒）",
+      "streamFirstTokenTimeoutPlaceholder": "不开启",
+      "streamFirstTokenTimeoutHint": "流式请求在该秒数内没有首字时，取消这次上游调用并换到下一个渠道。留空或 0 表示不开启，最大 {{max}} 秒。",
       "providerRetryStatusCodes": "同提供商重试状态码",
       "providerRetryStatusCodesHint": "以逗号或空格分隔的 HTTP 状态码。清空该字段会移除此凭据的覆盖值，回落到默认值（{{default}}）。",
       "streamFakeFirstTokens": "流式假首字拦截",
@@ -1254,6 +1257,7 @@
         "weightInteger": "调度权重必须是整数",
         "weightMax": "调度权重不能超过 {{max}}",
         "providerRetryCount": "同提供商重试次数必须是 0 到 {{max}} 的整数",
+        "streamFirstTokenTimeout": "流式首字超时必须是 0 到 {{max}} 的整数秒",
         "providerRetryStatusCodes": "重试状态码必须是 100 到 599 之间的 HTTP 状态码，用逗号或空格分隔"
       }
     },

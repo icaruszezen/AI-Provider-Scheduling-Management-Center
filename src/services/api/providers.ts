@@ -13,6 +13,7 @@ import type {
   ModelAlias,
 } from '@/types';
 import { applyProviderRetryPayload } from '@/utils/providerRetry';
+import { applyStreamFirstTokenTimeoutPayload } from '@/utils/streamFirstTokenTimeout';
 import { applyStreamFakeFirstTokensPayload } from '@/utils/streamFakeFirstTokens';
 
 const serializeHeaders = (headers?: Record<string, string>) =>
@@ -36,6 +37,7 @@ const PROVIDER_COMMON_KEY_FIELDS = [
   'hide-no-available-channel',
   'provider-retry-count',
   'provider-retry-status-codes',
+  'stream-first-token-timeout-seconds',
 ] as const;
 
 const GEMINI_KEY_FIELDS = PROVIDER_COMMON_KEY_FIELDS;
@@ -75,6 +77,7 @@ const VERTEX_KEY_FIELDS = [
   'excluded-models',
   'provider-retry-count',
   'provider-retry-status-codes',
+  'stream-first-token-timeout-seconds',
   'hide-no-available-channel',
 ] as const;
 const ANTIGRAVITY_KEY_FIELDS = [...PROVIDER_COMMON_KEY_FIELDS, 'project-id'] as const;
@@ -94,6 +97,7 @@ const OPENAI_PROVIDER_FIELDS = [
   'hide-no-available-channel',
   'provider-retry-count',
   'provider-retry-status-codes',
+  'stream-first-token-timeout-seconds',
 ] as const;
 
 const MODEL_ALIAS_FIELDS = ['name', 'alias', 'priority', 'test-model', 'thinking'] as const;
@@ -396,6 +400,7 @@ const serializeProviderKey = (config: ProviderKeyConfig) => {
   if (config.localCompact !== undefined) payload['local-compact'] = config.localCompact;
   applyStreamFakeFirstTokensPayload(payload, config.streamFakeFirstTokens);
   applyProviderRetryPayload(payload, config);
+  applyStreamFirstTokenTimeoutPayload(payload, config);
   const headers = serializeHeaders(config.headers);
   if (headers) payload.headers = headers;
   const models = serializeModelAliases(config.models);
@@ -464,6 +469,7 @@ const serializeVertexKey = (config: ProviderKeyConfig) => {
     payload['excluded-models'] = config.excludedModels;
   }
   applyProviderRetryPayload(payload, config);
+  applyStreamFirstTokenTimeoutPayload(payload, config);
   if (config.hideNoAvailableChannel) payload['hide-no-available-channel'] = true;
   return payload;
 };
@@ -486,6 +492,7 @@ const serializeGeminiKey = (config: GeminiKeyConfig) => {
   if (config.disableCooling) payload['disable-cooling'] = true;
   if (config.hideNoAvailableChannel) payload['hide-no-available-channel'] = true;
   applyProviderRetryPayload(payload, config);
+  applyStreamFirstTokenTimeoutPayload(payload, config);
   const headers = serializeHeaders(config.headers);
   if (headers) payload.headers = headers;
   const models = serializeModelAliases(config.models);
@@ -516,6 +523,7 @@ const serializeOpenAIProvider = (provider: OpenAIProviderConfig) => {
   if (provider.disableCooling) payload['disable-cooling'] = true;
   if (provider.hideNoAvailableChannel) payload['hide-no-available-channel'] = true;
   applyProviderRetryPayload(payload, provider);
+  applyStreamFirstTokenTimeoutPayload(payload, provider);
   return payload;
 };
 

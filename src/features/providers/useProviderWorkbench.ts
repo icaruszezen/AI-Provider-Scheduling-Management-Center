@@ -10,6 +10,7 @@ import {
 import type { GeminiKeyConfig, ModelAlias, OpenAIProviderConfig, ProviderKeyConfig } from '@/types';
 import { localCompactModeToConfig } from '@/utils/localCompact';
 import { providerRetryFieldsFromForm as retryFieldsFromForm } from '@/utils/providerRetry';
+import { streamFirstTokenTimeoutFromForm } from '@/utils/streamFirstTokenTimeout';
 import { sanitizeStreamFakeFirstTokens } from '@/utils/streamFakeFirstTokens';
 import {
   claudeToResource,
@@ -194,6 +195,9 @@ const buildProviderKeyConfig = (
     disableCooling: input.disableCooling === true,
     hideNoAvailableChannel: input.hideNoAvailableChannel === true,
     ...retryFieldsFromForm(input),
+    streamFirstTokenTimeoutSeconds: streamFirstTokenTimeoutFromForm(
+      input.streamFirstTokenTimeoutSeconds
+    ),
     authIndex: existing?.authIndex,
   };
   if ((brand === 'codex' || brand === 'xai') && input.websockets !== undefined) {
@@ -262,6 +266,9 @@ const buildOpenAIConfig = (
     disableCooling: input.disableCooling === true,
     hideNoAvailableChannel: input.hideNoAvailableChannel === true,
     ...retryFieldsFromForm(input),
+    streamFirstTokenTimeoutSeconds: streamFirstTokenTimeoutFromForm(
+      input.streamFirstTokenTimeoutSeconds
+    ),
     headers: Object.keys(headers).length ? headers : undefined,
     models: models.length ? models : undefined,
     priority: input.priority,
@@ -305,6 +312,9 @@ const buildSponsorOpenAIConfig = (
     disableCooling: entry.disableCooling === true,
     hideNoAvailableChannel: entry.hideNoAvailableChannel === true,
     ...retryFieldsFromForm(entry),
+    streamFirstTokenTimeoutSeconds: streamFirstTokenTimeoutFromForm(
+      entry.streamFirstTokenTimeoutSeconds
+    ),
     priority: entry.priority,
     apiKeyEntries,
     models: models.length ? models : undefined,
@@ -339,6 +349,9 @@ const buildSponsorProviderKeyConfig = (
     disableCooling: entry.disableCooling === true,
     hideNoAvailableChannel: entry.hideNoAvailableChannel === true,
     ...retryFieldsFromForm(entry),
+    streamFirstTokenTimeoutSeconds: streamFirstTokenTimeoutFromForm(
+      entry.streamFirstTokenTimeoutSeconds
+    ),
     excludedModels: excluded,
     models: models.length ? models : undefined,
   };
@@ -371,6 +384,9 @@ const buildSponsorGeminiConfig = (
     disableCooling: entry.disableCooling === true,
     hideNoAvailableChannel: entry.hideNoAvailableChannel === true,
     ...retryFieldsFromForm(entry),
+    streamFirstTokenTimeoutSeconds: streamFirstTokenTimeoutFromForm(
+      entry.streamFirstTokenTimeoutSeconds
+    ),
     excludedModels: excluded,
     models: models.length ? models : undefined,
   };

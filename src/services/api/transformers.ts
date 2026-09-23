@@ -14,6 +14,7 @@ import {
   normalizeProviderRetryCount,
   normalizeProviderRetryStatusCodes,
 } from '@/utils/providerRetry';
+import { normalizeStreamFirstTokenTimeout } from '@/utils/streamFirstTokenTimeout';
 import { sanitizeStreamFakeFirstTokens } from '@/utils/streamFakeFirstTokens';
 import { parseChannelGroups } from '@/features/providers/channelGroups';
 
@@ -21,12 +22,17 @@ const applyProviderRetryFields = <
   T extends {
     providerRetryCount?: number | null;
     providerRetryStatusCodes?: number[] | null;
+    streamFirstTokenTimeoutSeconds?: number | null;
   },
 >(
   record: Record<string, unknown> | null,
   config: T
 ): T => {
   if (!record) return config;
+  const timeout = normalizeStreamFirstTokenTimeout(record['stream-first-token-timeout-seconds']);
+  if (timeout !== undefined) {
+    config.streamFirstTokenTimeoutSeconds = timeout;
+  }
   const count = normalizeProviderRetryCount(record['provider-retry-count']);
   if (count !== undefined) {
     config.providerRetryCount = count;
