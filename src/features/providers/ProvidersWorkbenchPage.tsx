@@ -122,6 +122,7 @@ export function ProvidersWorkbenchPage() {
   const connected = connectionStatus === 'connected';
   const { usageByProvider, refreshRecentRequests } = useProviderRecentRequests({
     enabled: connected,
+    pollIntervalMs: 2000,
   });
   const [monitorSummaries, setMonitorSummaries] = useState<MonitorSummaries | null>(null);
   const [monitorResource, setMonitorResource] = useState<ProviderResource | null>(null);

@@ -10,6 +10,7 @@ import {
   sponsorProtocolI18nKey,
   sponsorProtocolUrl,
 } from '../sponsorDefinitions';
+import { ChannelConnectionCapacity } from '../components/ChannelConnectionCapacity';
 import type { ProviderResource, SponsorProviderRaw } from '../types';
 import styles from './forms/sharedForm.module.scss';
 
@@ -96,6 +97,12 @@ export function ResourceDetailView({ resource, usageByProvider }: ResourceDetail
               <dd className={styles.dd}>{protocolCounts[protocol]}</dd>
             </div>
           ))}
+          <div>
+            <dt className={styles.dt}>{t('providersPage.detail.fields.connectionCapacity')}</dt>
+            <dd className={styles.dd}>
+              <ChannelConnectionCapacity resource={resource} usageByProvider={usageByProvider} />
+            </dd>
+          </div>
         </dl>
       </div>
     );
@@ -133,6 +140,12 @@ export function ResourceDetailView({ resource, usageByProvider }: ResourceDetail
             <dd className={styles.dd}>{value}</dd>
           </div>
         ))}
+        <div>
+          <dt className={styles.dt}>{t('providersPage.detail.fields.connectionCapacity')}</dt>
+          <dd className={styles.dd}>
+            <ChannelConnectionCapacity resource={resource} usageByProvider={usageByProvider} />
+          </dd>
+        </div>
       </dl>
 
       {openaiConfig && apiKeyEntries.length > 0 ? (

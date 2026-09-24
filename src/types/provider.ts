@@ -46,6 +46,8 @@ export interface GeminiKeyConfig {
   providerRetryStatusCodes?: number[] | null;
   /** Seconds to wait for the first streaming token. Empty or 0 disables failover. */
   streamFirstTokenTimeoutSeconds?: number | null;
+  /** In-flight request cap. Empty, null, or 0 means unlimited. */
+  maxConcurrentConnections?: number | null;
   authIndex?: string;
 }
 
@@ -90,6 +92,8 @@ export interface ProviderKeyConfig {
   providerRetryStatusCodes?: number[] | null;
   /** Seconds to wait for the first streaming token. Empty or 0 disables failover. */
   streamFirstTokenTimeoutSeconds?: number | null;
+  /** In-flight request cap. Empty, null, or 0 means unlimited. */
+  maxConcurrentConnections?: number | null;
   authIndex?: string;
 }
 
@@ -111,6 +115,8 @@ export interface OpenAIProviderConfig {
   providerRetryStatusCodes?: number[] | null;
   /** Seconds to wait for the first streaming token. Empty or 0 disables failover. */
   streamFirstTokenTimeoutSeconds?: number | null;
+  /** In-flight request cap. Empty, null, or 0 means unlimited. */
+  maxConcurrentConnections?: number | null;
   authIndex?: string;
   /** Original index in the backend openai-compatibility array. */
   sourceIndex?: number;

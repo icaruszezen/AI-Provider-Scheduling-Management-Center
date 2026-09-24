@@ -979,6 +979,8 @@
       "models": "Модели/Заголовки",
       "status": "Статус",
       "actions": "Действия",
+      "connectionsAvailable": "Доступно {{available}} / {{max}}",
+      "connectionsUnlimited": "Без ограничений",
       "metrics": {
         "models": "Модели",
         "keys": "Ключи",
@@ -1139,7 +1141,8 @@
         "headers": "Заголовков",
         "authIndex": "Auth Index",
         "excludedModels": "Исключённых моделей",
-        "apiKeyEntries": "API-ключей"
+        "apiKeyEntries": "API-ключей",
+        "connectionCapacity": "Доступные соединения"
       }
     },
     "form": {
@@ -1205,6 +1208,9 @@
       "streamFirstTokenTimeout": "Таймаут первого токена потока (секунды)",
       "streamFirstTokenTimeoutPlaceholder": "Выкл.",
       "streamFirstTokenTimeoutHint": "Если поток не вернул первый токен за это число секунд, отменить вызов к этому каналу и попробовать следующий. Пусто или 0 — выключено. Максимум {{max}} секунд.",
+      "maxConcurrentConnections": "Лимит одновременных соединений",
+      "maxConcurrentConnectionsPlaceholder": "Без ограничений",
+      "maxConcurrentConnectionsHint": "Когда канал уже обрабатывает столько запросов, новые запросы уходят на следующий доступный канал. Пусто или 0 — без ограничений. Максимум {{max}}.",
       "providerRetryStatusCodes": "Коды для повтора",
       "providerRetryStatusCodesHint": "HTTP-коды через запятую или пробел. Очистка поля убирает переопределение и возвращает значение по умолчанию ({{default}}).",
       "streamFakeFirstTokens": "Перехват ложного первого токена",
@@ -1248,6 +1254,7 @@
         "weightMax": "Вес планирования не может превышать {{max}}",
         "providerRetryCount": "Число повторов должно быть целым от 0 до {{max}}",
         "streamFirstTokenTimeout": "Таймаут первого токена должен быть целым числом секунд от 0 до {{max}}",
+        "maxConcurrentConnections": "Лимит одновременных соединений должен быть целым числом от 0 до {{max}}",
         "providerRetryStatusCodes": "Коды повтора должны быть HTTP-кодами от 100 до 599, через запятую или пробел"
       }
     },

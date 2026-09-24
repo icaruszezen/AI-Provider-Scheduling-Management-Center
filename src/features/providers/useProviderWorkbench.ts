@@ -10,6 +10,7 @@ import {
 import type { GeminiKeyConfig, ModelAlias, OpenAIProviderConfig, ProviderKeyConfig } from '@/types';
 import { localCompactModeToConfig } from '@/utils/localCompact';
 import { providerRetryFieldsFromForm as retryFieldsFromForm } from '@/utils/providerRetry';
+import { maxConcurrentConnectionsFromForm } from '@/utils/maxConcurrentConnections';
 import { streamFirstTokenTimeoutFromForm } from '@/utils/streamFirstTokenTimeout';
 import { sanitizeStreamFakeFirstTokens } from '@/utils/streamFakeFirstTokens';
 import {
@@ -198,6 +199,7 @@ const buildProviderKeyConfig = (
     streamFirstTokenTimeoutSeconds: streamFirstTokenTimeoutFromForm(
       input.streamFirstTokenTimeoutSeconds
     ),
+    maxConcurrentConnections: maxConcurrentConnectionsFromForm(input.maxConcurrentConnections),
     authIndex: existing?.authIndex,
   };
   if ((brand === 'codex' || brand === 'xai') && input.websockets !== undefined) {
@@ -269,6 +271,7 @@ const buildOpenAIConfig = (
     streamFirstTokenTimeoutSeconds: streamFirstTokenTimeoutFromForm(
       input.streamFirstTokenTimeoutSeconds
     ),
+    maxConcurrentConnections: maxConcurrentConnectionsFromForm(input.maxConcurrentConnections),
     headers: Object.keys(headers).length ? headers : undefined,
     models: models.length ? models : undefined,
     priority: input.priority,
@@ -315,6 +318,7 @@ const buildSponsorOpenAIConfig = (
     streamFirstTokenTimeoutSeconds: streamFirstTokenTimeoutFromForm(
       entry.streamFirstTokenTimeoutSeconds
     ),
+    maxConcurrentConnections: maxConcurrentConnectionsFromForm(entry.maxConcurrentConnections),
     priority: entry.priority,
     apiKeyEntries,
     models: models.length ? models : undefined,
@@ -352,6 +356,7 @@ const buildSponsorProviderKeyConfig = (
     streamFirstTokenTimeoutSeconds: streamFirstTokenTimeoutFromForm(
       entry.streamFirstTokenTimeoutSeconds
     ),
+    maxConcurrentConnections: maxConcurrentConnectionsFromForm(entry.maxConcurrentConnections),
     excludedModels: excluded,
     models: models.length ? models : undefined,
   };
@@ -387,6 +392,7 @@ const buildSponsorGeminiConfig = (
     streamFirstTokenTimeoutSeconds: streamFirstTokenTimeoutFromForm(
       entry.streamFirstTokenTimeoutSeconds
     ),
+    maxConcurrentConnections: maxConcurrentConnectionsFromForm(entry.maxConcurrentConnections),
     excludedModels: excluded,
     models: models.length ? models : undefined,
   };

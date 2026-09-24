@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/Table';
 import { ToggleSwitch } from '@/components/ui/ToggleSwitch';
 import { ProviderStatusBar } from '@/components/providers/ProviderStatusBar';
+import { ChannelConnectionCapacity } from './ChannelConnectionCapacity';
 import {
   getOpenAIProviderRecentStatusData,
   getOpenAIProviderTotalStats,
@@ -253,6 +254,11 @@ export function ProviderResourceTable({
               <TableCell>
                 <div className={styles.statusCell}>
                   {renderStatus(resource)}
+                  <ChannelConnectionCapacity
+                    resource={resource}
+                    usageByProvider={usageByProvider}
+                    className={styles.connectionCapacity}
+                  />
                   {usageByProvider && !isSponsorResource(resource) ? (
                     <MonitorThumbnail
                       resource={resource}

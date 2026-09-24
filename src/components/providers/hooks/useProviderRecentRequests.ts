@@ -14,6 +14,7 @@ export type ProviderRecentRequests = Map<string, Map<string, RecentRequestUsageE
 
 export type UseProviderRecentRequestsOptions = {
   enabled?: boolean;
+  pollIntervalMs?: number;
 };
 
 const EMPTY_USAGE_BY_PROVIDER: ProviderRecentRequests = new Map();
@@ -103,6 +104,7 @@ const fetchProviderRecentRequests = async (
 
 export function useProviderRecentRequests(options: UseProviderRecentRequestsOptions = {}) {
   const enabled = options.enabled ?? true;
+  const staleTimeMs = options.pollIntervalMs ?? PROVIDER_RECENT_REQUESTS_STALE_TIME_MS;
   const apiBase = useAuthStore((state) => state.apiBase);
   const managementKey = useAuthStore((state) => state.managementKey);
   const cache = useMemo(
@@ -132,8 +134,7 @@ export function useProviderRecentRequests(options: UseProviderRecentRequestsOpti
       }
 
       const hasFreshCache =
-        cache.cachedAt > 0 &&
-        Date.now() - cache.cachedAt < PROVIDER_RECENT_REQUESTS_STALE_TIME_MS;
+        cache.cachedAt > 0 && Date.now() - cache.cachedAt < staleTimeMs;
 
       if (!loadOptions.force && hasFreshCache) {
         setUsageForCurrentScope(cache.cachedUsageByProvider);
@@ -154,7 +155,7 @@ export function useProviderRecentRequests(options: UseProviderRecentRequestsOpti
         setLoadingForCurrentScope(false);
       }
     },
-    [cache, enabled, setLoadingForCurrentScope, setUsageForCurrentScope]
+    [cache, enabled, setLoadingForCurrentScope, setUsageForCurrentScope, staleTimeMs]
   );
 
   const refreshRecentRequests = useCallback(
@@ -174,7 +175,7 @@ export function useProviderRecentRequests(options: UseProviderRecentRequestsOpti
     () => {
       void refreshRecentRequests().catch(() => {});
     },
-    enabled ? PROVIDER_RECENT_REQUESTS_STALE_TIME_MS : null
+    enabled ? staleTimeMs : null
   );
 
   const usageByProvider =

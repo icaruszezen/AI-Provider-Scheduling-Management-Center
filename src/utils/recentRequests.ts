@@ -25,6 +25,8 @@ export interface RecentRequestBucket {
 export interface RecentRequestUsageEntry {
   success: number;
   failed: number;
+  activeConnections: number;
+  maxConnections: number;
   recentRequests: RecentRequestBucket[];
 }
 
@@ -35,6 +37,10 @@ export type ApiKeyUsageResponse = Record<
     {
       success?: unknown;
       failed?: unknown;
+      active_connections?: unknown;
+      activeConnections?: unknown;
+      max_connections?: unknown;
+      maxConnections?: unknown;
       recent_requests?: unknown;
       recentRequests?: unknown;
     }
@@ -110,6 +116,8 @@ export function normalizeRecentRequestUsageEntry(input: unknown): RecentRequestU
     return {
       success: 0,
       failed: 0,
+      activeConnections: 0,
+      maxConnections: 0,
       recentRequests: [],
     };
   }
@@ -119,6 +127,8 @@ export function normalizeRecentRequestUsageEntry(input: unknown): RecentRequestU
   return {
     success: normalizeUsageTotal(record.success),
     failed: normalizeUsageTotal(record.failed),
+    activeConnections: normalizeUsageTotal(record.active_connections ?? record.activeConnections),
+    maxConnections: normalizeUsageTotal(record.max_connections ?? record.maxConnections),
     recentRequests: normalizeRecentRequestBuckets(record.recent_requests ?? record.recentRequests),
   };
 }

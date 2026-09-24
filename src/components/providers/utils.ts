@@ -143,6 +143,8 @@ export type ProviderRecentUsageMap = Map<string, Map<string, RecentRequestUsageE
 const EMPTY_RECENT_USAGE_ENTRY: RecentRequestUsageEntry = {
   success: 0,
   failed: 0,
+  activeConnections: 0,
+  maxConnections: 0,
   recentRequests: [],
 };
 
@@ -150,6 +152,21 @@ const normalizeProviderRecentKey = (value: unknown): string =>
   String(value ?? '')
     .trim()
     .toLowerCase();
+
+export function findProviderRecentUsageEntry(
+  usageByProvider: ProviderRecentUsageMap,
+  provider: string,
+  apiKey?: string,
+  baseUrl?: string,
+  channelName?: string
+): RecentRequestUsageEntry | null {
+  if (!String(apiKey ?? '').trim()) {
+    return null;
+  }
+  const providerKey = normalizeProviderRecentKey(provider);
+  const compositeKey = buildRecentRequestCompositeKey(baseUrl, apiKey, channelName);
+  return usageByProvider.get(providerKey)?.get(compositeKey) ?? null;
+}
 
 const getProviderRecentUsageEntry = (
   usageByProvider: ProviderRecentUsageMap,

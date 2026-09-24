@@ -44,6 +44,10 @@ import {
   providerRetryStatusCodesInputIsValid,
 } from '@/utils/providerRetry';
 import { sanitizeStreamFakeFirstTokens } from '@/utils/streamFakeFirstTokens';
+import {
+  MAX_CONCURRENT_CONNECTIONS,
+  maxConcurrentConnectionsForForm,
+} from '@/utils/maxConcurrentConnections';
 import { MAX_STREAM_FIRST_TOKEN_TIMEOUT_SECONDS } from '@/utils/streamFirstTokenTimeout';
 import { ProviderRetryFields } from './ProviderRetryFields';
 import { StreamFakeFirstTokensFields } from './StreamFakeFirstTokensFields';
@@ -122,6 +126,7 @@ function buildInitialForm(
       providerRetryCount: undefined,
       providerRetryStatusCodesText: '',
       streamFirstTokenTimeoutSeconds: undefined,
+      maxConcurrentConnections: undefined,
       projectId: '',
       serviceAccountText: brand === 'vertex' ? '' : undefined,
       location: brand === 'vertex' ? '' : undefined,
@@ -162,6 +167,7 @@ function buildInitialForm(
       providerRetryCount: cfg.providerRetryCount ?? undefined,
       providerRetryStatusCodesText: formatProviderRetryStatusCodes(cfg.providerRetryStatusCodes),
       streamFirstTokenTimeoutSeconds: cfg.streamFirstTokenTimeoutSeconds ?? undefined,
+      maxConcurrentConnections: maxConcurrentConnectionsForForm(cfg.maxConcurrentConnections),
       apiKeyEntries: cfg.apiKeyEntries?.length
         ? cfg.apiKeyEntries.map((entry) => ({
             apiKey: '',
@@ -194,6 +200,7 @@ function buildInitialForm(
     providerRetryCount: cfg.providerRetryCount ?? undefined,
     providerRetryStatusCodesText: formatProviderRetryStatusCodes(cfg.providerRetryStatusCodes),
     streamFirstTokenTimeoutSeconds: cfg.streamFirstTokenTimeoutSeconds ?? undefined,
+    maxConcurrentConnections: maxConcurrentConnectionsForForm(cfg.maxConcurrentConnections),
     priority: cfg.priority,
     weight: cfg.weight,
     models: cfg.models?.length
@@ -508,6 +515,16 @@ export function BaseProviderForm({
     ) {
       return t('providersPage.form.validation.streamFirstTokenTimeout', {
         max: MAX_STREAM_FIRST_TOKEN_TIMEOUT_SECONDS,
+      });
+    }
+    if (
+      form.maxConcurrentConnections !== undefined &&
+      (!Number.isSafeInteger(form.maxConcurrentConnections) ||
+        form.maxConcurrentConnections < 0 ||
+        form.maxConcurrentConnections > MAX_CONCURRENT_CONNECTIONS)
+    ) {
+      return t('providersPage.form.validation.maxConcurrentConnections', {
+        max: MAX_CONCURRENT_CONNECTIONS,
       });
     }
     return null;
@@ -1044,6 +1061,34 @@ export function BaseProviderForm({
           <span className={styles.labelHint}>
             {t('providersPage.form.streamFirstTokenTimeoutHint', {
               max: MAX_STREAM_FIRST_TOKEN_TIMEOUT_SECONDS,
+            })}
+          </span>
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.label} htmlFor={`${fid}-max-connections`}>
+            {t('providersPage.form.maxConcurrentConnections')}
+          </label>
+          <input
+            id={`${fid}-max-connections`}
+            type="number"
+            min={0}
+            max={MAX_CONCURRENT_CONNECTIONS}
+            step="1"
+            className={styles.input}
+            value={form.maxConcurrentConnections ?? ''}
+            placeholder={t('providersPage.form.maxConcurrentConnectionsPlaceholder')}
+            disabled={mutating}
+            onChange={(event) =>
+              updateField(
+                'maxConcurrentConnections',
+                event.target.value === '' ? undefined : Number(event.target.value)
+              )
+            }
+          />
+          <span className={styles.labelHint}>
+            {t('providersPage.form.maxConcurrentConnectionsHint', {
+              max: MAX_CONCURRENT_CONNECTIONS,
             })}
           </span>
         </div>

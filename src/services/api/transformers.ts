@@ -14,6 +14,7 @@ import {
   normalizeProviderRetryCount,
   normalizeProviderRetryStatusCodes,
 } from '@/utils/providerRetry';
+import { normalizeMaxConcurrentConnections } from '@/utils/maxConcurrentConnections';
 import { normalizeStreamFirstTokenTimeout } from '@/utils/streamFirstTokenTimeout';
 import { sanitizeStreamFakeFirstTokens } from '@/utils/streamFakeFirstTokens';
 import { parseChannelGroups } from '@/features/providers/channelGroups';
@@ -23,6 +24,7 @@ const applyProviderRetryFields = <
     providerRetryCount?: number | null;
     providerRetryStatusCodes?: number[] | null;
     streamFirstTokenTimeoutSeconds?: number | null;
+    maxConcurrentConnections?: number | null;
   },
 >(
   record: Record<string, unknown> | null,
@@ -32,6 +34,10 @@ const applyProviderRetryFields = <
   const timeout = normalizeStreamFirstTokenTimeout(record['stream-first-token-timeout-seconds']);
   if (timeout !== undefined) {
     config.streamFirstTokenTimeoutSeconds = timeout;
+  }
+  const connectionLimit = normalizeMaxConcurrentConnections(record['max-concurrent-connections']);
+  if (connectionLimit !== undefined) {
+    config.maxConcurrentConnections = connectionLimit;
   }
   const count = normalizeProviderRetryCount(record['provider-retry-count']);
   if (count !== undefined) {

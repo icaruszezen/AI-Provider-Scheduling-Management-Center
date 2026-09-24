@@ -989,6 +989,8 @@
       "models": "Models/Headers",
       "status": "Status",
       "actions": "Actions",
+      "connectionsAvailable": "Available {{available}} / {{max}}",
+      "connectionsUnlimited": "Unlimited",
       "metrics": {
         "models": "Models",
         "keys": "Keys",
@@ -1149,7 +1151,8 @@
         "headers": "Headers",
         "authIndex": "Auth Index",
         "excludedModels": "Excluded models",
-        "apiKeyEntries": "API key entries"
+        "apiKeyEntries": "API key entries",
+        "connectionCapacity": "Available connections"
       }
     },
     "form": {
@@ -1215,6 +1218,9 @@
       "streamFirstTokenTimeout": "Stream first-token timeout (seconds)",
       "streamFirstTokenTimeoutPlaceholder": "Off",
       "streamFirstTokenTimeoutHint": "If a stream produces no first token within this many seconds, cancel that upstream attempt and try the next channel. Empty or 0 leaves it off. Maximum {{max}} seconds.",
+      "maxConcurrentConnections": "Concurrent connection limit",
+      "maxConcurrentConnectionsPlaceholder": "Unlimited",
+      "maxConcurrentConnectionsHint": "When this channel is already handling this many requests, new requests move to the next available channel. Empty or 0 means unlimited. Maximum {{max}}.",
       "providerRetryStatusCodes": "Retry status codes",
       "providerRetryStatusCodesHint": "Comma- or space-separated HTTP status codes. Clearing this field removes the override and falls back to the default ({{default}}).",
       "streamFakeFirstTokens": "Fake first-token intercept",
@@ -1258,6 +1264,7 @@
         "weightMax": "Scheduling weight cannot exceed {{max}}",
         "providerRetryCount": "Same-provider retries must be an integer from 0 to {{max}}",
         "streamFirstTokenTimeout": "Stream first-token timeout must be an integer number of seconds from 0 to {{max}}",
+        "maxConcurrentConnections": "Concurrent connection limit must be an integer from 0 to {{max}}",
         "providerRetryStatusCodes": "Retry status codes must be HTTP status codes from 100 to 599, separated by commas or spaces"
       }
     },

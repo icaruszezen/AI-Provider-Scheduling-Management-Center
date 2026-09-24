@@ -18,6 +18,10 @@ import {
   MAX_PROVIDER_RETRY_COUNT,
   providerRetryStatusCodesInputIsValid,
 } from '@/utils/providerRetry';
+import {
+  MAX_CONCURRENT_CONNECTIONS,
+  maxConcurrentConnectionsForForm,
+} from '@/utils/maxConcurrentConnections';
 import { MAX_STREAM_FIRST_TOKEN_TIMEOUT_SECONDS } from '@/utils/streamFirstTokenTimeout';
 import { ProviderRetryFields } from './ProviderRetryFields';
 import type { ModelInfo } from '@/utils/models';
@@ -98,6 +102,7 @@ const emptySponsorKeyEntry = (
   providerRetryCount: undefined,
   providerRetryStatusCodesText: '',
   streamFirstTokenTimeoutSeconds: undefined,
+  maxConcurrentConnections: undefined,
   priority: undefined,
   weight: undefined,
   models: [emptyModel()],
@@ -177,6 +182,7 @@ const sponsorEntryFromProviderKey = (
   providerRetryCount: config.providerRetryCount ?? undefined,
   providerRetryStatusCodesText: formatProviderRetryStatusCodes(config.providerRetryStatusCodes),
   streamFirstTokenTimeoutSeconds: config.streamFirstTokenTimeoutSeconds ?? undefined,
+  maxConcurrentConnections: maxConcurrentConnectionsForForm(config.maxConcurrentConnections),
   priority: config.priority,
   weight: config.weight,
   models: modelsFromConfig(config.models),
@@ -199,6 +205,7 @@ const sponsorEntryFromOpenAI = (
     providerRetryCount: config.providerRetryCount ?? undefined,
     providerRetryStatusCodesText: formatProviderRetryStatusCodes(config.providerRetryStatusCodes),
     streamFirstTokenTimeoutSeconds: config.streamFirstTokenTimeoutSeconds ?? undefined,
+    maxConcurrentConnections: maxConcurrentConnectionsForForm(config.maxConcurrentConnections),
     priority: config.priority,
     weight: firstEntry?.weight,
     models: modelsFromConfig(config.models),
@@ -688,6 +695,34 @@ function SponsorKeyEntryCard({
             </span>
           </div>
 
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor={`${formId}-group-${index}-max-connections`}>
+              {t('providersPage.form.maxConcurrentConnections')}
+            </label>
+            <input
+              id={`${formId}-group-${index}-max-connections`}
+              type="number"
+              min={0}
+              max={MAX_CONCURRENT_CONNECTIONS}
+              step="1"
+              className={styles.input}
+              value={entry.maxConcurrentConnections ?? ''}
+              placeholder={t('providersPage.form.maxConcurrentConnectionsPlaceholder')}
+              disabled={mutating}
+              onChange={(event) =>
+                updateEntry({
+                  maxConcurrentConnections:
+                    event.target.value === '' ? undefined : Number(event.target.value),
+                })
+              }
+            />
+            <span className={styles.labelHint}>
+              {t('providersPage.form.maxConcurrentConnectionsHint', {
+                max: MAX_CONCURRENT_CONNECTIONS,
+              })}
+            </span>
+          </div>
+
           <ProviderRetryFields
             count={entry.providerRetryCount}
             statusCodesText={entry.providerRetryStatusCodesText}
@@ -835,6 +870,19 @@ export function SponsorProviderForm({
     ) {
       return t('providersPage.form.validation.streamFirstTokenTimeout', {
         max: MAX_STREAM_FIRST_TOKEN_TIMEOUT_SECONDS,
+      });
+    }
+    if (
+      entries.some(
+        (entry) =>
+          entry.maxConcurrentConnections !== undefined &&
+          (!Number.isSafeInteger(entry.maxConcurrentConnections) ||
+            entry.maxConcurrentConnections < 0 ||
+            entry.maxConcurrentConnections > MAX_CONCURRENT_CONNECTIONS)
+      )
+    ) {
+      return t('providersPage.form.validation.maxConcurrentConnections', {
+        max: MAX_CONCURRENT_CONNECTIONS,
       });
     }
     if (
