@@ -5,15 +5,15 @@ describe('Management API error parsing', () => {
   test('prefers the human-readable message and preserves the API error code', () => {
     const result = parseApiErrorResponse(
       {
-        error: 'plugin_install_failed',
-        message: 'download plugin archive: 404 Not Found',
+        error: 'some_unknown_code',
+        message: 'upstream returned 404 Not Found',
       },
       'Request failed with status code 502'
     );
 
     expect(result).toEqual({
-      message: 'download plugin archive: 404 Not Found',
-      apiCode: 'plugin_install_failed',
+      message: 'upstream returned 404 Not Found',
+      apiCode: 'some_unknown_code',
     });
   });
 
@@ -27,11 +27,11 @@ describe('Management API error parsing', () => {
   test('supports nested error messages and codes', () => {
     expect(
       parseApiErrorResponse(
-        { error: { code: 'invalid_config', message: 'plugins-dir is invalid' } },
+        { error: { code: 'invalid_config', message: 'config value is invalid' } },
         'Bad Request'
       )
     ).toEqual({
-      message: 'plugins-dir is invalid',
+      message: 'config value is invalid',
       apiCode: 'invalid_config',
     });
   });

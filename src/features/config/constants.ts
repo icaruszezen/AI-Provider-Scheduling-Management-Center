@@ -168,9 +168,6 @@ export const FIELD_VALUE_KEYS: Record<string, readonly string[]> = {
   streamingBootstrapRetries: ['streaming.bootstrapRetries'],
   streamingNonstreamKeepalive: ['streaming.nonstreamKeepaliveInterval'],
   // ── advanced ──────────────────────────────────────────────────────────────
-  pluginsEnabled: ['pluginsEnabled'],
-  pluginStoreSources: ['pluginStoreSources'],
-  pluginStoreAuth: ['pluginStoreAuth'],
   antigravitySensitiveWords: ['antigravitySensitiveWords'],
   antigravitySignatureCacheEnabled: ['antigravitySignatureCacheEnabled'],
   antigravitySignatureBypassStrict: ['antigravitySignatureBypassStrict'],

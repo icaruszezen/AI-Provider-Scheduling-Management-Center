@@ -1,6 +1,6 @@
 @use '../../../../styles/mixins' as *;
 
-/* 区块编辑器（API 密钥 / 字符串列表 / 插件源认证 / 载荷规则）的共享样式。
+/* 区块编辑器（API 密钥 / 字符串列表 / 载荷规则）的共享样式。
    规则从旧 VisualConfigEditor.module.scss 收编，几何统一到 10px 圆角并引用动效 tokens。 */
 
 /* ---------- 可展开输入 ---------- */
@@ -212,113 +212,6 @@
   transition: color var(--dur-hover, 200ms) var(--ease-out-strong, ease-out);
 }
 
-/* ---------- 插件源认证 ---------- */
-
-.storeAuthEditor {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.storeAuthEmpty {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.storeAuthRule {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 14px;
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--bg-secondary) 42%, transparent);
-}
-
-.storeAuthRuleHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-width: 0;
-
-  strong {
-    min-width: 0;
-    overflow: hidden;
-    color: var(--text-primary);
-    font-size: 13px;
-    font-weight: 700;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-}
-
-.storeAuthGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-
-  @include mobile {
-    grid-template-columns: 1fr;
-  }
-}
-
-.storeAuthField {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: 6px;
-
-  > span {
-    color: var(--text-secondary);
-    font-size: 12px;
-    font-weight: 700;
-  }
-}
-
-.storeAuthApplyTo {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-
-  > span {
-    color: var(--text-secondary);
-    font-size: 12px;
-    font-weight: 700;
-  }
-
-  small {
-    color: var(--text-tertiary);
-    font-size: 12px;
-    line-height: 1.45;
-  }
-}
-
-.storeAuthCheckboxes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.storeAuthCheckbox {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 28px;
-  color: var(--text-secondary);
-  font-size: 12px;
-  font-weight: 650;
-  line-height: 1.4;
-
-  input {
-    width: 14px;
-    height: 14px;
-    accent-color: var(--primary-color);
-  }
-}
-
 /* ---------- 载荷规则 ---------- */
 
 .payloadRuleModelRow {
@@ -421,7 +314,6 @@
 }
 
 @include mobile {
-  .storeAuthRule,
   .ruleCard {
     padding: 14px;
   }
@@ -449,7 +341,6 @@
 }
 
 @media (max-width: 380px) {
-  .storeAuthRule,
   .ruleCard {
     padding: 12px;
   }

@@ -87,7 +87,6 @@ Check the AI Provider Scheduling server documentation/config comments for the fu
   - Gemini, Interactions, Codex, Claude, xAI, Vertex, and Antigravity key entries (base URL, headers, proxy, model aliases, excluded models, prefix).
   - Antigravity requires `project-id`. Official Vertex can use an API key or paste a Google Cloud service-account JSON (`service-account`, optional `project-id` / `location` / `email`).
   - OpenAI-compatible providers (multiple API keys, custom headers, model alias import via `/v1/models`, optional browser-side "chat/completions" test).
-- **Plugins**: inspect loaded plugins and host ABI status.
 - **Cluster**: master/slave config sync for provider keys and runtime settings.
 - **Logs**: tail logs with incremental polling, auto-refresh, search, hide management traffic, clear logs; download request error log files.
 - **System**: quick links, update check, request logging toggle, local login data cleanup, and fetch `/v1/models` (grouped view). Requires at least one proxy API key to query models.

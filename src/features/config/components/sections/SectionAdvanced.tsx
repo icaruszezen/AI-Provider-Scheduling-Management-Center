@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Collapsible } from '@/components/ui/Collapsible';
 import { Input } from '@/components/ui/Input';
-import type { PluginStoreAuthRule } from '@/types/visualConfig';
 import { CONFIG_TAB_ICONS, SECTION_INDEX_LABELS } from '../../constants';
 import type { ConfigSectionProps } from '../../types';
 import { SectionCard } from '../SectionCard';
@@ -12,28 +11,18 @@ import {
   FieldGrid,
   FieldGroup,
   FieldGroupHeading,
-  FieldHint,
   FieldShell,
   FieldStack,
   ToggleRow,
 } from '../fields/FieldPrimitives';
-import { PluginStoreAuthEditor } from '../blocks/PluginStoreAuthEditor';
 import { StringListEditor } from '../blocks/StringListEditor';
 
 const Icon = CONFIG_TAB_ICONS.advanced;
 
-/** 06 高级与实验：插件源（只存 env 变量名）、签名缓存、Claude/Codex 请求头默认值。 */
+/** 06 高级与实验：签名缓存、Claude/Codex 请求头默认值。 */
 export function SectionAdvanced({ values, disabled, animateIn, onChange }: ConfigSectionProps) {
   const { t } = useTranslation();
 
-  const handlePluginStoreSourcesChange = useCallback(
-    (pluginStoreSources: string[]) => onChange({ pluginStoreSources }),
-    [onChange]
-  );
-  const handlePluginStoreAuthChange = useCallback(
-    (pluginStoreAuth: PluginStoreAuthRule[]) => onChange({ pluginStoreAuth }),
-    [onChange]
-  );
   const handleAntigravitySensitiveWordsChange = useCallback(
     (antigravitySensitiveWords: string[]) => onChange({ antigravitySensitiveWords }),
     [onChange]
@@ -48,67 +37,6 @@ export function SectionAdvanced({ values, disabled, animateIn, onChange }: Confi
       animateIn={animateIn}
     >
       <FieldStack>
-        <Collapsible
-          label={t('config_management.visual.sections.advanced.plugins_title')}
-          defaultOpen={false}
-        >
-          <FieldStack>
-            <FieldGrid>
-              <FieldAnchor fieldId="pluginsEnabled">
-                <ToggleRow
-                  title={t('config_management.visual.sections.system.plugins_enabled')}
-                  description={t('config_management.visual.sections.system.plugins_enabled_desc')}
-                  checked={values.pluginsEnabled}
-                  disabled={disabled}
-                  onChange={(pluginsEnabled) => onChange({ pluginsEnabled })}
-                />
-              </FieldAnchor>
-            </FieldGrid>
-
-            <FieldAnchor fieldId="pluginStoreSources">
-              <FieldGroup
-                title={t('config_management.visual.sections.system.plugin_store_sources')}
-                description={t(
-                  'config_management.visual.sections.system.plugin_store_sources_desc'
-                )}
-              >
-                <FieldShell
-                  label={t('config_management.visual.sections.system.plugin_store_sources_label')}
-                  hint={t('config_management.visual.sections.system.plugin_store_sources_hint')}
-                >
-                  <StringListEditor
-                    value={values.pluginStoreSources}
-                    disabled={disabled}
-                    placeholder={t(
-                      'config_management.visual.sections.system.plugin_store_sources_placeholder'
-                    )}
-                    inputAriaLabel={t(
-                      'config_management.visual.sections.system.plugin_store_sources_label'
-                    )}
-                    onChange={handlePluginStoreSourcesChange}
-                  />
-                </FieldShell>
-              </FieldGroup>
-            </FieldAnchor>
-
-            <FieldAnchor fieldId="pluginStoreAuth">
-              <FieldGroup
-                title={t('config_management.visual.sections.system.plugin_store_auth')}
-                description={t('config_management.visual.sections.system.plugin_store_auth_desc')}
-              >
-                <FieldHint>
-                  {t('config_management.visual.sections.system.plugin_store_auth_hint')}
-                </FieldHint>
-                <PluginStoreAuthEditor
-                  value={values.pluginStoreAuth}
-                  disabled={disabled}
-                  onChange={handlePluginStoreAuthChange}
-                />
-              </FieldGroup>
-            </FieldAnchor>
-          </FieldStack>
-        </Collapsible>
-
         <Collapsible
           label={t('config_management.visual.sections.advanced.antigravity_title')}
           defaultOpen={false}

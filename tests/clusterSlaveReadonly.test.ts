@@ -22,9 +22,7 @@ describe('slave_node_readonly 403 handling', () => {
   });
 
   test('leaves unmapped and missing codes on their original message', () => {
-    expect(localizeApiErrorMessage('plugin_install_failed', 'download failed')).toBe(
-      'download failed'
-    );
+    expect(localizeApiErrorMessage('some_unknown_code', 'download failed')).toBe('download failed');
     expect(localizeApiErrorMessage(undefined, 'Network Error')).toBe('Network Error');
   });
 });

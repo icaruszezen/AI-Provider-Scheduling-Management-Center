@@ -8,7 +8,6 @@ import type { ApiClientConfig, ApiError } from '@/types';
 import {
   BUILD_DATE_HEADER_KEYS,
   APS_BUILD_DATE_HEADER_KEYS,
-  APS_SUPPORT_PLUGIN_HEADER_KEYS,
   APS_VERSION_HEADER_KEYS,
   REQUEST_TIMEOUT_MS,
   VERSION_HEADER_KEYS,
@@ -85,19 +84,6 @@ class ApiClient {
     return null;
   }
 
-  private readBooleanHeader(
-    headers: Record<string, unknown> | undefined,
-    keys: string[]
-  ): boolean | null {
-    const value = this.readHeader(headers, keys);
-    if (value === null) return null;
-
-    const normalized = value.trim().toLowerCase();
-    if (['1', 'true', 'yes', 'on'].includes(normalized)) return true;
-    if (['0', 'false', 'no', 'off'].includes(normalized)) return false;
-    return null;
-  }
-
   /**
    * 设置请求/响应拦截器
    */
@@ -126,20 +112,12 @@ class ApiClient {
         const apsBuildDate = this.readHeader(headers, APS_BUILD_DATE_HEADER_KEYS);
         const version = apsVersion || this.readHeader(headers, VERSION_HEADER_KEYS);
         const buildDate = apsBuildDate || this.readHeader(headers, BUILD_DATE_HEADER_KEYS);
-        const supportsPlugin = this.readBooleanHeader(headers, APS_SUPPORT_PLUGIN_HEADER_KEYS);
 
         // 触发版本更新事件（后续通过 store 处理）
         if (version || buildDate) {
           window.dispatchEvent(
             new CustomEvent('server-version-update', {
               detail: { version: version || null, buildDate: buildDate || null },
-            })
-          );
-        }
-        if (supportsPlugin !== null) {
-          window.dispatchEvent(
-            new CustomEvent('server-plugin-support-update', {
-              detail: { supportsPlugin },
             })
           );
         }

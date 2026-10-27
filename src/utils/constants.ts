@@ -18,7 +18,6 @@ export const MANAGEMENT_API_PREFIX = '/v0/management';
 export const REQUEST_TIMEOUT_MS = 30 * 1000;
 export const APS_VERSION_HEADER_KEYS = ['x-aps-version'];
 export const APS_BUILD_DATE_HEADER_KEYS = ['x-aps-build-date'];
-export const APS_SUPPORT_PLUGIN_HEADER_KEYS = ['x-aps-support-plugin'];
 export const VERSION_HEADER_KEYS = [...APS_VERSION_HEADER_KEYS, 'x-server-version'];
 export const BUILD_DATE_HEADER_KEYS = [...APS_BUILD_DATE_HEADER_KEYS, 'x-server-build-date'];
 

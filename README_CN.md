@@ -87,7 +87,6 @@ bun run build
   - Gemini、Interactions、Codex、Claude、xAI、Vertex、Antigravity 配置（Base URL、Headers、代理、模型别名、排除模型、Prefix）。
   - Antigravity 必须填写 `project-id`。官方 Vertex 可用 API Key，或粘贴 Google Cloud 服务账号 JSON（`service-account`，可选 `project-id` / `location` / `email`）。
   - OpenAI 兼容提供商（多 Key、Header、自助从 `/v1/models` 拉取并导入模型别名、可选浏览器侧 `chat/completions` 测试）。
-- **插件**：查看已加载插件与宿主 ABI 状态。
 - **集群**：主从同步提供商 Key 与运行参数。
 - **日志**：增量拉取日志、自动刷新、搜索、隐藏管理端流量、清空日志；下载请求错误日志文件。
 - **系统信息**：快捷链接、版本检查、请求日志开关、本地登录信息清理，以及拉取 `/v1/models` 并分组展示（需要至少一个代理 API Key 才能查询模型）。
