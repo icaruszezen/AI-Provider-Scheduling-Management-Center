@@ -77,11 +77,14 @@ describe('provider model thinking config', () => {
       return undefined;
     }) as typeof apiClient.put;
 
-    await providersApi.updateCodexConfig('codex-key', 'https://example.com', {
-      apiKey: 'codex-key',
-      baseUrl: 'https://example.com',
-      models: [{ name: 'gpt-5-codex', alias: 'codex-latest' }],
-    });
+    await providersApi.updateCodexConfig(
+      { index: 0 },
+      {
+        apiKey: 'codex-key',
+        baseUrl: 'https://example.com',
+        models: [{ name: 'gpt-5-codex', alias: 'codex-latest' }],
+      }
+    );
 
     expect(putData).toEqual([
       {

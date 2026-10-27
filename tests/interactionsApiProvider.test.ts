@@ -142,11 +142,14 @@ describe('Interactions API key provider', () => {
       return undefined;
     }) as typeof apiClient.put;
 
-    await providersApi.updateInteractionsKey('shared-key', 'https://second.example.com', {
-      apiKey: 'shared-key',
-      baseUrl: 'https://updated.example.com',
-      models: [{ name: 'gemini-3.1-flash-lite', alias: 'native-flash' }],
-    });
+    await providersApi.updateInteractionsKey(
+      { index: 1 },
+      {
+        apiKey: 'shared-key',
+        baseUrl: 'https://updated.example.com',
+        models: [{ name: 'gemini-3.1-flash-lite', alias: 'native-flash' }],
+      }
+    );
 
     expect(putData).toEqual([
       {
@@ -204,10 +207,7 @@ describe('Interactions API key provider', () => {
       excludedModels: ['gemini-2.5-*'],
       disableCooling: true,
     });
-    await providersApi.deleteInteractionsKey(
-      'interactions-new',
-      'https://generativelanguage.googleapis.com'
-    );
+    await providersApi.deleteInteractionsKey({ index: 1 });
 
     expect(calls).toEqual([
       { method: 'GET', url: '/config' },
@@ -242,7 +242,7 @@ describe('Interactions API key provider', () => {
       },
       {
         method: 'DELETE',
-        url: '/interactions-api-key?api-key=interactions-new&base-url=https%3A%2F%2Fgenerativelanguage.googleapis.com',
+        url: '/interactions-api-key?index=1',
       },
     ]);
   });

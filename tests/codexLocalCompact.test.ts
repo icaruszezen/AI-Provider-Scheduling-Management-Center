@@ -152,11 +152,14 @@ describe('codex credential local-compact override', () => {
       },
     ]);
 
-    await providersApi.updateCodexConfig('codex-stored', 'https://codex.example', {
-      apiKey: 'codex-stored',
-      baseUrl: 'https://codex.example',
-      localCompact: undefined,
-    });
+    await providersApi.updateCodexConfig(
+      { index: 0 },
+      {
+        apiKey: 'codex-stored',
+        baseUrl: 'https://codex.example',
+        localCompact: undefined,
+      }
+    );
 
     const entry = putPayloads(calls)[0][0];
     expect(entry).not.toHaveProperty('local-compact');
@@ -172,10 +175,13 @@ describe('codex credential local-compact override', () => {
       },
     ]);
 
-    await providersApi.updateXAIConfig('xai-stored', 'https://api.x.ai/v1', {
-      apiKey: 'xai-stored',
-      baseUrl: 'https://api.x.ai/v1',
-    });
+    await providersApi.updateXAIConfig(
+      { index: 0 },
+      {
+        apiKey: 'xai-stored',
+        baseUrl: 'https://api.x.ai/v1',
+      }
+    );
 
     expect(putPayloads(calls)[0][0]['local-compact']).toBe(true);
   });

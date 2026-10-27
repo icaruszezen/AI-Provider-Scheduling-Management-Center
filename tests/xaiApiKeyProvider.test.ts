@@ -107,7 +107,7 @@ describe('xAI API key provider', () => {
       excludedModels: ['grok-3-*'],
       disableCooling: true,
     });
-    await providersApi.deleteXAIConfig('xai-new', 'https://api.x.ai/v1');
+    await providersApi.deleteXAIConfig({ index: 1 });
 
     expect(calls).toEqual([
       { method: 'GET', url: '/config' },
@@ -142,7 +142,7 @@ describe('xAI API key provider', () => {
       },
       {
         method: 'DELETE',
-        url: '/xai-api-key?api-key=xai-new&base-url=https%3A%2F%2Fapi.x.ai%2Fv1',
+        url: '/xai-api-key?index=1',
       },
     ]);
   });

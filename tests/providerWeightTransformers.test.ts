@@ -49,11 +49,14 @@ describe('provider credential weight normalization', () => {
       return undefined;
     }) as typeof apiClient.put;
 
-    await providersApi.updateVertexConfig('vertex-key', 'https://vertex.example', {
-      apiKey: 'vertex-key',
-      baseUrl: 'https://vertex.example',
-      weight: undefined,
-    });
+    await providersApi.updateVertexConfig(
+      { index: 0 },
+      {
+        apiKey: 'vertex-key',
+        baseUrl: 'https://vertex.example',
+        weight: undefined,
+      }
+    );
 
     expect(written).toEqual([
       {

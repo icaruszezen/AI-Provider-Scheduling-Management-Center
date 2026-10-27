@@ -125,11 +125,14 @@ describe('codex stream-fake-first-tokens serialize/normalize', () => {
       },
     ]);
 
-    await providersApi.updateCodexConfig('codex-stored', 'https://codex.example', {
-      apiKey: 'codex-stored',
-      baseUrl: 'https://codex.example',
-      streamFakeFirstTokens: [],
-    });
+    await providersApi.updateCodexConfig(
+      { index: 0 },
+      {
+        apiKey: 'codex-stored',
+        baseUrl: 'https://codex.example',
+        streamFakeFirstTokens: [],
+      }
+    );
 
     const entry = putPayloads(calls)[0][0];
     expect(entry).not.toHaveProperty('stream-fake-first-tokens');
@@ -158,10 +161,13 @@ describe('codex stream-fake-first-tokens serialize/normalize', () => {
       },
     ]);
 
-    await providersApi.updateXAIConfig('xai-stored', 'https://api.x.ai/v1', {
-      apiKey: 'xai-stored',
-      baseUrl: 'https://api.x.ai/v1',
-    });
+    await providersApi.updateXAIConfig(
+      { index: 0 },
+      {
+        apiKey: 'xai-stored',
+        baseUrl: 'https://api.x.ai/v1',
+      }
+    );
 
     expect(putPayloads(calls)[0][0]['stream-fake-first-tokens']).toEqual([' ']);
   });

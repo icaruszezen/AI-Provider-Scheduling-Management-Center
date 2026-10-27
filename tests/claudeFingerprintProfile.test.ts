@@ -84,11 +84,7 @@ describe('Claude fingerprint profile', () => {
       return undefined;
     }) as typeof apiClient.put;
 
-    await providersApi.updateClaudeConfig(
-      'claude-secret',
-      'https://api.anthropic.com',
-      callerOwnedConfig
-    );
+    await providersApi.updateClaudeConfig({ index: 0 }, callerOwnedConfig);
 
     expect(calls).toEqual([
       {
