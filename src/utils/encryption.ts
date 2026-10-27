@@ -6,7 +6,7 @@
  */
 
 const ENC_PREFIX = 'enc::v1::';
-const SECRET_SALT = 'cli-proxy-api-webui::secure-storage';
+const SECRET_SALT = 'ai-provider-scheduling-webui::secure-storage';
 
 let cachedKeyBytes: Uint8Array | null = null;
 

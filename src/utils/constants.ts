@@ -16,19 +16,19 @@ export const CACHE_EXPIRY_MS = 30 * 1000; // 与基线保持一致，减少管�
 export const DEFAULT_API_PORT = 8317;
 export const MANAGEMENT_API_PREFIX = '/v0/management';
 export const REQUEST_TIMEOUT_MS = 30 * 1000;
-export const CPA_VERSION_HEADER_KEYS = ['x-cpa-version'];
-export const CPA_BUILD_DATE_HEADER_KEYS = ['x-cpa-build-date'];
-export const CPA_SUPPORT_PLUGIN_HEADER_KEYS = ['x-cpa-support-plugin'];
-export const VERSION_HEADER_KEYS = [...CPA_VERSION_HEADER_KEYS, 'x-server-version'];
-export const BUILD_DATE_HEADER_KEYS = [...CPA_BUILD_DATE_HEADER_KEYS, 'x-server-build-date'];
+export const APS_VERSION_HEADER_KEYS = ['x-aps-version'];
+export const APS_BUILD_DATE_HEADER_KEYS = ['x-aps-build-date'];
+export const APS_SUPPORT_PLUGIN_HEADER_KEYS = ['x-aps-support-plugin'];
+export const VERSION_HEADER_KEYS = [...APS_VERSION_HEADER_KEYS, 'x-server-version'];
+export const BUILD_DATE_HEADER_KEYS = [...APS_BUILD_DATE_HEADER_KEYS, 'x-server-build-date'];
 
 // 日志相关
 export const LOGS_TIMEOUT_MS = 60 * 1000;
 
 // 本地存储键名
-export const STORAGE_KEY_AUTH = 'cli-proxy-auth';
-export const STORAGE_KEY_THEME = 'cli-proxy-theme';
-export const STORAGE_KEY_LANGUAGE = 'cli-proxy-language';
+export const STORAGE_KEY_AUTH = 'aps-auth';
+export const STORAGE_KEY_THEME = 'aps-theme';
+export const STORAGE_KEY_LANGUAGE = 'aps-language';
 
 // 语言配置
 export const LANGUAGE_ORDER = defineLanguageOrder(['zh-CN', 'zh-TW', 'en', 'ru'] as const);

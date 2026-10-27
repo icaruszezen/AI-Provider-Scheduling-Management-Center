@@ -148,7 +148,7 @@ export const modelsApi = {
 
   /**
    * Fetch models from /models via api-call (for OpenAI provider discovery).
-   * Host-root OpenAI-compatible servers (including another CPA) often expose
+   * Host-root OpenAI-compatible servers (including another AI Provider Scheduling instance) often expose
    * only /v1/models, so a 404 on /models retries that versioned path.
    */
   async fetchModelsViaApiCall(

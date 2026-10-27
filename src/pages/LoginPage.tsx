@@ -208,9 +208,9 @@ export function LoginPage() {
       {/* 左侧品牌展示区 */}
       <div className={styles.brandPanel}>
         <div className={styles.brandContent}>
-          <span className={styles.brandWord}>CLI</span>
-          <span className={styles.brandWord}>PROXY</span>
-          <span className={styles.brandWord}>API</span>
+          <span className={styles.brandWord}>AI</span>
+          <span className={styles.brandWord}>PROVIDER</span>
+          <span className={styles.brandWord}>SCHEDULING</span>
         </div>
       </div>
 
@@ -280,7 +280,7 @@ export function LoginPage() {
                 label={t('login.management_key_label')}
                 placeholder={t('login.management_key_placeholder')}
                 type={showKey ? 'text' : 'password'}
-                name="cpa-management-key"
+                name="aps-management-key"
                 autoComplete="current-password"
                 value={managementKey}
                 onChange={(e) => setManagementKey(e.target.value)}

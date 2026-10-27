@@ -490,7 +490,7 @@
           "plugin_store_sources": "第三方插件源",
           "plugin_store_sources_desc": "追加插件商店 registry 源；内置官方源始终保留",
           "plugin_store_sources_label": "插件源 registry URL (plugins.store-sources)",
-          "plugin_store_sources_placeholder": "https://example.com/cliproxy-plugins/registry.json",
+          "plugin_store_sources_placeholder": "https://example.com/aps-plugins/registry.json",
           "plugin_store_sources_hint": "每行一个 registry.json URL，保存时会过滤空行",
           "plugin_store_auth": "插件商店认证规则",
           "plugin_store_auth_desc": "为私有 registry、GitHub Release 元数据或下载地址配置认证头",

@@ -303,7 +303,7 @@
   }
 }
 
-/* 遥测数字统一等宽：这是 CLI 代理，mono 是它的母语 */
+/* Telemetry figures stay monospace so the numbers line up. */
 .heroFigure {
   font-family: $font-mono;
   font-size: clamp(42px, 5.6vw, 62px);

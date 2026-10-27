@@ -489,7 +489,7 @@
           "plugin_store_sources": "Сторонние источники плагинов",
           "plugin_store_sources_desc": "Добавляет registry-источники магазина плагинов; встроенный официальный источник всегда сохраняется",
           "plugin_store_sources_label": "URL registry источника плагинов (plugins.store-sources)",
-          "plugin_store_sources_placeholder": "https://example.com/cliproxy-plugins/registry.json",
+          "plugin_store_sources_placeholder": "https://example.com/aps-plugins/registry.json",
           "plugin_store_sources_hint": "Один URL registry.json в строке. Пустые строки отфильтровываются при сохранении",
           "plugin_store_auth": "Правила авторизации магазина плагинов",
           "plugin_store_auth_desc": "Настраивает заголовки авторизации для приватных registry, метаданных GitHub Release или скачивания артефактов",
